@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ausave Energy — Pricing Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --dark-green: #1F4E2C;
+    --mid-green: #2E7D32;
+    --light-green: #E8F5E9;
+    --accent: #43A047;
+    --white: #ffffff;
+    --off-white: #fafbfc;
+    --border: #d4e8d6;
+    --border-light: #e8f0e9;
+    --text: #1a2e1f;
+    --text-secondary: #4a5e4f;
+    --muted: #6b7e6f;
+    --danger: #c62828;
+    --danger-bg: #fff0f0;
+    --success-bg: #f0faf1;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #f0f4f1 0%, #e8ece9 100%);
+    color: var(--text);
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  /* Header */
+  header {
+    background: linear-gradient(135deg, var(--dark-green) 0%, #245a33 50%, var(--mid-green) 100%);
+    color: var(--white);
+    padding: 0.65rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    box-shadow: 0 2px 12px rgba(31,78,44,0.3);
+    position: relative;
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), #66BB6A, var(--accent));
+  }
+  header h1 { font-size: 1.15rem; font-weight: 700; letter-spacing: -0.02em; }
+  header span {
+    font-size: 0.8rem;
+    opacity: 0.8;
+    font-weight: 400;
+    padding-left: 0.5rem;
+    border-left: 1px solid rgba(255,255,255,0.3);
+  }
+
+  /* Container */
+  .container {
+    max-width: 1400px;
+    margin: 0.75rem auto;
+    padding: 0 1rem 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  /* Cards */
+  .card {
+    background: var(--white);
+    border-radius: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(31,78,44,0.04);
+    overflow: hidden;
+    border: 1px solid var(--border-light);
+  }
+  .card-header {
+    background: linear-gradient(135deg, var(--mid-green), #3a8a3f);
+    color: var(--white);
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+    font-size: 0.82rem;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+  .card-body { padding: 0.75rem 1rem; }
+
+  /* Form */
+  .form-group { margin-bottom: 0.5rem; }
+  .form-group label {
+    display: block;
+    font-weight: 600;
+    font-size: 0.7rem;
+    margin-bottom: 0.15rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .form-group select,
+  .form-group input[type="number"],
+  .form-group input[type="text"] {
+    width: 100%;
+    padding: 0.35rem 0.5rem;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    font-size: 0.82rem;
+    font-family: inherit;
+    background: var(--off-white);
+    color: var(--text);
+    transition: all 0.2s;
+  }
+  .form-group select:hover,
+  .form-group input:hover {
+    border-color: var(--accent);
+  }
+  .form-group select:focus,
+  .form-group input:focus {
+    outline: none;
+    border-color: var(--mid-green);
+    box-shadow: 0 0 0 3px rgba(46,125,50,0.12);
+    background: var(--white);
+  }
+
+  /* Form Grid */
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem 0.75rem;
+  }
+  @media (max-width: 900px) {
+    .form-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 500px) {
+    .form-grid { grid-template-columns: 1fr; }
+  }
+  .form-grid .form-group { margin-bottom: 0; }
+
+  .form-footer {
+    display: flex;
+    gap: 0.75rem;
+    align-items: end;
+    flex-wrap: wrap;
+    margin-top: 0.6rem;
+    padding-top: 0.6rem;
+    border-top: 1px solid var(--border-light);
+  }
+  .form-footer .form-group { flex: 1; min-width: 200px; margin-bottom: 0; }
+
+  /* Toggle */
+  .toggle-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .toggle-group label {
+    font-weight: 600;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .switch {
+    position: relative;
+    width: 40px;
+    height: 22px;
+  }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider {
+    position: absolute;
+    inset: 0;
+    background: #ccc;
+    border-radius: 22px;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  .slider::before {
+    content: '';
+    position: absolute;
+    width: 16px; height: 16px;
+    left: 3px; bottom: 3px;
+    background: white;
+    border-radius: 50%;
+    transition: 0.3s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  }
+  .switch input:checked + .slider { background: var(--accent); }
+  .switch input:checked + .slider::before { transform: translateX(18px); }
+
+  /* Button */
+  #btn-calculate {
+    width: 100%;
+    padding: 0.45rem 1.5rem;
+    background: linear-gradient(135deg, var(--mid-green), var(--accent));
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    box-shadow: 0 2px 6px rgba(46,125,50,0.25);
+  }
+  #btn-calculate:hover {
+    background: linear-gradient(135deg, var(--dark-green), var(--mid-green));
+    box-shadow: 0 3px 10px rgba(31,78,44,0.35);
+    transform: translateY(-1px);
+  }
+  #btn-calculate:active { transform: translateY(0); }
+
+  /* Output Grid */
+  .output-grid {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 0.75rem;
+    align-items: start;
+  }
+  @media (max-width: 1200px) {
+    .output-grid { grid-template-columns: 1fr; }
+    .summary-card { margin-top: 0.5rem; }
+  }
+
+  /* Breakdown Table */
+  .breakdown-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.78rem;
+  }
+  .breakdown-table th {
+    text-align: left;
+    padding: 0.3rem 0.6rem;
+    background: var(--dark-green);
+    color: var(--white);
+    font-weight: 600;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .breakdown-table th:last-child { text-align: right; }
+  .breakdown-table td {
+    padding: 0.25rem 0.6rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .breakdown-table tbody tr:hover { background: rgba(232,245,233,0.3); }
+  .breakdown-table td:last-child {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    font-weight: 500;
+  }
+  .breakdown-table tr.section-header td {
+    background: var(--light-green);
+    font-weight: 700;
+    color: var(--dark-green);
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 0.3rem 0.6rem;
+    border-bottom: 2px solid var(--border);
+  }
+  .breakdown-table tr.total-row td {
+    font-weight: 700;
+    font-size: 0.88rem;
+    border-top: 2px solid var(--dark-green);
+    background: var(--light-green);
+    padding: 0.4rem 0.6rem;
+    color: var(--dark-green);
+  }
+  .breakdown-table tr.subtotal-row td {
+    font-weight: 600;
+    background: #fafafa;
+    border-top: 1px solid var(--border);
+  }
+
+  /* Summary */
+  .summary-card { margin-top: 0; }
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.4rem 0;
+    border-bottom: 1px solid var(--border-light);
+    font-size: 0.82rem;
+    gap: 0.5rem;
+  }
+  .summary-row:last-child { border-bottom: none; }
+  .summary-row .label { color: var(--muted); font-weight: 500; }
+  .summary-row .value {
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    color: var(--text);
+  }
+  .summary-row.big { padding: 0.5rem 0; }
+  .summary-row.big .label { color: var(--dark-green); font-weight: 600; }
+  .summary-row.big .value { font-size: 1.1rem; color: var(--dark-green); }
+  .summary-row.danger .value { color: var(--danger); }
+  .summary-row.danger .label { color: var(--danger); }
+
+  .summary-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 0.4rem 0;
+  }
+
+  .margin-alert {
+    margin-top: 0.5rem;
+    padding: 0.4rem 0.75rem;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.78rem;
+    display: none;
+  }
+  .margin-alert.low {
+    display: block;
+    background: var(--danger-bg);
+    color: var(--danger);
+    border: 1px solid #ffcdd2;
+  }
+  .margin-alert.ok {
+    display: block;
+    background: var(--success-bg);
+    color: var(--mid-green);
+    border: 1px solid var(--border);
+  }
+
+  .recommended-row {
+    background: linear-gradient(135deg, var(--light-green), #d7eeda);
+    padding: 0.5rem 0.65rem;
+    border-radius: 8px;
+    margin: 0.3rem 0;
+    border: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .recommended-row .label {
+    color: var(--dark-green);
+    font-weight: 700;
+    font-size: 0.78rem;
+  }
+  .recommended-row .value {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--dark-green);
+    font-variant-numeric: tabular-nums;
+  }
+  .recommended-row.floor {
+    background: linear-gradient(135deg, #fff8e1, #ffecb3);
+    border-color: #ffe082;
+  }
+  .recommended-row.floor .label { color: #e65100; }
+  .recommended-row.floor .value { color: #e65100; font-size: 1rem; }
+
+  .sale-section {
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    border-top: 2px solid var(--border);
+  }
+  .sale-section .form-group label { color: var(--dark-green); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Ausave Energy</h1>
+  <span>Solar & Battery Pricing Calculator</span>
+</header>
+
+<div class="container">
+  <!-- INPUT PANEL -->
+  <div class="card">
+    <div class="card-header">Job Configuration</div>
+    <div class="card-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Number of Panels</label>
+          <input type="number" id="numPanels" min="0" value="20">
+        </div>
+        <div class="form-group">
+          <label>Panel Type</label>
+          <select id="panelType">
+            <option value="ja440">JA Solar 440W — $92</option>
+            <option value="jinko475">Jinko 475W — $115</option>
+            <option value="aiko475">AIKO 475W — $160</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Roof Type</label>
+          <select id="roofType">
+            <option value="tin">Tin Roof</option>
+            <option value="tile">Tile Roof</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Inverter</label>
+          <select id="inverterType">
+            <optgroup label="Single Phase">
+              <option value="ec5sp">EC 5.0 SP — $1,462.53</option>
+              <option value="ec6sp">EC 6.0 SP — $1,581.23</option>
+              <option value="ec8sp">EC 8.0 SP — $2,702.90</option>
+              <option value="ec10sp">EC 10.0 SP — $2,913.08</option>
+              <option value="ec12sp">EC 12.0 SP — $3,124.34</option>
+            </optgroup>
+            <optgroup label="Three Phase">
+              <option value="ec5tp">EC 5.0 TP — $2,504.70</option>
+              <option value="ec10tp">EC 10.0 TP — $2,900.01</option>
+              <option value="ec15tp">EC 15.0 TP — $3,823.48</option>
+              <option value="ec20tp">EC 20.0 TP — $4,363.62</option>
+              <option value="ec25tp">EC 25.0 TP — $5,009.40</option>
+              <option value="ec30tp">EC 30.0 TP — $5,510.34</option>
+            </optgroup>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>No. of Inverters</label>
+          <select id="numInverters">
+            <option value="1">1</option>
+            <option value="2">2 (Dual)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Battery Size (kWh)</label>
+          <select id="batteryKwh">
+            <option value="0">No Battery</option>
+            <option value="8">8 kWh (1 module)</option>
+            <option value="16" selected>16 kWh (2 modules)</option>
+            <option value="24">24 kWh (3 modules)</option>
+            <option value="32">32 kWh (4 modules)</option>
+            <option value="40">40 kWh (5 modules)</option>
+            <option value="48">48 kWh (6 modules)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Gateway</label>
+          <select id="gatewayType">
+            <option value="sp">SP Gateway — $752.41</option>
+            <option value="tp">TP Gateway — $955.18</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Install Kits</label>
+          <select id="numInstallKits">
+            <option value="1">1 (Standard)</option>
+            <option value="2">2 (Dual Inverter)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Installation Period</label>
+          <select id="installPeriod">
+            <option value="before">Before 1 May 2026</option>
+            <option value="after">After 1 May 2026</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-footer">
+        <div class="toggle-group">
+          <label for="commissionToggle">Commission</label>
+          <div class="switch">
+            <input type="checkbox" id="commissionToggle" checked>
+            <span class="slider"></span>
+          </div>
+          <span id="commissionLabel" style="font-size:0.78rem;color:var(--muted);font-weight:500;">Yes</span>
+        </div>
+        <div class="form-group">
+          <label>Sale Price (inc GST)</label>
+          <input type="number" id="salePrice" min="0" step="0.01" placeholder="Leave blank to skip">
+        </div>
+        <button id="btn-calculate" onclick="calculate()" style="min-width:150px;height:34px;">Calculate</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- OUTPUT PANEL -->
+  <div class="output-grid">
+    <div class="card" id="results-card" style="display:none;">
+      <div class="card-header">Itemised Cost Breakdown</div>
+      <div class="card-body" style="padding:0;">
+        <table class="breakdown-table" id="breakdown"></table>
+      </div>
+    </div>
+
+    <div class="card summary-card" id="summary-card" style="display:none;">
+      <div class="card-header">Summary</div>
+      <div class="card-body" id="summary"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Pricing Data ──
+const PANEL_PRICES = { ja440: 92, jinko475: 115, aiko475: 160 };
+const PANEL_LABELS = { ja440: 'JA Solar 440W', jinko475: 'Jinko 475W', aiko475: 'AIKO 475W' };
+const MOUNTING = { tin: 6.50, tile: 14.50 };
+const RAIL_PER_PANEL = 14;
+const DC_CABLE_PER_PANEL = 8;
+
+const INVERTER_PRICES = {
+  ec5sp: 1462.53, ec6sp: 1581.23, ec8sp: 2702.90, ec10sp: 2913.08, ec12sp: 3124.34,
+  ec5tp: 2504.70, ec10tp: 2900.01, ec15tp: 3823.48, ec20tp: 4363.62, ec25tp: 5009.40, ec30tp: 5510.34
+};
+const INVERTER_LABELS = {
+  ec5sp: 'EC 5.0 SP', ec6sp: 'EC 6.0 SP', ec8sp: 'EC 8.0 SP', ec10sp: 'EC 10.0 SP', ec12sp: 'EC 12.0 SP',
+  ec5tp: 'EC 5.0 TP', ec10tp: 'EC 10.0 TP', ec15tp: 'EC 15.0 TP', ec20tp: 'EC 20.0 TP', ec25tp: 'EC 25.0 TP', ec30tp: 'EC 30.0 TP'
+};
+
+const BATTERY_MODULE_KWH = 8;
+const BATTERY_MODULE_PRICE = 3875.34;
+const STC_BATTERY_CAP = 50;
+
+const GATEWAY_PRICES = { sp: 752.41, tp: 955.18 };
+const INSTALL_KIT_PRICE = 219.98;
+
+const STC_PRICE = 41;
+
+function isTP(inv) { return inv.endsWith('tp'); }
+function isSP(inv) { return inv.endsWith('sp'); }
+
+function fmt(n) {
+  return '$' + n.toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function calculate() {
+  const numPanels = parseInt(document.getElementById('numPanels').value) || 0;
+  const panelType = document.getElementById('panelType').value;
+  const roofType = document.getElementById('roofType').value;
+  const inverterType = document.getElementById('inverterType').value;
+  const numInverters = parseInt(document.getElementById('numInverters').value);
+  const batteryKwh = parseFloat(document.getElementById('batteryKwh').value) || 0;
+  const gatewayType = document.getElementById('gatewayType').value;
+  const numInstallKits = parseInt(document.getElementById('numInstallKits').value);
+  const installPeriod = document.getElementById('installPeriod').value;
+  const hasCommission = document.getElementById('commissionToggle').checked;
+  const salePriceVal = document.getElementById('salePrice').value;
+  const salePrice = salePriceVal ? parseFloat(salePriceVal) : null;
+
+  const hasPanels = numPanels > 0;
+  const hasBattery = batteryKwh > 0;
+  const threePhase = isTP(inverterType);
+  const batteryModules = hasBattery ? Math.ceil(batteryKwh / BATTERY_MODULE_KWH) : 0;
+
+  const rows = [];
+  let grossTotal = 0;
+
+  function addSection(title) {
+    rows.push({ section: true, title });
+  }
+  function addRow(desc, qty, unit, total) {
+    rows.push({ desc, qty, unit, total });
+    grossTotal += total;
+  }
+  function addSubtotal(label, amount) {
+    rows.push({ subtotal: true, label, amount });
+  }
+
+  // ── Panels ──
+  if (hasPanels) {
+    addSection('Panels');
+    const panelCost = numPanels * PANEL_PRICES[panelType];
+    addRow(PANEL_LABELS[panelType], numPanels, fmt(PANEL_PRICES[panelType]), panelCost);
+  }
+
+  // ── Mounting ──
+  if (hasPanels) {
+    addSection('Mounting');
+    const roofLabel = roofType === 'tin' ? 'Tin roof feet' : 'Tile roof feet';
+    const mountCost = numPanels * MOUNTING[roofType];
+    addRow(roofLabel, numPanels, fmt(MOUNTING[roofType]), mountCost);
+
+    const railCost = numPanels * RAIL_PER_PANEL;
+    addRow('Rail', numPanels, fmt(RAIL_PER_PANEL), railCost);
+
+    const dcCableTotal = numPanels * DC_CABLE_PER_PANEL;
+    addRow('DC cable', numPanels, fmt(DC_CABLE_PER_PANEL), dcCableTotal);
+  }
+
+  // ── Inverter ──
+  addSection('Inverter');
+  const invPrice = INVERTER_PRICES[inverterType];
+  const invTotal = numInverters * invPrice;
+  addRow(INVERTER_LABELS[inverterType], numInverters, fmt(invPrice), invTotal);
+
+  // ── Battery ──
+  if (hasBattery) {
+    addSection('Battery');
+    const batTotal = batteryModules * BATTERY_MODULE_PRICE;
+    addRow('Sigenergy BAT 8.0 (8kWh module)', batteryModules, fmt(BATTERY_MODULE_PRICE), batTotal);
+  }
+
+  // ── Gateway ──
+  addSection('Gateway');
+  const gwPrice = GATEWAY_PRICES[gatewayType];
+  addRow((gatewayType === 'sp' ? 'SP' : 'TP') + ' Gateway', 1, fmt(gwPrice), gwPrice);
+
+  // ── Install Kit ──
+  addSection('Install Kit');
+  const kitTotal = numInstallKits * INSTALL_KIT_PRICE;
+  addRow('Ground mount adj feet', numInstallKits, fmt(INSTALL_KIT_PRICE), kitTotal);
+
+  // ── Cables ──
+  if (hasBattery) {
+    addSection('Cables');
+    if (threePhase) {
+      addRow('3-phase battery cable (10m)', 1, fmt(155.00), 155.00);
+      addRow('3-phase gateway cable (6m)', 1, fmt(147.00), 147.00);
+    } else {
+      addRow('1-phase battery cable (10m)', 1, fmt(132.00), 132.00);
+      addRow('1-phase gateway cable (3m)', 1, fmt(73.50), 73.50);
+    }
+  }
+
+  // ── Electrical ──
+  addSection('Electrical');
+  addRow('RCBOs', 6, fmt(32), 192.00);
+  if (threePhase) {
+    addRow('3-phase breakers', 2, fmt(45), 90.00);
+  } else {
+    addRow('1-phase breakers', 2, fmt(10), 20.00);
+  }
+
+  // ── Consumables ──
+  addSection('Consumables');
+  const conduitCost = hasPanels ? 650 : 400;
+  addRow('Conduit, fittings, screws & isolators', 1, fmt(conduitCost), conduitCost);
+
+  if (hasPanels) {
+    addRow('MC4 connectors', 1, fmt(30), 30);
+  }
+
+  const warningLabelCost = hasPanels ? 75 : 50;
+  addRow('Warning label kit', 1, fmt(warningLabelCost), warningLabelCost);
+
+  if (hasPanels) {
+    addRow('Earth cable & lugs', 1, fmt(100), 100);
+  }
+
+  // ── Build table ──
+  let html = '<thead><tr><th>Item</th><th>Qty</th><th>Unit Price</th><th>Total</th></tr></thead><tbody>';
+  for (const r of rows) {
+    if (r.section) {
+      html += `<tr class="section-header"><td colspan="4">${r.title}</td></tr>`;
+    } else if (r.subtotal) {
+      html += `<tr class="subtotal-row"><td colspan="3">${r.label}</td><td style="text-align:right">${fmt(r.amount)}</td></tr>`;
+    } else {
+      html += `<tr><td>${r.desc}</td><td>${r.qty}</td><td>${r.unit}</td><td>${fmt(r.total)}</td></tr>`;
+    }
+  }
+  html += `<tr class="total-row"><td colspan="3">Gross Material Total</td><td style="text-align:right">${fmt(grossTotal)}</td></tr>`;
+  html += '</tbody>';
+  document.getElementById('breakdown').innerHTML = html;
+  document.getElementById('results-card').style.display = '';
+
+  // ── STC Rebates ──
+  let solarSTCs = 0;
+  let solarSTCvalue = 0;
+  if (hasPanels) {
+    solarSTCs = Math.floor(numPanels * 440 * 0.006875);
+    solarSTCvalue = solarSTCs * STC_PRICE;
+  }
+
+  let batterySTCs = 0;
+  let batterySTCvalue = 0;
+  if (hasBattery) {
+    const cappedKwh = Math.min(batteryKwh, STC_BATTERY_CAP);
+    if (installPeriod === 'before') {
+      batterySTCs = Math.floor(cappedKwh * 8.1265508685);
+      batterySTCvalue = batterySTCs * STC_PRICE;
+    } else {
+      let stcs = 0;
+      if (cappedKwh <= 14) {
+        stcs = cappedKwh * 6.8;
+      } else if (cappedKwh <= 28) {
+        stcs = 14 * 6.8 + (cappedKwh - 14) * 4.08;
+      } else {
+        stcs = 14 * 6.8 + 14 * 4.08 + (cappedKwh - 28) * 1.02;
+      }
+      batterySTCs = Math.floor(stcs);
+      batterySTCvalue = batterySTCs * STC_PRICE;
+    }
+  }
+
+  const totalSTCvalue = solarSTCvalue + batterySTCvalue;
+  const netMaterialCost = grossTotal - totalSTCvalue;
+
+  // ── Commission ──
+  let commission = 0;
+  if (hasCommission) {
+    if (hasPanels) commission += numPanels * 25;
+    if (hasBattery) commission += 650;
+  }
+
+  const netAfterCommission = netMaterialCost + commission;
+
+  // ── Summary ──
+  let sHtml = '';
+  sHtml += summaryRow('Gross Material Total', fmt(grossTotal));
+  sHtml += '<div class="summary-divider"></div>';
+  if (hasPanels) {
+    sHtml += summaryRow(`Solar STCs (${solarSTCs} &times; $${STC_PRICE})`, '&minus; ' + fmt(solarSTCvalue));
+  }
+  if (hasBattery) {
+    sHtml += summaryRow(`Battery STCs (${batterySTCs} &times; $${STC_PRICE})`, '&minus; ' + fmt(batterySTCvalue));
+  }
+  sHtml += summaryRow('Total STC Rebate', '&minus; ' + fmt(totalSTCvalue), 'big');
+  sHtml += '<div class="summary-divider"></div>';
+  sHtml += summaryRow('Net Material Cost', fmt(netMaterialCost), 'big');
+
+  if (hasCommission) {
+    sHtml += '<div class="summary-divider"></div>';
+    let commParts = [];
+    if (hasPanels) commParts.push(`${numPanels} panels &times; $25`);
+    if (hasBattery) commParts.push('$650 battery');
+    sHtml += summaryRow(`Commission (${commParts.join(' + ')})`, fmt(commission));
+    sHtml += summaryRow('Net Cost After Commission', fmt(netAfterCommission), 'big');
+  }
+
+  // ── Recommended Prices ──
+  const floorPrice = netAfterCommission / (1 - 0.35);
+  const recommendedPrice = netAfterCommission / (1 - 0.45);
+  sHtml += `<div class="recommended-row floor"><span class="label">Floor Price (35% margin)</span><span class="value">${fmt(floorPrice)}</span></div>`;
+  sHtml += `<div class="recommended-row"><span class="label">Recommended Sale Price (45% margin)</span><span class="value">${fmt(recommendedPrice)}</span></div>`;
+
+  // ── Margin ──
+  let marginHtml = '';
+  if (salePrice !== null && salePrice > 0) {
+    const marginDollars = salePrice - netAfterCommission;
+    const marginPct = (marginDollars / salePrice) * 100;
+    sHtml += '<div class="summary-divider"></div>';
+    sHtml += summaryRow('Sale Price (inc GST)', fmt(salePrice));
+    sHtml += summaryRow('Gross Margin', fmt(marginDollars), marginPct < 35 ? 'danger' : '');
+    sHtml += summaryRow('Margin %', marginPct.toFixed(2) + '%', marginPct < 35 ? 'danger' : '');
+
+    if (marginPct < 35) {
+      marginHtml = `<div class="margin-alert low">Margin is ${marginPct.toFixed(2)}% &mdash; below the 35% threshold</div>`;
+    } else {
+      marginHtml = `<div class="margin-alert ok">Margin is ${marginPct.toFixed(2)}% &mdash; above the 35% threshold</div>`;
+    }
+  }
+
+  sHtml += marginHtml;
+  document.getElementById('summary').innerHTML = sHtml;
+  document.getElementById('summary-card').style.display = '';
+}
+
+function summaryRow(label, value, cls) {
+  return `<div class="summary-row ${cls || ''}"><span class="label">${label}</span><span class="value">${value}</span></div>`;
+}
+
+// Commission toggle label
+document.getElementById('commissionToggle').addEventListener('change', function() {
+  document.getElementById('commissionLabel').textContent = this.checked ? 'Yes' : 'No';
+});
+
+// Auto-calculate on load
+calculate();
+</script>
+</body>
+</html>
