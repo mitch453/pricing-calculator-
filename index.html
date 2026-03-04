@@ -757,6 +757,7 @@ function summaryRow(label, value, cls) {
 // Commission toggle label
 document.getElementById('commissionToggle').addEventListener('change', function() {
   document.getElementById('commissionLabel').textContent = this.checked ? 'Yes' : 'No';
+  calculate();
 });
 
 // Auto-calculate on load
