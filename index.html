@@ -151,47 +151,6 @@
   }
   .form-footer .form-group { flex: 1; min-width: 200px; margin-bottom: 0; }
 
-  /* Toggle */
-  .toggle-group {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  .toggle-group label {
-    font-weight: 600;
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-    cursor: pointer;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-  }
-  .switch {
-    position: relative;
-    width: 40px;
-    height: 22px;
-  }
-  .switch input { opacity: 0; width: 0; height: 0; }
-  .slider {
-    position: absolute;
-    inset: 0;
-    background: #ccc;
-    border-radius: 22px;
-    cursor: pointer;
-    transition: 0.3s;
-  }
-  .slider::before {
-    content: '';
-    position: absolute;
-    width: 16px; height: 16px;
-    left: 3px; bottom: 3px;
-    background: white;
-    border-radius: 50%;
-    transition: 0.3s;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
-  }
-  .switch input:checked + .slider { background: var(--accent); }
-  .switch input:checked + .slider::before { transform: translateX(18px); }
-
   /* Button */
   #btn-calculate {
     width: 100%;
@@ -510,14 +469,6 @@
         </div>
       </div>
       <div class="form-footer">
-        <div class="toggle-group">
-          <label for="commissionToggle">Commission</label>
-          <label class="switch">
-            <input type="checkbox" id="commissionToggle" checked>
-            <span class="slider"></span>
-          </label>
-          <span id="commissionLabel" style="font-size:0.78rem;color:var(--muted);font-weight:500;">Yes</span>
-        </div>
         <div class="form-group">
           <label>Sale Price (inc GST)</label>
           <input type="number" id="salePrice" min="0" step="0.01" placeholder="Leave blank to skip">
@@ -595,7 +546,6 @@ function calculate() {
   const numInstallKits = parseInt(document.getElementById('numInstallKits').value);
   const powerSensor = document.getElementById('powerSensor').value;
   const installPeriod = document.getElementById('installPeriod').value;
-  const hasCommission = document.getElementById('commissionToggle').checked;
   const salePriceVal = document.getElementById('salePrice').value;
   const salePrice = salePriceVal ? parseFloat(salePriceVal) : null;
 
@@ -754,15 +704,6 @@ function calculate() {
   const totalSTCvalue = solarSTCvalue + batterySTCvalue;
   const netMaterialCost = grossTotal - totalSTCvalue;
 
-  // ── Commission ──
-  let commission = 0;
-  if (hasCommission) {
-    if (hasPanels) commission += numPanels * 25;
-    if (hasBattery) commission += 650;
-  }
-
-  const netAfterCommission = netMaterialCost + commission;
-
   // ── Summary ──
   let sHtml = '';
   sHtml += summaryRow('Gross Material Total', fmt(grossTotal));
@@ -777,25 +718,16 @@ function calculate() {
   sHtml += '<div class="summary-divider"></div>';
   sHtml += summaryRow('Net Material Cost', fmt(netMaterialCost), 'big');
 
-  if (hasCommission) {
-    sHtml += '<div class="summary-divider"></div>';
-    let commParts = [];
-    if (hasPanels) commParts.push(`${numPanels} panels &times; $25`);
-    if (hasBattery) commParts.push('$650 battery');
-    sHtml += summaryRow(`Commission (${commParts.join(' + ')})`, fmt(commission));
-    sHtml += summaryRow('Net Cost After Commission', fmt(netAfterCommission), 'big');
-  }
-
   // ── Recommended Prices ──
-  const floorPrice = netAfterCommission / (1 - 0.35);
-  const recommendedPrice = netAfterCommission / (1 - 0.45);
+  const floorPrice = netMaterialCost / (1 - 0.35);
+  const recommendedPrice = netMaterialCost / (1 - 0.45);
   sHtml += `<div class="recommended-row floor"><span class="label">Floor Price (35% margin)</span><span class="value">${fmt(floorPrice)}</span></div>`;
   sHtml += `<div class="recommended-row"><span class="label">Recommended Sale Price (45% margin)</span><span class="value">${fmt(recommendedPrice)}</span></div>`;
 
   // ── Margin ──
   let marginHtml = '';
   if (salePrice !== null && salePrice > 0) {
-    const marginDollars = salePrice - netAfterCommission;
+    const marginDollars = salePrice - netMaterialCost;
     const marginPct = (marginDollars / salePrice) * 100;
     sHtml += '<div class="summary-divider"></div>';
     sHtml += summaryRow('Sale Price (inc GST)', fmt(salePrice));
@@ -822,9 +754,9 @@ function calculate() {
   // Use margin from sale price if provided, otherwise use recommended price margin
   let marginPerJob = 0;
   if (salePrice !== null && salePrice > 0) {
-    marginPerJob = salePrice - netAfterCommission;
+    marginPerJob = salePrice - netMaterialCost;
   } else {
-    marginPerJob = recommendedPrice - netAfterCommission;
+    marginPerJob = recommendedPrice - netMaterialCost;
   }
 
   const dailyGrossMargin = jobsPerDay * marginPerJob;
@@ -860,12 +792,6 @@ function calculate() {
 function summaryRow(label, value, cls) {
   return `<div class="summary-row ${cls || ''}"><span class="label">${label}</span><span class="value">${value}</span></div>`;
 }
-
-// Commission toggle label
-document.getElementById('commissionToggle').addEventListener('change', function() {
-  document.getElementById('commissionLabel').textContent = this.checked ? 'Yes' : 'No';
-  calculate();
-});
 
 // Auto-calculate on load
 calculate();
