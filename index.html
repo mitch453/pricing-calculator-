@@ -734,6 +734,15 @@ function calculate() {
     sHtml += summaryRow('Gross Margin', fmt(marginDollars), marginPct < 35 ? 'danger' : '');
     sHtml += summaryRow('Margin %', marginPct.toFixed(2) + '%', marginPct < 35 ? 'danger' : '');
 
+    // ── Rep Bonus Commission (15% of amount over floor price) ──
+    if (salePrice > floorPrice) {
+      const overFloor = salePrice - floorPrice;
+      const bonusComm = overFloor * 0.15;
+      sHtml += '<div class="summary-divider"></div>';
+      sHtml += summaryRow('Amount Over Floor Price', fmt(overFloor));
+      sHtml += summaryRow('Rep Bonus Commission (15%)', fmt(bonusComm), 'big');
+    }
+
     if (marginPct < 35) {
       marginHtml = `<div class="margin-alert low">Margin is ${marginPct.toFixed(2)}% &mdash; below the 35% threshold</div>`;
     } else {
