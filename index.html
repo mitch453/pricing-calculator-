@@ -555,7 +555,7 @@ const PANEL_PRICES = { ja440: 92, ae440: 92, jinko475: 115, aiko475: 135 };
 const PANEL_LABELS = { ja440: 'JA Solar 440W', ae440: 'AE Solar 440W', jinko475: 'Jinko 475W', aiko475: 'AIKO 475W' };
 const MOUNTING = { tin: 6.50, tile: 14.50 };
 const RAIL_PER_PANEL = 13.75;
-const DC_ISOLATOR = 182;
+const DC_CABLE_PER_PANEL = 8;
 
 const INVERTER_PRICES = {
   ec5sp: 1462.53, ec6sp: 1581.23, ec8sp: 2702.90, ec10sp: 2913.08, ec12sp: 3124.34,
@@ -635,7 +635,8 @@ function calculate() {
     const railCost = numPanels * RAIL_PER_PANEL;
     addRow('Rail', numPanels, fmt(RAIL_PER_PANEL), railCost);
 
-    addRow('DC Isolator', 1, fmt(DC_ISOLATOR), DC_ISOLATOR);
+    const dcCableTotal = numPanels * DC_CABLE_PER_PANEL;
+    addRow('DC cable', numPanels, fmt(DC_CABLE_PER_PANEL), dcCableTotal);
   }
 
   // ── Inverter ──
