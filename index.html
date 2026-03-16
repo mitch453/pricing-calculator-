@@ -400,19 +400,19 @@
           <label>Inverter</label>
           <select id="inverterType">
             <optgroup label="Single Phase">
-              <option value="ec5sp">EC 5.0 SP — $1,462.53</option>
-              <option value="ec6sp">EC 6.0 SP — $1,581.23</option>
-              <option value="ec8sp">EC 8.0 SP — $2,702.90</option>
-              <option value="ec10sp">EC 10.0 SP — $2,913.08</option>
-              <option value="ec12sp">EC 12.0 SP — $3,124.34</option>
+              <option value="ec5sp">EC 5.0 SP — $1,413.50</option>
+              <option value="ec6sp">EC 6.0 SP — $1,527.90</option>
+              <option value="ec8sp">EC 8.0 SP — $2,611.40</option>
+              <option value="ec10sp">EC 10.0 SP — $2,814.90</option>
+              <option value="ec12sp">EC 12.0 SP — $3,019.50</option>
             </optgroup>
             <optgroup label="Three Phase">
-              <option value="ec5tp">EC 5.0 TP — $2,504.70</option>
-              <option value="ec10tp">EC 10.0 TP — $2,900.01</option>
-              <option value="ec15tp">EC 15.0 TP — $3,823.48</option>
-              <option value="ec20tp">EC 20.0 TP — $4,363.62</option>
-              <option value="ec25tp">EC 25.0 TP — $5,009.40</option>
-              <option value="ec30tp">EC 30.0 TP — $5,510.34</option>
+              <option value="ec5tp">EC 5.0 TP — $2,420.00</option>
+              <option value="ec10tp">EC 10.0 TP — $2,802.80</option>
+              <option value="ec15tp">EC 15.0 TP — $3,693.80</option>
+              <option value="ec20tp">EC 20.0 TP — $4,215.20</option>
+              <option value="ec25tp">EC 25.0 TP — $4,840.00</option>
+              <option value="ec30tp">EC 30.0 TP — $5,324.00</option>
             </optgroup>
           </select>
         </div>
@@ -421,6 +421,13 @@
           <select id="numInverters">
             <option value="1">1</option>
             <option value="2">2 (Dual)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Battery Module</label>
+          <select id="batteryModule">
+            <option value="bat8">BAT 8.0 (8 kWh) — $3,821.40</option>
+            <option value="bat5">BAT 5.0 (5 kWh) — $3,056.90</option>
           </select>
         </div>
         <div class="form-group">
@@ -509,16 +516,18 @@ const RAIL_PER_PANEL = 13.75;
 const DC_CABLE_PER_PANEL = 8;
 
 const INVERTER_PRICES = {
-  ec5sp: 1462.53, ec6sp: 1581.23, ec8sp: 2702.90, ec10sp: 2913.08, ec12sp: 3124.34,
-  ec5tp: 2504.70, ec10tp: 2900.01, ec15tp: 3823.48, ec20tp: 4363.62, ec25tp: 5009.40, ec30tp: 5510.34
+  ec5sp: 1413.50, ec6sp: 1527.90, ec8sp: 2611.40, ec10sp: 2814.90, ec12sp: 3019.50,
+  ec5tp: 2420.00, ec10tp: 2802.80, ec15tp: 3693.80, ec20tp: 4215.20, ec25tp: 4840.00, ec30tp: 5324.00
 };
 const INVERTER_LABELS = {
   ec5sp: 'EC 5.0 SP', ec6sp: 'EC 6.0 SP', ec8sp: 'EC 8.0 SP', ec10sp: 'EC 10.0 SP', ec12sp: 'EC 12.0 SP',
   ec5tp: 'EC 5.0 TP', ec10tp: 'EC 10.0 TP', ec15tp: 'EC 15.0 TP', ec20tp: 'EC 20.0 TP', ec25tp: 'EC 25.0 TP', ec30tp: 'EC 30.0 TP'
 };
 
-const BATTERY_MODULE_KWH = 8;
-const BATTERY_MODULE_PRICE = 3875.34;
+const BATTERY_MODULES = {
+  bat8: { kwh: 8, price: 3821.40, label: 'Sigenergy BAT 8.0 (8kWh module)' },
+  bat5: { kwh: 5, price: 3056.90, label: 'Sigenergy BAT 5.0 (5kWh module)' }
+};
 const STC_BATTERY_CAP = 50;
 
 const GATEWAY_PRICES = { sp: 756.86, tp: 935.45 };
@@ -542,6 +551,8 @@ function calculate() {
   const inverterType = document.getElementById('inverterType').value;
   const numInverters = parseInt(document.getElementById('numInverters').value);
   const batteryKwh = parseFloat(document.getElementById('batteryKwh').value) || 0;
+  const batteryModuleType = document.getElementById('batteryModule').value;
+  const batMod = BATTERY_MODULES[batteryModuleType];
   const gatewayType = document.getElementById('gatewayType').value;
   const numInstallKits = parseInt(document.getElementById('numInstallKits').value);
   const powerSensor = document.getElementById('powerSensor').value;
@@ -552,7 +563,7 @@ function calculate() {
   const hasPanels = numPanels > 0;
   const hasBattery = batteryKwh > 0;
   const threePhase = isTP(inverterType);
-  const batteryModules = hasBattery ? Math.ceil(batteryKwh / BATTERY_MODULE_KWH) : 0;
+  const batteryModules = hasBattery ? Math.ceil(batteryKwh / batMod.kwh) : 0;
 
   const rows = [];
   let grossTotal = 0;
@@ -598,8 +609,8 @@ function calculate() {
   // ── Battery ──
   if (hasBattery) {
     addSection('Battery');
-    const batTotal = batteryModules * BATTERY_MODULE_PRICE;
-    addRow('Sigenergy BAT 8.0 (8kWh module)', batteryModules, fmt(BATTERY_MODULE_PRICE), batTotal);
+    const batTotal = batteryModules * batMod.price;
+    addRow(batMod.label, batteryModules, fmt(batMod.price), batTotal);
   }
 
   // ── Gateway ──
@@ -802,7 +813,31 @@ function summaryRow(label, value, cls) {
   return `<div class="summary-row ${cls || ''}"><span class="label">${label}</span><span class="value">${value}</span></div>`;
 }
 
+// Update battery size options when module type changes
+function updateBatterySizes() {
+  const modType = document.getElementById('batteryModule').value;
+  const mod = BATTERY_MODULES[modType];
+  const sel = document.getElementById('batteryKwh');
+  const prevKwh = parseFloat(sel.value) || 0;
+  sel.innerHTML = '<option value="0">No Battery</option>';
+  const maxModules = Math.floor(50 / mod.kwh); // cap at ~50 kWh
+  for (let i = 1; i <= maxModules; i++) {
+    const kwh = i * mod.kwh;
+    sel.innerHTML += `<option value="${kwh}">${kwh} kWh (${i} module${i > 1 ? 's' : ''})</option>`;
+  }
+  // Try to keep closest previous selection
+  if (prevKwh > 0) {
+    const closest = Math.round(prevKwh / mod.kwh) * mod.kwh;
+    const best = Math.min(Math.max(closest, mod.kwh), maxModules * mod.kwh);
+    sel.value = best;
+    if (!sel.value || sel.value === '0') sel.value = mod.kwh;
+  }
+  calculate();
+}
+document.getElementById('batteryModule').addEventListener('change', updateBatterySizes);
+
 // Auto-calculate on load
+updateBatterySizes();
 calculate();
 </script>
 </body>
