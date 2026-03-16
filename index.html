@@ -740,8 +740,10 @@ function calculate() {
   sHtml += summaryRow('Net Material Cost', fmt(netMaterialCost), 'big');
 
   // ── Recommended Price ──
-  const recommendedPrice = netMaterialCost / (1 - 0.45);
-  sHtml += `<div class="recommended-row"><span class="label">Recommended Sale Price (45% margin)</span><span class="value">${fmt(recommendedPrice)}</span></div>`;
+  const isBatteryOnly = !hasPanels && hasBattery;
+  const recMargin = isBatteryOnly ? 0.35 : 0.45;
+  const recommendedPrice = netMaterialCost / (1 - recMargin);
+  sHtml += `<div class="recommended-row"><span class="label">Recommended Sale Price (${Math.round(recMargin * 100)}% margin)</span><span class="value">${fmt(recommendedPrice)}</span></div>`;
 
   // ── Margin ──
   let marginHtml = '';
@@ -765,7 +767,6 @@ function calculate() {
   document.getElementById('summary-card').style.display = '';
 
   // ── Daily & Weekly Profit ──
-  const isBatteryOnly = !hasPanels && hasBattery;
   const jobsPerDay = parseInt(document.getElementById('jobsPerDay').value);
   const dailyOverhead = 16000;
   const weeklyOverhead = 80000;
