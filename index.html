@@ -312,13 +312,6 @@
     color: var(--dark-green);
     font-variant-numeric: tabular-nums;
   }
-  .recommended-row.floor {
-    background: linear-gradient(135deg, #fff8e1, #ffecb3);
-    border-color: #ffe082;
-  }
-  .recommended-row.floor .label { color: #e65100; }
-  .recommended-row.floor .value { color: #e65100; font-size: 1rem; }
-
   .sale-section {
     margin-top: 1.25rem;
     padding-top: 1rem;
@@ -729,10 +722,8 @@ function calculate() {
   sHtml += '<div class="summary-divider"></div>';
   sHtml += summaryRow('Net Material Cost', fmt(netMaterialCost), 'big');
 
-  // ── Recommended Prices ──
-  const floorPrice = netMaterialCost / (1 - 0.35);
+  // ── Recommended Price ──
   const recommendedPrice = netMaterialCost / (1 - 0.45);
-  sHtml += `<div class="recommended-row floor"><span class="label">Floor Price (35% margin)</span><span class="value">${fmt(floorPrice)}</span></div>`;
   sHtml += `<div class="recommended-row"><span class="label">Recommended Sale Price (45% margin)</span><span class="value">${fmt(recommendedPrice)}</span></div>`;
 
   // ── Margin ──
