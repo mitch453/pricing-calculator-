@@ -496,7 +496,24 @@
   <!-- PROFIT PROJECTION -->
   <div class="card" id="profit-card" style="display:none;">
     <div class="card-header">Daily & Weekly Profit Projection</div>
-    <div class="card-body" id="profit"></div>
+    <div class="card-body">
+      <div class="form-group" style="margin-bottom:0.75rem;">
+        <label>Jobs Per Day</label>
+        <select id="jobsPerDay" onchange="calculate()">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3" selected>3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
+          <option value="9">9</option>
+          <option value="10">10</option>
+        </select>
+      </div>
+      <div id="profit"></div>
+    </div>
   </div>
 </div>
 
@@ -749,7 +766,7 @@ function calculate() {
 
   // ── Daily & Weekly Profit ──
   const isBatteryOnly = !hasPanels && hasBattery;
-  const jobsPerDay = isBatteryOnly ? 4 : 3;
+  const jobsPerDay = parseInt(document.getElementById('jobsPerDay').value);
   const dailyOverhead = 16000;
   const weeklyOverhead = 80000;
 
