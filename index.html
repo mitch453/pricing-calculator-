@@ -377,7 +377,7 @@
           <label>Panel Type</label>
           <select id="panelType">
             <option value="ae440">AE Solar 440W — $92</option>
-            <option value="aiko475">AIKO 475W — $135</option>
+            <option value="aiko475">AIKO 490W — $175</option>
           </select>
         </div>
         <div class="form-group">
@@ -518,8 +518,9 @@
 
 <script>
 // ── Pricing Data ──
-const PANEL_PRICES = { ae440: 92, aiko475: 135 };
-const PANEL_LABELS = { ae440: 'AE Solar 440W', aiko475: 'AIKO 475W' };
+const PANEL_PRICES = { ae440: 92, aiko475: 175 };
+const PANEL_WATTS = { ae440: 440, aiko475: 490 };
+const PANEL_LABELS = { ae440: 'AE Solar 440W', aiko475: 'AIKO 490W' };
 const MOUNTING = { tin: 6.50, tile: 14.50 };
 const RAIL_PER_PANEL = 13.75;
 const DC_CABLE_PER_PANEL = 8;
@@ -696,7 +697,8 @@ function calculate() {
   let solarSTCs = 0;
   let solarSTCvalue = 0;
   if (hasPanels) {
-    solarSTCs = Math.floor(numPanels * 440 * 0.006875);
+    const panelWatts = PANEL_WATTS[panelType] || 440;
+    solarSTCs = Math.floor(numPanels * panelWatts * 0.006875);
     solarSTCvalue = solarSTCs * STC_PRICE;
   }
 
