@@ -875,6 +875,9 @@ function calculate() {
 
   recommendedPrice += extrasIncGst;
 
+  // Add 10% markup for Brian
+  recommendedPrice *= 1.10;
+
   if (extrasIncGst > 0) {
     sHtml += '<div class="admin-only">';
     sHtml += '<div class="summary-divider"></div>';
@@ -884,7 +887,7 @@ function calculate() {
     sHtml += '</div>';
   }
 
-  sHtml += `<div class="recommended-row"><span class="label">Recommended Sale Price (${recMarginLabel}${extrasIncGst > 0 ? ' + extras' : ''})</span><span class="value">${fmt(recommendedPrice)}</span></div>`;
+  sHtml += `<div class="recommended-row"><span class="label">Recommended Sale Price${extrasIncGst > 0 ? ' (+ extras)' : ''}</span><span class="value">${fmt(recommendedPrice)}</span></div>`;
 
   // ── Margin (admin only) ──
   let marginHtml = '';
