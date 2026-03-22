@@ -458,6 +458,7 @@
             <option value="tpct300dh">TP-CT300-DH — $316.90</option>
             <option value="tpct600dh">TP-CT600-DH — $372.44</option>
             <option value="tpdhci">TP DH-C&I — $331.06</option>
+            <option value="nanobanana">Nano Banana Sensors — $1,200.00</option>
           </select>
         </div>
         <div class="form-group">
@@ -541,8 +542,8 @@ const BATTERY_MODULES = {
 const STC_BATTERY_CAP = 50;
 
 const GATEWAY_PRICES = { sp: 756.86, tp: 935.45 };
-const SENSOR_PRICES = { none: 0, spct100: 109.99, tpct100: 219.98, tpct300dh: 316.90, tpct600dh: 372.44, tpdhci: 331.06 };
-const SENSOR_LABELS = { none: 'None', spct100: 'SP-CT100 Single Phase', tpct100: 'TP-CT100 Three Phase', tpct300dh: 'TP-CT300-DH', tpct600dh: 'TP-CT600-DH', tpdhci: 'TP DH-C&I' };
+const SENSOR_PRICES = { none: 0, spct100: 109.99, tpct100: 219.98, tpct300dh: 316.90, tpct600dh: 372.44, tpdhci: 331.06, nanobanana: 1200 };
+const SENSOR_LABELS = { none: 'None', spct100: 'SP-CT100 Single Phase', tpct100: 'TP-CT100 Three Phase', tpct300dh: 'TP-CT300-DH', tpct600dh: 'TP-CT600-DH', tpdhci: 'TP DH-C&I', nanobanana: 'Nano Banana Sensors' };
 const INSTALL_KIT_PRICE = 219.98;
 
 const STC_PRICE = 37.50;
@@ -756,7 +757,7 @@ function calculate() {
     const modulePrice = batMod.price;
     const baseCost = netMaterialCost - (batteryModules - 3) * modulePrice;
     const basePrice = baseCost / (1 - 0.45);
-    const tierMargins = [0.30, 0.25, 0.20]; // 4th, 5th, 6th module
+    const tierMargins = [0.30, 0.20, 0.15]; // 4th, 5th, 6th module
     let extraPrice = 0;
     for (let i = 3; i < batteryModules; i++) {
       const m = tierMargins[i - 3] !== undefined ? tierMargins[i - 3] : 0.20;
