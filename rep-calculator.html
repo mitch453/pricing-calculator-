@@ -775,7 +775,10 @@ function calculate() {
   html += `<tr class="total-row"><td colspan="3">Gross Material Total</td><td style="text-align:right">${fmt(grossTotal)}</td></tr>`;
   html += '</tbody>';
   document.getElementById('breakdown').innerHTML = html;
-  document.getElementById('results-card').style.display = '';
+  // Only show breakdown if admin mode is active
+  if (document.getElementById('results-card').dataset.adminVisible === 'true') {
+    document.getElementById('results-card').style.display = '';
+  }
 
   // ── STC Rebates ──
   let solarSTCs = 0;
@@ -969,6 +972,16 @@ function updateBatterySizes() {
   calculate();
 }
 document.getElementById('batteryModule').addEventListener('change', updateBatterySizes);
+
+// Admin toggle: Ctrl+Shift+A to show/hide itemised breakdown
+document.addEventListener('keydown', function(e) {
+  if (e.ctrlKey && e.shiftKey && e.key === 'A') {
+    const card = document.getElementById('results-card');
+    const isVisible = card.dataset.adminVisible === 'true';
+    card.dataset.adminVisible = isVisible ? 'false' : 'true';
+    card.style.display = isVisible ? 'none' : '';
+  }
+});
 
 // Auto-calculate on load
 updateBatterySizes();
