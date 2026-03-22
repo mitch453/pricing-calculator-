@@ -449,9 +449,7 @@
         <div class="form-group">
           <label>Panel Type</label>
           <select id="panelType">
-            <option value="ja440">JA Solar 440W</option>
             <option value="ae440">AE Solar 440W</option>
-            <option value="jinko475">Jinko 475W</option>
             <option value="aiko475">AIKO 475W</option>
           </select>
         </div>
@@ -604,8 +602,8 @@
 
 <script>
 // ── Pricing Data ──
-const PANEL_PRICES = { ja440: 92, ae440: 92, jinko475: 115, aiko475: 135 };
-const PANEL_LABELS = { ja440: 'JA Solar 440W', ae440: 'AE Solar 440W', jinko475: 'Jinko 475W', aiko475: 'AIKO 475W' };
+const PANEL_PRICES = { ae440: 92, aiko475: 135 };
+const PANEL_LABELS = { ae440: 'AE Solar 440W', aiko475: 'AIKO 475W' };
 const MOUNTING = { tin: 6.50, tile: 14.50 };
 const RAIL_PER_PANEL = 13.75;
 const DC_CABLE_PER_PANEL = 8;
