@@ -821,14 +821,14 @@ function calculate() {
     recommendedPrice = netMaterialCost / (1 - 0.35);
     recMarginLabel = '35% margin';
   } else if (!hasBattery || batteryModules <= 3) {
-    // Solar+battery up to 24kWh (3 modules) — flat 45%
-    recommendedPrice = netMaterialCost / (1 - 0.45);
-    recMarginLabel = '45% margin';
+    // Solar+battery up to 24kWh (3 modules) — flat 57%
+    recommendedPrice = netMaterialCost / (1 - 0.57);
+    recMarginLabel = '57% margin';
   } else {
-    // Tiered: first 3 modules at 45%, extra modules at lower margins
+    // Tiered: first 3 modules at 57%, extra modules at lower margins
     const modulePrice = batMod.price;
     const baseCost = netMaterialCost - (batteryModules - 3) * modulePrice;
-    const basePrice = baseCost / (1 - 0.45);
+    const basePrice = baseCost / (1 - 0.57);
     const tierMargins = [0.30, 0.20, 0.15]; // 4th, 5th, 6th module
     let extraPrice = 0;
     for (let i = 3; i < batteryModules; i++) {
@@ -836,7 +836,7 @@ function calculate() {
       extraPrice += modulePrice / (1 - m);
     }
     recommendedPrice = basePrice + extraPrice;
-    recMarginLabel = '45% + tiered';
+    recMarginLabel = '57% + tiered';
   }
 
   // ── Extras (no margin, add GST) ──
