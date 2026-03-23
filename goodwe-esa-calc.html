@@ -553,10 +553,7 @@
         <label><input type="checkbox" class="extra-cb" data-price="2000" onchange="calculate()"><span>Decommission Existing Battery</span><span class="extra-price">$2,000</span></label>
       </div>
 
-      <div class="form-group" style="grid-column: 1 / -1;">
-        <label style="font-weight:700;">Check Your Price (inc GST)</label>
-        <input type="number" id="customPriceField" placeholder="Enter sale price inc GST" step="0.01" style="width:100%;padding:10px;border:2px solid #3a6b35;border-radius:8px;font-size:1em;" oninput="calculate()">
-      </div>
+      <input type="hidden" id="customPriceField" value="">
       <div class="form-footer">
         <input type="hidden" id="salePrice" value="">
         <button id="btn-calculate" onclick="calculate()" style="min-width:150px;height:34px;">Calculate</button>
@@ -873,18 +870,7 @@ function calculate() {
   sHtml += `<div class="recommended-margin">Margin: ${fmt(recMarginDollars)} (${recMarginPct.toFixed(1)}%)</div>`;
 
   // ── Custom Price Margin Result ──
-  const customPrice = parseFloat(document.getElementById('customPriceField').value) || 0;
-  if (customPrice > 0) {
-    const cpMarginDollars = customPrice - netMaterialCost - extrasIncGst;
-    const cpMarginPct = ((customPrice - extrasIncGst) > 0) ? (cpMarginDollars / (customPrice - extrasIncGst)) * 100 : 0;
-    const cpColor = cpMarginPct < 35 ? '#c0392b' : '#27ae60';
-    sHtml += '<div class="summary-divider"></div>';
-    sHtml += `<div style="padding:10px;border-radius:8px;background:${cpMarginPct < 35 ? '#ffeaea' : '#eafff0'};border:1px solid ${cpColor};">`;
-    sHtml += `<div style="font-weight:700;font-size:0.95em;margin-bottom:4px;">Your Price: ${fmt(customPrice)}</div>`;
-    sHtml += `<span style="font-weight:700;color:${cpColor};font-size:1.1em;">Margin: ${fmt(cpMarginDollars)} (${cpMarginPct.toFixed(1)}%)</span>`;
-    sHtml += `${cpMarginPct < 35 ? '<div style="color:#c0392b;font-size:0.85em;margin-top:4px;">⚠ Below 35% threshold</div>' : '<div style="color:#27ae60;font-size:0.85em;margin-top:4px;">✓ Above 35% threshold</div>'}`;
-    sHtml += '</div>';
-  }
+  const customPrice = 0;
   document.getElementById('summary').innerHTML = sHtml;
   document.getElementById('summary-card').style.display = '';
   // Keep admin-only sections hidden unless admin mode is on
