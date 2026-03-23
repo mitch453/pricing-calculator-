@@ -868,9 +868,10 @@ function calculate() {
     sHtml += '</div>';
   }
 
-  // Show margin % on recommended price
-  const recMarginDollars = recommendedPrice - netMaterialCost - extrasIncGst;
-  const recMarginPct = recommendedPrice > 0 ? ((recMarginDollars / (recommendedPrice - extrasIncGst)) * 100) : 0;
+  // Show margin % on recommended price (excluding extras from % calc)
+  const recPriceExExtras = recommendedPrice - extrasIncGst;
+  const recMarginDollars = recPriceExExtras - netMaterialCost;
+  const recMarginPct = recPriceExExtras > 0 ? (recMarginDollars / recPriceExExtras * 100) : 0;
   sHtml += `<div class="recommended-row"><span class="label">Recommended Sale Price${extrasIncGst > 0 ? ' (+ extras)' : ''}</span><span class="value">${fmt(recommendedPrice)}</span></div>`;
   sHtml += `<div class="recommended-margin">Margin: ${fmt(recMarginDollars)} (${recMarginPct.toFixed(1)}%)</div>`;
 
