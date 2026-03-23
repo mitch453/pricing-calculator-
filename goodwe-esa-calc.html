@@ -463,21 +463,9 @@
         <div class="form-group">
           <label>Inverter</label>
           <select id="inverterType">
-            <optgroup label="Single Phase">
-              <option value="ec5sp">EC 5.0 SP</option>
-              <option value="ec6sp">EC 6.0 SP</option>
-              <option value="ec8sp">EC 8.0 SP</option>
-              <option value="ec10sp">EC 10.0 SP</option>
-              <option value="ec12sp">EC 12.0 SP</option>
-            </optgroup>
-            <optgroup label="Three Phase">
-              <option value="ec5tp">EC 5.0 TP</option>
-              <option value="ec10tp">EC 10.0 TP</option>
-              <option value="ec15tp">EC 15.0 TP</option>
-              <option value="ec20tp">EC 20.0 TP</option>
-              <option value="ec25tp">EC 25.0 TP</option>
-              <option value="ec30tp">EC 30.0 TP</option>
-            </optgroup>
+            <option value="gw5k">GW5K-EHA-G20</option>
+            <option value="gw8k">GW8K-EHA-G20</option>
+            <option value="gw10k">GW9.999K-EHA-G20</option>
           </select>
         </div>
         <div class="form-group">
@@ -490,29 +478,22 @@
         <div class="form-group">
           <label>Battery Module</label>
           <select id="batteryModule">
-            <option value="bat8">BAT 8.0 (8 kWh)</option>
-            <option value="bat5">BAT 5.0 (5 kWh)</option>
+            <option value="gw83">GW8.3-BAT-D-G20 (8.3 kWh)</option>
           </select>
         </div>
         <div class="form-group">
           <label>Battery Size (kWh)</label>
           <select id="batteryKwh">
             <option value="0">No Battery</option>
-            <option value="8">8 kWh (1 module)</option>
-            <option value="16" selected>16 kWh (2 modules)</option>
-            <option value="24">24 kWh (3 modules)</option>
-            <option value="32">32 kWh (4 modules)</option>
-            <option value="40">40 kWh (5 modules)</option>
-            <option value="48">48 kWh (6 modules)</option>
+            <option value="8.3">8.3 kWh (1 module)</option>
+            <option value="16.6" selected>16.6 kWh (2 modules)</option>
+            <option value="24.9">24.9 kWh (3 modules)</option>
+            <option value="33.2">33.2 kWh (4 modules)</option>
+            <option value="41.5">41.5 kWh (5 modules)</option>
+            <option value="49.8">49.8 kWh (6 modules)</option>
           </select>
         </div>
-        <div class="form-group">
-          <label>Gateway</label>
-          <select id="gatewayType">
-            <option value="sp">SP Gateway AU (Pro)</option>
-            <option value="tp">TP Gateway AU (Pro)</option>
-          </select>
-        </div>
+        <input type="hidden" id="gatewayType" value="none">
         <div class="form-group">
           <label>Install Kits</label>
           <select id="numInstallKits">
@@ -610,17 +591,14 @@ const RAIL_PER_PANEL = 13.75;
 const DC_CABLE_PER_PANEL = 8;
 
 const INVERTER_PRICES = {
-  ec5sp: 1413.50, ec6sp: 1527.90, ec8sp: 2611.40, ec10sp: 2814.90, ec12sp: 3019.50,
-  ec5tp: 2420.00, ec10tp: 2802.80, ec15tp: 3693.80, ec20tp: 4215.20, ec25tp: 4840.00, ec30tp: 5324.00
+  gw5k: 1114.00, gw8k: 1689.00, gw10k: 1826.00
 };
 const INVERTER_LABELS = {
-  ec5sp: 'EC 5.0 SP', ec6sp: 'EC 6.0 SP', ec8sp: 'EC 8.0 SP', ec10sp: 'EC 10.0 SP', ec12sp: 'EC 12.0 SP',
-  ec5tp: 'EC 5.0 TP', ec10tp: 'EC 10.0 TP', ec15tp: 'EC 15.0 TP', ec20tp: 'EC 20.0 TP', ec25tp: 'EC 25.0 TP', ec30tp: 'EC 30.0 TP'
+  gw5k: 'GW5K-EHA-G20', gw8k: 'GW8K-EHA-G20', gw10k: 'GW9.999K-EHA-G20'
 };
 
 const BATTERY_MODULES = {
-  bat8: { kwh: 8, price: 3821.40, label: 'Sigenergy BAT 8.0 (8kWh module)' },
-  bat5: { kwh: 5, price: 3056.90, label: 'Sigenergy BAT 5.0 (5kWh module)' }
+  gw83: { kwh: 8.3, price: 2400.00, label: 'GW8.3-BAT-D-G20 (8.3kWh module)' }
 };
 const STC_BATTERY_CAP = 50;
 
@@ -707,10 +685,7 @@ function calculate() {
     addRow(batMod.label, batteryModules, fmt(batMod.price), batTotal);
   }
 
-  // ── Gateway ──
-  addSection('Gateway');
-  const gwPrice = GATEWAY_PRICES[gatewayType];
-  addRow((gatewayType === 'sp' ? 'SP' : 'TP') + ' Gateway AU (Pro)', 1, fmt(gwPrice), gwPrice);
+  // ── Gateway (removed for GoodWe) ──
 
   // ── Install Kit ──
   addSection('Install Kit');
@@ -727,13 +702,7 @@ function calculate() {
   // ── Cables ──
   if (hasBattery) {
     addSection('Cables');
-    if (threePhase) {
-      addRow('3-phase battery cable (10m)', 1, fmt(155.00), 155.00);
-      addRow('3-phase gateway cable (6m)', 1, fmt(147.00), 147.00);
-    } else {
-      addRow('1-phase battery cable (10m)', 1, fmt(132.00), 132.00);
-      addRow('1-phase gateway cable (3m)', 1, fmt(73.50), 73.50);
-    }
+    addRow('Battery cable (10m)', 1, fmt(132.00), 132.00);
   }
 
   // ── Electrical ──
