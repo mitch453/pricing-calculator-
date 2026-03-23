@@ -385,6 +385,16 @@
     color: var(--dark-green);
     font-variant-numeric: tabular-nums;
   }
+  .recommended-margin {
+    text-align: right;
+    font-size: 0.9em;
+    color: #27ae60;
+    font-weight: 600;
+    padding: 2px 0 8px 0;
+  }
+  .margin-checker {
+    padding: 8px 0;
+  }
   .sale-section {
     margin-top: 1.25rem;
     padding-top: 1rem;
@@ -614,6 +624,20 @@ function isSP(inv) { return inv.endsWith('sp'); }
 
 function fmt(n) {
   return '$' + n.toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function updateCustomMargin(netMaterialCost, extrasIncGst) {
+  const input = document.getElementById('customPriceInput');
+  const result = document.getElementById('customMarginResult');
+  const val = parseFloat(input.value);
+  if (!val || val <= 0) { result.innerHTML = ''; return; }
+  const marginDollars = val - netMaterialCost - extrasIncGst;
+  const marginPct = ((val - extrasIncGst) > 0) ? (marginDollars / (val - extrasIncGst)) * 100 : 0;
+  const color = marginPct < 35 ? '#c0392b' : '#27ae60';
+  result.innerHTML = `<div style="padding:10px;margin-top:4px;border-radius:8px;background:${marginPct < 35 ? '#ffeaea' : '#eafff0'};border:1px solid ${color};">` +
+    `<span style="font-weight:700;color:${color};font-size:1.1em;">Margin: ${fmt(marginDollars)} (${marginPct.toFixed(1)}%)</span>` +
+    `${marginPct < 35 ? '<div style="color:#c0392b;font-size:0.85em;margin-top:4px;">⚠ Below 35% threshold</div>' : '<div style="color:#27ae60;font-size:0.85em;margin-top:4px;">✓ Above 35% threshold</div>'}` +
+    '</div>';
 }
 
 function calculate() {
@@ -854,28 +878,22 @@ function calculate() {
     sHtml += '</div>';
   }
 
+  // Show margin % on recommended price
+  const recMarginDollars = recommendedPrice - netMaterialCost - extrasIncGst;
+  const recMarginPct = recommendedPrice > 0 ? ((recMarginDollars / (recommendedPrice - extrasIncGst)) * 100) : 0;
   sHtml += `<div class="recommended-row"><span class="label">Recommended Sale Price${extrasIncGst > 0 ? ' (+ extras)' : ''}</span><span class="value">${fmt(recommendedPrice)}</span></div>`;
+  sHtml += `<div class="recommended-margin">Margin: ${fmt(recMarginDollars)} (${recMarginPct.toFixed(1)}%)</div>`;
+
+  // ── Custom Price Margin Checker ──
+  sHtml += '<div class="summary-divider"></div>';
+  sHtml += '<div class="margin-checker">';
+  sHtml += '<label style="font-weight:700;font-size:0.95em;">Check Your Price</label>';
+  sHtml += `<input type="number" id="customPriceInput" placeholder="Enter sale price inc GST" step="0.01" style="width:100%;padding:10px;border:2px solid #3a6b35;border-radius:8px;font-size:1em;margin:8px 0;" value="${salePrice !== null ? salePrice : ''}" oninput="updateCustomMargin(${netMaterialCost}, ${extrasIncGst})">`;
+  sHtml += '<div id="customMarginResult"></div>';
+  sHtml += '</div>';
 
   // ── Margin (admin only) ──
   let marginHtml = '';
-  if (salePrice !== null && salePrice > 0) {
-    const marginDollars = salePrice - netMaterialCost;
-    const marginPct = (marginDollars / salePrice) * 100;
-    marginHtml += '<div class="admin-only">';
-    marginHtml += '<div class="summary-divider"></div>';
-    marginHtml += summaryRow('Sale Price (inc GST)', fmt(salePrice));
-    marginHtml += summaryRow('Gross Margin', fmt(marginDollars), marginPct < 35 ? 'danger' : '');
-    marginHtml += summaryRow('Margin %', marginPct.toFixed(2) + '%', marginPct < 35 ? 'danger' : '');
-
-    if (marginPct < 35) {
-      marginHtml += `<div class="margin-alert low">Margin is ${marginPct.toFixed(2)}% &mdash; below the 35% threshold</div>`;
-    } else {
-      marginHtml += `<div class="margin-alert ok">Margin is ${marginPct.toFixed(2)}% &mdash; above the 35% threshold</div>`;
-    }
-    marginHtml += '</div>';
-  }
-
-  sHtml += marginHtml;
   document.getElementById('summary').innerHTML = sHtml;
   document.getElementById('summary-card').style.display = '';
   // Keep admin-only sections hidden unless admin mode is on
