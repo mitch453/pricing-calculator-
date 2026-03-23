@@ -545,6 +545,10 @@
         <label><input type="checkbox" class="extra-cb" data-price="2000" onchange="calculate()"><span>Decommission Existing Battery</span><span class="extra-price">$2,000</span></label>
       </div>
 
+      <div class="form-group" style="grid-column: 1 / -1;">
+        <label style="font-weight:700;">Check Your Price (inc GST)</label>
+        <input type="number" id="customPriceField" placeholder="Enter sale price inc GST" step="0.01" style="width:100%;padding:10px;border:2px solid #3a6b35;border-radius:8px;font-size:1em;" oninput="calculate()">
+      </div>
       <div class="form-footer">
         <input type="hidden" id="salePrice" value="">
         <button id="btn-calculate" onclick="calculate()" style="min-width:150px;height:34px;">Calculate</button>
@@ -624,20 +628,6 @@ function isSP(inv) { return inv.endsWith('sp'); }
 
 function fmt(n) {
   return '$' + n.toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
-
-function updateCustomMargin(netMaterialCost, extrasIncGst) {
-  const input = document.getElementById('customPriceInput');
-  const result = document.getElementById('customMarginResult');
-  const val = parseFloat(input.value);
-  if (!val || val <= 0) { result.innerHTML = ''; return; }
-  const marginDollars = val - netMaterialCost - extrasIncGst;
-  const marginPct = ((val - extrasIncGst) > 0) ? (marginDollars / (val - extrasIncGst)) * 100 : 0;
-  const color = marginPct < 35 ? '#c0392b' : '#27ae60';
-  result.innerHTML = `<div style="padding:10px;margin-top:4px;border-radius:8px;background:${marginPct < 35 ? '#ffeaea' : '#eafff0'};border:1px solid ${color};">` +
-    `<span style="font-weight:700;color:${color};font-size:1.1em;">Margin: ${fmt(marginDollars)} (${marginPct.toFixed(1)}%)</span>` +
-    `${marginPct < 35 ? '<div style="color:#c0392b;font-size:0.85em;margin-top:4px;">⚠ Below 35% threshold</div>' : '<div style="color:#27ae60;font-size:0.85em;margin-top:4px;">✓ Above 35% threshold</div>'}` +
-    '</div>';
 }
 
 function calculate() {
@@ -884,16 +874,19 @@ function calculate() {
   sHtml += `<div class="recommended-row"><span class="label">Recommended Sale Price${extrasIncGst > 0 ? ' (+ extras)' : ''}</span><span class="value">${fmt(recommendedPrice)}</span></div>`;
   sHtml += `<div class="recommended-margin">Margin: ${fmt(recMarginDollars)} (${recMarginPct.toFixed(1)}%)</div>`;
 
-  // ── Custom Price Margin Checker ──
-  sHtml += '<div class="summary-divider"></div>';
-  sHtml += '<div class="margin-checker">';
-  sHtml += '<label style="font-weight:700;font-size:0.95em;">Check Your Price</label>';
-  sHtml += `<input type="number" id="customPriceInput" placeholder="Enter sale price inc GST" step="0.01" style="width:100%;padding:10px;border:2px solid #3a6b35;border-radius:8px;font-size:1em;margin:8px 0;" value="${salePrice !== null ? salePrice : ''}" oninput="updateCustomMargin(${netMaterialCost}, ${extrasIncGst})">`;
-  sHtml += '<div id="customMarginResult"></div>';
-  sHtml += '</div>';
-
-  // ── Margin (admin only) ──
-  let marginHtml = '';
+  // ── Custom Price Margin Result ──
+  const customPrice = parseFloat(document.getElementById('customPriceField').value) || 0;
+  if (customPrice > 0) {
+    const cpMarginDollars = customPrice - netMaterialCost - extrasIncGst;
+    const cpMarginPct = ((customPrice - extrasIncGst) > 0) ? (cpMarginDollars / (customPrice - extrasIncGst)) * 100 : 0;
+    const cpColor = cpMarginPct < 35 ? '#c0392b' : '#27ae60';
+    sHtml += '<div class="summary-divider"></div>';
+    sHtml += `<div style="padding:10px;border-radius:8px;background:${cpMarginPct < 35 ? '#ffeaea' : '#eafff0'};border:1px solid ${cpColor};">`;
+    sHtml += `<div style="font-weight:700;font-size:0.95em;margin-bottom:4px;">Your Price: ${fmt(customPrice)}</div>`;
+    sHtml += `<span style="font-weight:700;color:${cpColor};font-size:1.1em;">Margin: ${fmt(cpMarginDollars)} (${cpMarginPct.toFixed(1)}%)</span>`;
+    sHtml += `${cpMarginPct < 35 ? '<div style="color:#c0392b;font-size:0.85em;margin-top:4px;">⚠ Below 35% threshold</div>' : '<div style="color:#27ae60;font-size:0.85em;margin-top:4px;">✓ Above 35% threshold</div>'}`;
+    sHtml += '</div>';
+  }
   document.getElementById('summary').innerHTML = sHtml;
   document.getElementById('summary-card').style.display = '';
   // Keep admin-only sections hidden unless admin mode is on
@@ -906,12 +899,14 @@ function calculate() {
   const dailyOverhead = 16000;
   const weeklyOverhead = 80000;
 
-  // Use margin from sale price if provided, otherwise use recommended price margin
+  // Use custom price if provided, otherwise use recommended price margin
   let marginPerJob = 0;
-  if (salePrice !== null && salePrice > 0) {
-    marginPerJob = salePrice - netMaterialCost;
+  let usingCustomPrice = false;
+  if (customPrice > 0) {
+    marginPerJob = customPrice - netMaterialCost - extrasIncGst;
+    usingCustomPrice = true;
   } else {
-    marginPerJob = recommendedPrice - netMaterialCost;
+    marginPerJob = recommendedPrice - netMaterialCost - extrasIncGst;
   }
 
   const dailyGrossMargin = jobsPerDay * marginPerJob;
@@ -920,7 +915,7 @@ function calculate() {
   const weeklyNetProfit = weeklyGrossMargin - weeklyOverhead;
 
   let pHtml = '';
-  pHtml += `<div style="font-size:0.75rem;color:var(--muted);margin-bottom:0.5rem;">Job type: <strong>${isBatteryOnly ? 'Battery Only' : 'Solar + Battery'}</strong> &mdash; Capacity: <strong>${jobsPerDay} jobs/day</strong> &mdash; Margin/job: <strong>${fmt(marginPerJob)}</strong></div>`;
+  pHtml += `<div style="font-size:0.75rem;color:var(--muted);margin-bottom:0.5rem;">Job type: <strong>${isBatteryOnly ? 'Battery Only' : 'Solar + Battery'}</strong> &mdash; Capacity: <strong>${jobsPerDay} jobs/day</strong> &mdash; ${usingCustomPrice ? 'Your Price' : 'Rec. Price'}: <strong>${fmt(usingCustomPrice ? customPrice : recommendedPrice)}</strong> &mdash; Margin/job: <strong>${fmt(marginPerJob)}</strong></div>`;
   pHtml += '<div class="profit-grid">';
 
   // Daily
