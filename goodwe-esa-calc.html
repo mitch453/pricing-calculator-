@@ -473,9 +473,17 @@
         <div class="form-group">
           <label>Inverter</label>
           <select id="inverterType">
-            <option value="gw5k">GW5K-EHA-G20</option>
-            <option value="gw8k">GW8K-EHA-G20</option>
-            <option value="gw10k">GW9.999K-EHA-G20</option>
+            <optgroup label="Single Phase">
+              <option value="gw5k">GW5K-EHA-G20</option>
+              <option value="gw8k">GW8K-EHA-G20</option>
+              <option value="gw10k">GW9.999K-EHA-G20</option>
+            </optgroup>
+            <optgroup label="Three Phase">
+              <option value="gw10ktp">GW10K-ET-G20</option>
+              <option value="gw15ktp">GW15K-ET-G20</option>
+              <option value="gw20ktp">GW20K-ET-G20</option>
+              <option value="gw25ktp">GW25K-ET-G20</option>
+            </optgroup>
           </select>
         </div>
         <div class="form-group">
@@ -605,10 +613,12 @@ const RAIL_PER_PANEL = 13.75;
 const DC_CABLE_PER_PANEL = 8;
 
 const INVERTER_PRICES = {
-  gw5k: 1114.00, gw8k: 1689.00, gw10k: 1826.00
+  gw5k: 1114.00, gw8k: 1689.00, gw10k: 1826.00,
+  gw10ktp: 1875.00, gw15ktp: 2002.00, gw20ktp: 2070.00, gw25ktp: 2130.00
 };
 const INVERTER_LABELS = {
-  gw5k: 'GW5K-EHA-G20', gw8k: 'GW8K-EHA-G20', gw10k: 'GW9.999K-EHA-G20'
+  gw5k: 'GW5K-EHA-G20', gw8k: 'GW8K-EHA-G20', gw10k: 'GW9.999K-EHA-G20',
+  gw10ktp: 'GW10K-ET-G20', gw15ktp: 'GW15K-ET-G20', gw20ktp: 'GW20K-ET-G20', gw25ktp: 'GW25K-ET-G20'
 };
 
 const BATTERY_MODULES = {
