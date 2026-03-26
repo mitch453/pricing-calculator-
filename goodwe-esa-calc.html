@@ -553,7 +553,10 @@
         <label><input type="checkbox" class="extra-cb" data-price="2000" onchange="calculate()"><span>Decommission Existing Battery</span><span class="extra-price">$2,000</span></label>
       </div>
 
-      <input type="hidden" id="customPriceField" value="">
+      <div class="form-group" style="grid-column: 1 / -1;">
+        <label style="font-weight:700;">Input Price (inc GST)</label>
+        <input type="number" id="customPriceField" placeholder="Enter sale price inc GST" step="0.01" style="width:100%;padding:10px;border:2px solid #3a6b35;border-radius:8px;font-size:1em;" oninput="calculate()">
+      </div>
       <div class="form-footer">
         <input type="hidden" id="salePrice" value="">
         <button id="btn-calculate" onclick="calculate()" style="min-width:150px;height:34px;">Calculate</button>
@@ -870,7 +873,7 @@ function calculate() {
   // Margin hidden from this calculator
 
   // ── Custom Price Margin Result ──
-  const customPrice = 0;
+  const customPrice = parseFloat(document.getElementById('customPriceField').value) || 0;
   document.getElementById('summary').innerHTML = sHtml;
   document.getElementById('summary-card').style.display = '';
   // Keep admin-only sections hidden unless admin mode is on
