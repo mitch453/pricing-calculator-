@@ -778,8 +778,28 @@ function calculate() {
     solarSTCvalue = solarSTCs * STC_PRICE;
   }
 
-  // No battery STCs for GoodWe batteries — only Sigenergy qualifies
-  const totalSTCvalue = solarSTCvalue;
+  let batterySTCs = 0;
+  let batterySTCvalue = 0;
+  if (hasBattery) {
+    const cappedKwh = Math.min(batteryKwh, STC_BATTERY_CAP);
+    if (installPeriod === 'before') {
+      batterySTCs = Math.floor(cappedKwh * 8.1265508685);
+      batterySTCvalue = batterySTCs * STC_PRICE;
+    } else {
+      let stcs = 0;
+      if (cappedKwh <= 14) {
+        stcs = cappedKwh * 6.8;
+      } else if (cappedKwh <= 28) {
+        stcs = 14 * 6.8 + (cappedKwh - 14) * 4.08;
+      } else {
+        stcs = 14 * 6.8 + 14 * 4.08 + (cappedKwh - 28) * 1.02;
+      }
+      batterySTCs = Math.floor(stcs);
+      batterySTCvalue = batterySTCs * STC_PRICE;
+    }
+  }
+
+  const totalSTCvalue = solarSTCvalue + batterySTCvalue;
   const netMaterialCost = grossTotal - totalSTCvalue;
 
   // ── Summary ──
@@ -789,6 +809,9 @@ function calculate() {
   sHtml += '<div class="summary-divider"></div>';
   if (hasPanels) {
     sHtml += summaryRow(`Solar STCs (${solarSTCs} &times; $${STC_PRICE})`, '&minus; ' + fmt(solarSTCvalue));
+  }
+  if (hasBattery) {
+    sHtml += summaryRow(`Battery STCs (${batterySTCs} &times; $${STC_PRICE})`, '&minus; ' + fmt(batterySTCvalue));
   }
   sHtml += summaryRow('Total STC Rebate', '&minus; ' + fmt(totalSTCvalue), 'big');
   sHtml += '<div class="summary-divider"></div>';
