@@ -703,10 +703,6 @@ function calculate() {
     addSection('Battery');
     const batTotal = batteryModules * batMod.price;
     addRow(batMod.label, batteryModules, fmt(batMod.price), batTotal);
-    // Extra $3,000 for 5-module config
-    if (batteryModules === 5) {
-      addRow('5-module surcharge', 1, fmt(3000), 3000);
-    }
   }
 
   // ── Gateway (removed for GoodWe) ──
