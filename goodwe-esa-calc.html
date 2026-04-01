@@ -824,8 +824,8 @@ function calculate() {
   let recMarginLabel;
 
   if (isBatteryOnly) {
-    recommendedPrice = netMaterialCost / (1 - 0.80);
-    recMarginLabel = '80% margin';
+    recommendedPrice = netMaterialCost / (1 - 0.65);
+    recMarginLabel = '65% margin';
   } else {
     // Solar+battery — flat 57% on everything
     recommendedPrice = netMaterialCost / (1 - 0.54);
