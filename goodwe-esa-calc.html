@@ -852,6 +852,10 @@ function calculate() {
 
   recommendedPrice += extrasIncGst;
 
+  // Flat $3,000 (no margin) for 5-module battery config
+  if (hasBattery && batteryModules === 5) {
+    recommendedPrice += 3000;
+  }
 
   if (extrasIncGst > 0) {
     sHtml += '<div class="admin-only">';
