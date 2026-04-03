@@ -828,8 +828,10 @@ function calculate() {
   let recMarginLabel;
 
   if (isBatteryOnly) {
-    recommendedPrice = netMaterialCost / (1 - 0.59);
-    recMarginLabel = '59% margin';
+    // 60% for 1-2 modules, then -2.5% per module after that
+    const batMargin = batteryModules <= 2 ? 0.60 : 0.60 - ((batteryModules - 2) * 0.025);
+    recommendedPrice = netMaterialCost / (1 - batMargin);
+    recMarginLabel = `${(batMargin * 100).toFixed(1)}% margin`;
   } else {
     // Solar+battery — flat 57% on everything
     recommendedPrice = netMaterialCost / (1 - 0.54);
