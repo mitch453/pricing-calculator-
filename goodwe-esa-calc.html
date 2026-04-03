@@ -504,7 +504,7 @@
           <select id="batteryKwh">
             <option value="0">No Battery</option>
             <option value="41.5" selected>41.5 kWh (5 modules)</option>
-            <option value="49.8">49.8 kWh (6 modules)</option>
+            <option value="49.9">49.9 kWh (6 modules)</option>
           </select>
         </div>
         <input type="hidden" id="gatewayType" value="none">
@@ -936,20 +936,14 @@ function updateBatterySizes() {
   const modType = document.getElementById('batteryModule').value;
   const mod = BATTERY_MODULES[modType];
   const sel = document.getElementById('batteryKwh');
-  const prevKwh = parseFloat(sel.value) || 0;
   sel.innerHTML = '<option value="0">No Battery</option>';
   // Only offer 5 and 6 module options
   for (let i = 5; i <= 6; i++) {
-    const kwh = i * mod.kwh;
+    const kwh = Math.round(i * mod.kwh * 10) / 10;
     sel.innerHTML += `<option value="${kwh}">${kwh} kWh (${i} modules)</option>`;
   }
-  // Try to keep closest previous selection
-  if (prevKwh > 0) {
-    const closest = Math.round(prevKwh / mod.kwh) * mod.kwh;
-    const best = Math.min(Math.max(closest, mod.kwh), maxModules * mod.kwh);
-    sel.value = best;
-    if (!sel.value || sel.value === '0') sel.value = mod.kwh;
-  }
+  // Default to 5 modules
+  sel.value = Math.round(5 * mod.kwh * 10) / 10;
   calculate();
 }
 document.getElementById('batteryModule').addEventListener('change', updateBatterySizes);
