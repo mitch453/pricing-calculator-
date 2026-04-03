@@ -503,8 +503,12 @@
           <label>Battery Size (kWh)</label>
           <select id="batteryKwh">
             <option value="0">No Battery</option>
-            <option value="41.5" selected>41.5 kWh (5 modules)</option>
-            <option value="49.9">49.9 kWh (6 modules)</option>
+            <option value="8.3" selected>8.3 kWh (1 module)</option>
+            <option value="16.6">16.6 kWh (2 modules)</option>
+            <option value="24.9">24.9 kWh (3 modules)</option>
+            <option value="33.2">33.2 kWh (4 modules)</option>
+            <option value="41.5">41.5 kWh (5 modules)</option>
+            <option value="49.8">49.8 kWh (6 modules)</option>
           </select>
         </div>
         <input type="hidden" id="gatewayType" value="none">
@@ -933,13 +937,12 @@ function updateBatterySizes() {
   const mod = BATTERY_MODULES[modType];
   const sel = document.getElementById('batteryKwh');
   sel.innerHTML = '<option value="0">No Battery</option>';
-  // Only offer 5 and 6 module options
-  for (let i = 5; i <= 6; i++) {
+  for (let i = 1; i <= 6; i++) {
     const kwh = Math.round(i * mod.kwh * 10) / 10;
-    sel.innerHTML += `<option value="${kwh}">${kwh} kWh (${i} modules)</option>`;
+    sel.innerHTML += `<option value="${kwh}">${kwh} kWh (${i} module${i > 1 ? 's' : ''})</option>`;
   }
-  // Default to 5 modules
-  sel.value = Math.round(5 * mod.kwh * 10) / 10;
+  // Default to 1 module
+  sel.value = Math.round(1 * mod.kwh * 10) / 10;
   calculate();
 }
 document.getElementById('batteryModule').addEventListener('change', updateBatterySizes);
