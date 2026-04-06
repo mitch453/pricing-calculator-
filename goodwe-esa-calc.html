@@ -833,9 +833,10 @@ function calculate() {
     recommendedPrice = netMaterialCost / (1 - batMargin);
     recMarginLabel = `${(batMargin * 100).toFixed(1)}% margin`;
   } else {
-    // Solar+battery — flat 57% on everything
-    recommendedPrice = netMaterialCost / (1 - 0.54);
-    recMarginLabel = '54% margin';
+    // Solar+battery — same tiered margin as battery-only
+    const solarBatMargin = batteryModules <= 2 ? 0.60 : 0.60 - ((batteryModules - 2) * 0.025);
+    recommendedPrice = netMaterialCost / (1 - solarBatMargin);
+    recMarginLabel = `${(solarBatMargin * 100).toFixed(1)}% margin`;
   }
 
   // ── Extras (no margin, add GST) ──
