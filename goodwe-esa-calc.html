@@ -827,16 +827,15 @@ function calculate() {
   let recommendedPrice;
   let recMarginLabel;
 
+  // Tiered margin: 67% for 1-2 modules, 65% for 3, then -2.5% per module after
+  const tieredMargin = batteryModules <= 2 ? 0.67 : batteryModules === 3 ? 0.65 : 0.65 - ((batteryModules - 3) * 0.025);
+
   if (isBatteryOnly) {
-    // 60% for 1-2 modules, then -2.5% per module after that
-    const batMargin = batteryModules <= 2 ? 0.60 : 0.60 - ((batteryModules - 2) * 0.025);
-    recommendedPrice = netMaterialCost / (1 - batMargin);
-    recMarginLabel = `${(batMargin * 100).toFixed(1)}% margin`;
+    recommendedPrice = netMaterialCost / (1 - tieredMargin);
+    recMarginLabel = `${(tieredMargin * 100).toFixed(1)}% margin`;
   } else {
-    // Solar+battery — same tiered margin as battery-only
-    const solarBatMargin = batteryModules <= 2 ? 0.60 : 0.60 - ((batteryModules - 2) * 0.025);
-    recommendedPrice = netMaterialCost / (1 - solarBatMargin);
-    recMarginLabel = `${(solarBatMargin * 100).toFixed(1)}% margin`;
+    recommendedPrice = netMaterialCost / (1 - tieredMargin);
+    recMarginLabel = `${(tieredMargin * 100).toFixed(1)}% margin`;
   }
 
   // ── Extras (no margin, add GST) ──
