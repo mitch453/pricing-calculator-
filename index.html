@@ -415,22 +415,27 @@
           </select>
         </div>
         <div class="form-group">
-          <label>Battery Module</label>
-          <select id="batteryModule">
-            <option value="bat8">BAT 8.0 (8 kWh) — $3,821.40</option>
-            <option value="bat5">BAT 5.0 (5 kWh) — $3,056.90</option>
+          <label>BAT 8.0 (8 kWh) Modules — $3,821.40 ea</label>
+          <select id="num8kwh" onchange="calculate()">
+            <option value="0">0</option>
+            <option value="1">1</option>
+            <option value="2" selected>2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
           </select>
         </div>
         <div class="form-group">
-          <label>Battery Size (kWh)</label>
-          <select id="batteryKwh">
-            <option value="0">No Battery</option>
-            <option value="8">8 kWh (1 module)</option>
-            <option value="16" selected>16 kWh (2 modules)</option>
-            <option value="24">24 kWh (3 modules)</option>
-            <option value="32">32 kWh (4 modules)</option>
-            <option value="40">40 kWh (5 modules)</option>
-            <option value="48">48 kWh (6 modules)</option>
+          <label>BAT 5.0 (5 kWh) Modules — $3,056.90 ea</label>
+          <select id="num5kwh" onchange="calculate()">
+            <option value="0" selected>0</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
           </select>
         </div>
         <div class="form-group">
@@ -560,9 +565,17 @@ function calculate() {
   const roofType = document.getElementById('roofType').value;
   const inverterType = document.getElementById('inverterType').value;
   const numInverters = parseInt(document.getElementById('numInverters').value);
-  const batteryKwh = parseFloat(document.getElementById('batteryKwh').value) || 0;
-  const batteryModuleType = document.getElementById('batteryModule').value;
-  const batMod = BATTERY_MODULES[batteryModuleType];
+  const num8kwh = parseInt(document.getElementById('num8kwh').value) || 0;
+  const num5kwh = parseInt(document.getElementById('num5kwh').value) || 0;
+  const bat8 = BATTERY_MODULES['bat8'];
+  const bat5 = BATTERY_MODULES['bat5'];
+  const batteryKwh = num8kwh * bat8.kwh + num5kwh * bat5.kwh;
+  const batteryModules = num8kwh + num5kwh;
+  // Build ordered list of module prices for tiered margin calc (8kWh first, then 5kWh)
+  const allModulePrices = [
+    ...Array(num8kwh).fill(bat8.price),
+    ...Array(num5kwh).fill(bat5.price)
+  ];
   const gatewayType = document.getElementById('gatewayType').value;
   const numInstallKits = parseInt(document.getElementById('numInstallKits').value);
   const powerSensor = document.getElementById('powerSensor').value;
@@ -571,9 +584,8 @@ function calculate() {
   const salePrice = salePriceVal ? parseFloat(salePriceVal) : null;
 
   const hasPanels = numPanels > 0;
-  const hasBattery = batteryKwh > 0;
+  const hasBattery = batteryModules > 0;
   const threePhase = isTP(inverterType);
-  const batteryModules = hasBattery ? Math.ceil(batteryKwh / batMod.kwh) : 0;
 
   const rows = [];
   let grossTotal = 0;
@@ -619,8 +631,8 @@ function calculate() {
   // ── Battery ──
   if (hasBattery) {
     addSection('Battery');
-    const batTotal = batteryModules * batMod.price;
-    addRow(batMod.label, batteryModules, fmt(batMod.price), batTotal);
+    if (num8kwh > 0) addRow(bat8.label, num8kwh, fmt(bat8.price), num8kwh * bat8.price);
+    if (num5kwh > 0) addRow(bat5.label, num5kwh, fmt(bat5.price), num5kwh * bat5.price);
   }
 
   // ── Gateway ──
@@ -749,20 +761,21 @@ function calculate() {
     recommendedPrice = netMaterialCost / (1 - 0.35);
     recMarginLabel = '35% margin';
   } else if (!hasBattery || batteryModules <= 3) {
-    // Solar+battery up to 24kWh (3 modules) — flat 45%
+    // Solar+battery up to 3 modules — flat 45%
     recommendedPrice = netMaterialCost / (1 - 0.45);
     recMarginLabel = '45% margin';
   } else {
     // Tiered: first 3 modules at 45%, extra modules at lower margins
-    const modulePrice = batMod.price;
-    const baseCost = netMaterialCost - (batteryModules - 3) * modulePrice;
+    const extraModulePrices = allModulePrices.slice(3);
+    const extraModuleCost = extraModulePrices.reduce((s, p) => s + p, 0);
+    const baseCost = netMaterialCost - extraModuleCost;
     const basePrice = baseCost / (1 - 0.45);
     const tierMargins = [0.30, 0.20, 0.15]; // 4th, 5th, 6th module
     let extraPrice = 0;
-    for (let i = 3; i < batteryModules; i++) {
-      const m = tierMargins[i - 3] !== undefined ? tierMargins[i - 3] : 0.20;
-      extraPrice += modulePrice / (1 - m);
-    }
+    extraModulePrices.forEach((price, idx) => {
+      const m = tierMargins[idx] !== undefined ? tierMargins[idx] : 0.20;
+      extraPrice += price / (1 - m);
+    });
     recommendedPrice = basePrice + extraPrice;
     recMarginLabel = '45% + tiered';
   }
@@ -837,31 +850,7 @@ function summaryRow(label, value, cls) {
   return `<div class="summary-row ${cls || ''}"><span class="label">${label}</span><span class="value">${value}</span></div>`;
 }
 
-// Update battery size options when module type changes
-function updateBatterySizes() {
-  const modType = document.getElementById('batteryModule').value;
-  const mod = BATTERY_MODULES[modType];
-  const sel = document.getElementById('batteryKwh');
-  const prevKwh = parseFloat(sel.value) || 0;
-  sel.innerHTML = '<option value="0">No Battery</option>';
-  const maxModules = Math.floor(50 / mod.kwh); // cap at ~50 kWh
-  for (let i = 1; i <= maxModules; i++) {
-    const kwh = i * mod.kwh;
-    sel.innerHTML += `<option value="${kwh}">${kwh} kWh (${i} module${i > 1 ? 's' : ''})</option>`;
-  }
-  // Try to keep closest previous selection
-  if (prevKwh > 0) {
-    const closest = Math.round(prevKwh / mod.kwh) * mod.kwh;
-    const best = Math.min(Math.max(closest, mod.kwh), maxModules * mod.kwh);
-    sel.value = best;
-    if (!sel.value || sel.value === '0') sel.value = mod.kwh;
-  }
-  calculate();
-}
-document.getElementById('batteryModule').addEventListener('change', updateBatterySizes);
-
 // Auto-calculate on load
-updateBatterySizes();
 calculate();
 </script>
 </body>
