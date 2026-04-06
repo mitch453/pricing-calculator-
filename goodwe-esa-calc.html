@@ -705,8 +705,9 @@ function calculate() {
   // ── Battery ──
   if (hasBattery) {
     addSection('Battery');
-    const batTotal = batteryModules * batMod.price;
-    addRow(batMod.label, batteryModules, fmt(batMod.price), batTotal);
+    for (let m = 1; m <= batteryModules; m++) {
+      addRow(`Module ${m} — ${batMod.kwh} kWh`, 1, fmt(batMod.price), batMod.price);
+    }
   }
 
   // ── Gateway (removed for GoodWe) ──
