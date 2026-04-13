@@ -678,8 +678,17 @@ function calculate() {
   // ── Panels ──
   if (hasPanels) {
     addSection('Panels');
-    const panelCost = numPanels * PANEL_PRICES[panelType];
-    addRow(PANEL_LABELS[panelType], numPanels, fmt(PANEL_PRICES[panelType]), panelCost);
+    const basePrice = PANEL_PRICES[panelType];
+    const doublePrice = basePrice * 2;
+    const standardPanels = Math.min(numPanels, 24);
+    const extraPanels = Math.max(numPanels - 24, 0);
+    const panelCost = standardPanels * basePrice + extraPanels * doublePrice;
+    if (extraPanels > 0) {
+      addRow(PANEL_LABELS[panelType] + ' (first 24)', standardPanels, fmt(basePrice), standardPanels * basePrice);
+      addRow(PANEL_LABELS[panelType] + ' (25+)', extraPanels, fmt(doublePrice), extraPanels * doublePrice);
+    } else {
+      addRow(PANEL_LABELS[panelType], numPanels, fmt(basePrice), panelCost);
+    }
   }
 
   // ── Mounting ──
