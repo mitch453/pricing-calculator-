@@ -393,8 +393,11 @@
         <label><input type="checkbox" class="s-extra-cb" data-price="2000" onchange="calcSig()"><span>Decommission Existing Battery</span><span class="extra-price">$2,000</span></label>
       </div>
 
+      <div class="form-group" style="margin-top:0.6rem;">
+        <label style="font-weight:700;">Input Price (inc GST)</label>
+        <input type="number" id="s-customPriceField" placeholder="Enter sale price inc GST" step="0.01" style="width:100%;padding:10px;border:2px solid #3a6b35;border-radius:8px;font-size:1em;" oninput="calcSig()">
+      </div>
       <div class="form-footer">
-        <input type="hidden" id="s-salePrice" value="">
         <button id="s-btn-calculate" onclick="calcSig()">Calculate</button>
       </div>
     </div>
@@ -773,17 +776,31 @@ function calcSig() {
 
   sHtml += `<div class="recommended-row"><span class="label">Recommended Sale Price${extrasInc>0?' (+ extras)':''}</span><span class="value">${fmt(recPrice)}</span></div>`;
 
+  // Custom price margin
+  const customPrice = parseFloat(g('s-customPriceField').value) || 0;
+  if (customPrice > 0) {
+    const mDollars = customPrice - netCost - extrasInc;
+    const mPct = (mDollars / customPrice) * 100;
+    sHtml += '<div class="admin-only"><div class="summary-divider"></div>';
+    sHtml += summaryRow('Your Price', fmt(customPrice));
+    sHtml += summaryRow('Gross Margin', fmt(mDollars), mPct < 35 ? 'danger' : '');
+    sHtml += summaryRow('Margin %', mPct.toFixed(2)+'%', mPct < 35 ? 'danger' : '');
+    sHtml += `<div class="margin-alert ${mPct<35?'low':'ok'}">Margin is ${mPct.toFixed(2)}% &mdash; ${mPct<35?'below':'above'} 35% threshold</div>`;
+    sHtml += '</div>';
+  }
+
   g('s-summary').innerHTML = sHtml;
   g('s-summary-card').style.display = '';
   if (!adminModeSig) document.querySelectorAll('#section-sig .admin-only').forEach(el => el.style.display = 'none');
 
   // Profit
   const jpd = parseInt(g('s-jobsPerDay').value);
-  const marginPerJob = recPrice - netCost - extrasInc;
+  const activePrice = customPrice > 0 ? customPrice : recPrice;
+  const marginPerJob = activePrice - netCost - extrasInc;
   const dOverhead = 16000, wOverhead = 80000;
   const dGross = jpd * marginPerJob, wGross = jpd * 5 * marginPerJob;
   const dNet = dGross - dOverhead, wNet = wGross - wOverhead;
-  let pHtml = `<div style="font-size:0.75rem;color:var(--muted);margin-bottom:0.5rem;">Job type: <strong>${isBattOnly?'Battery Only':'Solar + Battery'}</strong> &mdash; Capacity: <strong>${jpd} jobs/day</strong> &mdash; Margin/job: <strong>${fmt(marginPerJob)}</strong></div>`;
+  let pHtml = `<div style="font-size:0.75rem;color:var(--muted);margin-bottom:0.5rem;">Job type: <strong>${isBattOnly?'Battery Only':'Solar + Battery'}</strong> &mdash; Capacity: <strong>${jpd} jobs/day</strong> &mdash; ${customPrice>0?'Your Price':'Rec. Price'}: <strong>${fmt(activePrice)}</strong> &mdash; Margin/job: <strong>${fmt(marginPerJob)}</strong></div>`;
   pHtml += '<div class="profit-grid">';
   pHtml += `<div class="profit-box"><h4>Daily</h4><div class="profit-line"><span class="label">Gross margin (${jpd} &times; ${fmt(marginPerJob)})</span><span class="value">${fmt(dGross)}</span></div><div class="profit-line"><span class="label">Overhead</span><span class="value">&minus; ${fmt(dOverhead)}</span></div><div class="profit-line net ${dNet<0?'negative':''}"><span class="label">Net Profit</span><span class="value">${fmt(dNet)}</span></div></div>`;
   pHtml += `<div class="profit-box"><h4>Weekly (5 days)</h4><div class="profit-line"><span class="label">Gross margin (${jpd*5} &times; ${fmt(marginPerJob)})</span><span class="value">${fmt(wGross)}</span></div><div class="profit-line"><span class="label">Overhead</span><span class="value">&minus; ${fmt(wOverhead)}</span></div><div class="profit-line net ${wNet<0?'negative':''}"><span class="label">Net Profit</span><span class="value">${fmt(wNet)}</span></div></div>`;
