@@ -151,6 +151,37 @@
   }
   .form-footer .form-group { flex: 1; min-width: 200px; margin-bottom: 0; }
 
+  /* Extras */
+  .extras-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.35rem 0.75rem;
+  }
+  @media (max-width: 900px) { .extras-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 500px) { .extras-grid { grid-template-columns: 1fr; } }
+  .extras-grid label {
+    display: flex; align-items: center; gap: 0.4rem;
+    font-size: 0.78rem; font-weight: 500; color: var(--text);
+    cursor: pointer; padding: 0.35rem 0.5rem;
+    border-radius: 6px; border: 1.5px solid var(--border-light);
+    background: var(--off-white); transition: all 0.2s;
+  }
+  .extras-grid label:hover { border-color: var(--accent); background: var(--light-green); }
+  .extras-grid input[type="checkbox"] { accent-color: var(--mid-green); width: 16px; height: 16px; flex-shrink: 0; }
+  .extras-grid input[type="checkbox"]:checked + span { color: var(--dark-green); font-weight: 600; }
+  .extras-grid .extra-price { margin-left: auto; color: var(--muted); font-size: 0.72rem; white-space: nowrap; }
+  .extras-grid .extra-select {
+    width: 60px; padding: 0.15rem 0.25rem; border: 1.5px solid var(--border);
+    border-radius: 4px; font-size: 0.75rem; font-family: inherit;
+    background: var(--white); margin-left: auto; flex-shrink: 0;
+  }
+  .extras-grid .per-panel-tag { font-size: 0.62rem; color: var(--accent); font-weight: 600; white-space: nowrap; }
+  .extras-section-label {
+    font-weight: 600; font-size: 0.7rem; color: var(--text-secondary);
+    text-transform: uppercase; letter-spacing: 0.04em;
+    margin-bottom: 0.25rem; margin-top: 0.4rem;
+  }
+
   /* Button */
   #btn-calculate {
     width: 100%;
@@ -474,6 +505,27 @@
           </select>
         </div>
       </div>
+      <div style="padding: 0.75rem 1rem 0.25rem;">
+        <div class="extras-section-label">Extras (ex GST — added to final price)</div>
+        <div class="extras-grid">
+          <label><input type="checkbox" class="extra-cb" data-price="250" onchange="calculate()"><span>Double Storey Install</span><span class="extra-price">$250</span></label>
+          <label><input type="checkbox" class="extra-cb" data-price="70" data-per-panel="true" onchange="calculate()"><span>Tilt Frames</span><span class="per-panel-tag">/panel</span><span class="extra-price">$70</span></label>
+          <label><input type="checkbox" class="extra-cb" data-price="30" data-per-panel="true" onchange="calculate()"><span>Kliplock Feet</span><span class="per-panel-tag">/panel</span><span class="extra-price">$30</span></label>
+          <label><input type="checkbox" class="extra-cb" data-price="200" data-qty-select="splitQty" onchange="calculate()"><span>Split Array</span><select class="extra-select" id="splitQty" onchange="calculate()"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option></select><span class="extra-price">$200 ea</span></label>
+          <label><input type="checkbox" class="extra-cb" data-price="70" data-per-panel="true" onchange="calculate()"><span>30-Degree Pitch</span><span class="per-panel-tag">/panel</span><span class="extra-price">$70</span></label>
+          <label><input type="checkbox" class="extra-cb" data-price="650" onchange="calculate()"><span>New Additional Sub Board</span><span class="extra-price">$650</span></label>
+          <label><input type="checkbox" class="extra-cb" data-price="500" onchange="calculate()"><span>Decommission (4–8 Panels)</span><span class="extra-price">$500</span></label>
+          <label><input type="checkbox" class="extra-cb" data-price="700" onchange="calculate()"><span>Decommission (10–20 Panels)</span><span class="extra-price">$700</span></label>
+          <label><input type="checkbox" class="extra-cb" data-price="380" onchange="calculate()"><span>Bollard</span><span class="extra-price">$380</span></label>
+          <label><input type="checkbox" class="extra-cb" data-price="250" onchange="calculate()"><span>Fireproof Backing</span><span class="extra-price">$250</span></label>
+          <label><input type="checkbox" class="extra-cb" data-price="70" data-per-panel="true" onchange="calculate()"><span>Optimizers</span><span class="per-panel-tag">/panel</span><span class="extra-price">$70</span></label>
+          <label><input type="checkbox" class="extra-cb" data-price="200" onchange="calculate()"><span>Concrete Plinth</span><span class="extra-price">$200</span></label>
+          <label><input type="checkbox" class="extra-cb" data-price="50" data-qty-select="cableMetres" onchange="calculate()"><span>Cable (per metre)</span><select class="extra-select" id="cableMetres" onchange="calculate()"><option value="1">1m</option><option value="2">2m</option><option value="3">3m</option><option value="4">4m</option><option value="5">5m</option><option value="10">10m</option><option value="15">15m</option><option value="20">20m</option><option value="25">25m</option><option value="30">30m</option></select><span class="extra-price">$50/m</span></label>
+          <label><input type="checkbox" class="extra-cb" data-price="150" data-qty-select="breakerQty" onchange="calculate()"><span>Breakers</span><select class="extra-select" id="breakerQty" onchange="calculate()"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option></select><span class="extra-price">$150 ea</span></label>
+          <label><input type="checkbox" class="extra-cb" data-price="650" onchange="calculate()"><span>Hot Water Timer</span><span class="extra-price">$650</span></label>
+          <label><input type="checkbox" class="extra-cb" data-price="2000" onchange="calculate()"><span>Decommission Existing Battery</span><span class="extra-price">$2,000</span></label>
+        </div>
+      </div>
       <div class="form-footer">
         <div class="form-group">
           <label>Sale Price (inc GST)</label>
@@ -782,12 +834,38 @@ function calculate() {
     recMarginLabel = '45% + tiered';
   }
 
-  sHtml += `<div class="recommended-row"><span class="label">Recommended Sale Price (${recMarginLabel})</span><span class="value">${fmt(recommendedPrice)}</span></div>`;
+  // ── Extras (no margin, add GST) ──
+  let extrasExGst = 0;
+  const extraItems = [];
+  document.querySelectorAll('.extra-cb:checked').forEach(cb => {
+    const unitPrice = parseFloat(cb.dataset.price);
+    let qty = 1;
+    if (cb.dataset.perPanel === 'true') {
+      qty = numPanels;
+    } else if (cb.dataset.qtySelect) {
+      qty = parseInt(document.getElementById(cb.dataset.qtySelect).value) || 1;
+    }
+    const lineTotal = unitPrice * qty;
+    const name = cb.nextElementSibling.textContent;
+    extrasExGst += lineTotal;
+    extraItems.push({ name, lineTotal });
+  });
+  const extrasIncGst = extrasExGst * 1.1;
+  recommendedPrice += extrasIncGst;
+
+  if (extrasIncGst > 0) {
+    sHtml += '<div class="summary-divider"></div>';
+    sHtml += summaryRow('Extras (ex GST)', fmt(extrasExGst));
+    sHtml += summaryRow('Extras GST', fmt(extrasIncGst - extrasExGst));
+    sHtml += summaryRow('Extras Total (inc GST)', fmt(extrasIncGst));
+  }
+
+  sHtml += `<div class="recommended-row"><span class="label">Recommended Sale Price${extrasIncGst > 0 ? ' (+ extras)' : ''} (${recMarginLabel})</span><span class="value">${fmt(recommendedPrice)}</span></div>`;
 
   // ── Margin ──
   let marginHtml = '';
   if (salePrice !== null && salePrice > 0) {
-    const marginDollars = salePrice - netMaterialCost;
+    const marginDollars = salePrice - netMaterialCost - extrasIncGst;
     const marginPct = (marginDollars / salePrice) * 100;
     sHtml += '<div class="summary-divider"></div>';
     sHtml += summaryRow('Sale Price (inc GST)', fmt(salePrice));
@@ -813,9 +891,9 @@ function calculate() {
   // Use margin from sale price if provided, otherwise use recommended price margin
   let marginPerJob = 0;
   if (salePrice !== null && salePrice > 0) {
-    marginPerJob = salePrice - netMaterialCost;
+    marginPerJob = salePrice - netMaterialCost - extrasIncGst;
   } else {
-    marginPerJob = recommendedPrice - netMaterialCost;
+    marginPerJob = recommendedPrice - netMaterialCost - extrasIncGst;
   }
 
   const dailyGrossMargin = jobsPerDay * marginPerJob;
