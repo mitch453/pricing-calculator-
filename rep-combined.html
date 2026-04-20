@@ -468,12 +468,15 @@
               <option value="gw5k">GW5K-EHA-G20</option>
               <option value="gw8k">GW8K-EHA-G20</option>
               <option value="gw10k">GW9.999K-EHA-G20</option>
+              <option value="gw7khca">GW7K-HCA</option>
             </optgroup>
             <optgroup label="Three Phase">
               <option value="gw10ktp">GW10K-ET-G20</option>
               <option value="gw15ktp">GW15K-ET-G20</option>
               <option value="gw20ktp">GW20K-ET-G20</option>
               <option value="gw25ktp">GW25K-ET-G20</option>
+              <option value="gw11khcatp">GW11K-HCA</option>
+              <option value="gw22khcatp">GW22K-HCA</option>
             </optgroup>
           </select>
         </div>
@@ -837,12 +840,12 @@ const GW_MOUNTING      = { tin: 6.50, tile: 14.50 };
 const GW_RAIL          = 13.75;
 const GW_DC_CABLE      = 8;
 const GW_INVERTER_PRICES = {
-  gw5k:1114, gw8k:1689, gw10k:1826,
-  gw10ktp:1875, gw15ktp:2002, gw20ktp:2070, gw25ktp:2130
+  gw5k:1114, gw8k:1689, gw10k:1826, gw7khca:1900,
+  gw10ktp:1875, gw15ktp:2002, gw20ktp:2070, gw25ktp:2130, gw11khcatp:2000, gw22khcatp:2400
 };
 const GW_INVERTER_LABELS = {
-  gw5k:'GW5K-EHA-G20', gw8k:'GW8K-EHA-G20', gw10k:'GW9.999K-EHA-G20',
-  gw10ktp:'GW10K-ET-G20', gw15ktp:'GW15K-ET-G20', gw20ktp:'GW20K-ET-G20', gw25ktp:'GW25K-ET-G20'
+  gw5k:'GW5K-EHA-G20', gw8k:'GW8K-EHA-G20', gw10k:'GW9.999K-EHA-G20', gw7khca:'GW7K-HCA',
+  gw10ktp:'GW10K-ET-G20', gw15ktp:'GW15K-ET-G20', gw20ktp:'GW20K-ET-G20', gw25ktp:'GW25K-ET-G20', gw11khcatp:'GW11K-HCA', gw22khcatp:'GW22K-HCA'
 };
 const GW_BATTERY_MODULES = {
   gw83: { kwh: 8.3, price: 2400, label: 'GW8.3-BAT-D-G20 (8.3kWh module)' }
