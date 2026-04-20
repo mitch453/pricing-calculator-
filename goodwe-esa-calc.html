@@ -479,15 +479,12 @@
               <option value="gw5k">GW5K-EHA-G20</option>
               <option value="gw8k">GW8K-EHA-G20</option>
               <option value="gw10k">GW9.999K-EHA-G20</option>
-              <option value="gw7khca">GW7K-HCA</option>
             </optgroup>
             <optgroup label="Three Phase">
               <option value="gw10ktp">GW10K-ET-G20</option>
               <option value="gw15ktp">GW15K-ET-G20</option>
               <option value="gw20ktp">GW20K-ET-G20</option>
               <option value="gw25ktp">GW25K-ET-G20</option>
-              <option value="gw11khcatp">GW11K-HCA</option>
-              <option value="gw22khcatp">GW22K-HCA</option>
             </optgroup>
           </select>
         </div>
@@ -557,6 +554,15 @@
         <label><input type="checkbox" class="extra-cb" data-price="650" onchange="calculate()"><span>Hot Water Timer</span><span class="extra-price">$650</span></label>
         <label><input type="checkbox" class="extra-cb" data-price="2000" onchange="calculate()"><span>Decommission Existing Battery</span><span class="extra-price">$2,000</span></label>
       </div>
+      <div class="form-group" style="margin-top:0.5rem;">
+        <label>Car Charger</label>
+        <select id="carCharger" onchange="calculate()">
+          <option value="none">None</option>
+          <option value="gw7khca">GW7K-HCA — 7kW Single Phase ($1,900 ex GST)</option>
+          <option value="gw11khca">GW11K-HCA — 11kW Three Phase ($2,000 ex GST)</option>
+          <option value="gw22khca">GW22K-HCA — 22kW Three Phase ($2,400 ex GST)</option>
+        </select>
+      </div>
 
       <div class="form-group" style="grid-column: 1 / -1;">
         <label style="font-weight:700;">Input Price (inc GST)</label>
@@ -618,13 +624,15 @@ const RAIL_PER_PANEL = 13.75;
 const DC_CABLE_PER_PANEL = 8;
 
 const INVERTER_PRICES = {
-  gw5k: 1114.00, gw8k: 1689.00, gw10k: 1826.00, gw7khca: 1900.00,
-  gw10ktp: 1875.00, gw15ktp: 2002.00, gw20ktp: 2070.00, gw25ktp: 2130.00, gw11khcatp: 2000.00, gw22khcatp: 2400.00
+  gw5k: 1114.00, gw8k: 1689.00, gw10k: 1826.00,
+  gw10ktp: 1875.00, gw15ktp: 2002.00, gw20ktp: 2070.00, gw25ktp: 2130.00
 };
 const INVERTER_LABELS = {
-  gw5k: 'GW5K-EHA-G20', gw8k: 'GW8K-EHA-G20', gw10k: 'GW9.999K-EHA-G20', gw7khca: 'GW7K-HCA',
-  gw10ktp: 'GW10K-ET-G20', gw15ktp: 'GW15K-ET-G20', gw20ktp: 'GW20K-ET-G20', gw25ktp: 'GW25K-ET-G20', gw11khcatp: 'GW11K-HCA', gw22khcatp: 'GW22K-HCA'
+  gw5k: 'GW5K-EHA-G20', gw8k: 'GW8K-EHA-G20', gw10k: 'GW9.999K-EHA-G20',
+  gw10ktp: 'GW10K-ET-G20', gw15ktp: 'GW15K-ET-G20', gw20ktp: 'GW20K-ET-G20', gw25ktp: 'GW25K-ET-G20'
 };
+const CAR_CHARGER_PRICES = { none: 0, gw7khca: 1900, gw11khca: 2000, gw22khca: 2400 };
+const CAR_CHARGER_LABELS = { none: '', gw7khca: 'GW7K-HCA (7kW Single Phase)', gw11khca: 'GW11K-HCA (11kW Three Phase)', gw22khca: 'GW22K-HCA (22kW Three Phase)' };
 
 const BATTERY_MODULES = {
   gw83: { kwh: 8.3, price: 2400.00, label: 'GW8.3-BAT-D-G20 (8.3kWh module)' }
@@ -869,6 +877,13 @@ function calculate() {
     extrasExGst += lineTotal;
     extraItems.push({ name, lineTotal });
   });
+  // Car charger
+  const carChargerType = document.getElementById('carCharger').value;
+  const carChargerExGst = CAR_CHARGER_PRICES[carChargerType] || 0;
+  if (carChargerExGst > 0) {
+    extrasExGst += carChargerExGst;
+    extraItems.push({ name: CAR_CHARGER_LABELS[carChargerType], lineTotal: carChargerExGst });
+  }
   const extrasIncGst = extrasExGst * 1.1;
 
   recommendedPrice += extrasIncGst;
