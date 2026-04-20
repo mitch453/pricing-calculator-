@@ -392,6 +392,15 @@
         <label><input type="checkbox" class="s-extra-cb" data-price="650" onchange="calcSig()"><span>Hot Water Timer</span><span class="extra-price">$650</span></label>
         <label><input type="checkbox" class="s-extra-cb" data-price="2000" onchange="calcSig()"><span>Decommission Existing Battery</span><span class="extra-price">$2,000</span></label>
       </div>
+      <div class="form-group" style="margin-top:0.5rem;">
+        <label>Car Charger</label>
+        <select id="s-carCharger" onchange="calcSig()">
+          <option value="none">None</option>
+          <option value="gw7khca">GW7K-HCA — 7kW Single Phase ($1,900 ex GST)</option>
+          <option value="gw11khca">GW11K-HCA — 11kW Three Phase ($2,000 ex GST)</option>
+          <option value="gw22khca">GW22K-HCA — 22kW Three Phase ($2,400 ex GST)</option>
+        </select>
+      </div>
 
       <div class="form-group" style="margin-top:0.6rem;">
         <label style="font-weight:700;">Input Price (inc GST)</label>
@@ -772,6 +781,9 @@ function calcSig() {
     else if (cb.dataset.qtySelect) qty = parseInt(g(cb.dataset.qtySelect)?.value) || 1;
     extrasEx += up * qty;
   });
+  // Car charger
+  const sigCarChargerType = g('s-carCharger').value;
+  extrasEx += GW_CAR_CHARGER_PRICES[sigCarChargerType] || 0;
   const extrasInc = extrasEx * 1.1;
   recPrice += extrasInc;
 

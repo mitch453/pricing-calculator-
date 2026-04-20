@@ -525,6 +525,15 @@
           <label><input type="checkbox" class="extra-cb" data-price="650" onchange="calculate()"><span>Hot Water Timer</span><span class="extra-price">$650</span></label>
           <label><input type="checkbox" class="extra-cb" data-price="2000" onchange="calculate()"><span>Decommission Existing Battery</span><span class="extra-price">$2,000</span></label>
         </div>
+        <div class="form-group" style="margin-top:0.5rem;">
+          <label>Car Charger</label>
+          <select id="carCharger" onchange="calculate()">
+            <option value="none">None</option>
+            <option value="gw7khca">GW7K-HCA — 7kW Single Phase ($1,900 ex GST)</option>
+            <option value="gw11khca">GW11K-HCA — 11kW Three Phase ($2,000 ex GST)</option>
+            <option value="gw22khca">GW22K-HCA — 22kW Three Phase ($2,400 ex GST)</option>
+          </select>
+        </div>
       </div>
       <div class="form-footer">
         <div class="form-group">
@@ -597,6 +606,8 @@ const BATTERY_MODULES = {
   bat8: { kwh: 8, price: 3821.40, label: 'Sigenergy BAT 8.0 (8kWh module)' },
   bat5: { kwh: 5, price: 3056.90, label: 'Sigenergy BAT 5.0 (5kWh module)' }
 };
+const CAR_CHARGER_PRICES = { none: 0, gw7khca: 1900, gw11khca: 2000, gw22khca: 2400 };
+const CAR_CHARGER_LABELS = { none: '', gw7khca: 'GW7K-HCA (7kW Single Phase)', gw11khca: 'GW11K-HCA (11kW Three Phase)', gw22khca: 'GW22K-HCA (22kW Three Phase)' };
 const STC_BATTERY_CAP = 50;
 
 const GATEWAY_PRICES = { sp: 756.86, tp: 935.45 };
@@ -837,6 +848,13 @@ function calculate() {
   // ── Extras (no margin, add GST) ──
   let extrasExGst = 0;
   const extraItems = [];
+  // Car charger
+  const carChargerType = document.getElementById('carCharger').value;
+  const carChargerExGst = CAR_CHARGER_PRICES[carChargerType] || 0;
+  if (carChargerExGst > 0) {
+    extrasExGst += carChargerExGst;
+    extraItems.push({ name: CAR_CHARGER_LABELS[carChargerType], lineTotal: carChargerExGst });
+  }
   document.querySelectorAll('.extra-cb:checked').forEach(cb => {
     const unitPrice = parseFloat(cb.dataset.price);
     let qty = 1;
