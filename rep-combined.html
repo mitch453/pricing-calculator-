@@ -808,7 +808,7 @@ function calcSig() {
   const jpd = parseInt(g('s-jobsPerDay').value);
   const activePrice = customPrice > 0 ? customPrice : recPrice;
   const marginPerJob = activePrice - netCost - extrasInc;
-  const dOverhead = 16000, wOverhead = 80000;
+  const dOverhead = 18600, wOverhead = 93000;
   const dGross = jpd * marginPerJob, wGross = jpd * 5 * marginPerJob;
   const dNet = dGross - dOverhead, wNet = wGross - wOverhead;
   let pHtml = `<div style="font-size:0.75rem;color:var(--muted);margin-bottom:0.5rem;">Job type: <strong>${isBattOnly?'Battery Only':'Solar + Battery'}</strong> &mdash; Capacity: <strong>${jpd} jobs/day</strong> &mdash; ${customPrice>0?'Your Price':'Rec. Price'}: <strong>${fmt(activePrice)}</strong> &mdash; Margin/job: <strong>${fmt(marginPerJob)}</strong></div>`;
@@ -1023,7 +1023,7 @@ function calcGW() {
   const jpd = parseInt(g('g-jobsPerDay').value);
   const activePrice = customPrice > 0 ? customPrice : recPrice;
   const marginPerJob = activePrice - netCost - extrasInc;
-  const dOverhead = 16000, wOverhead = 80000;
+  const dOverhead = 18600, wOverhead = 93000;
   const dGross = jpd * marginPerJob, wGross = jpd * 5 * marginPerJob;
   const dNet = dGross - dOverhead, wNet = wGross - wOverhead;
   let pHtml = `<div style="font-size:0.75rem;color:var(--muted);margin-bottom:0.5rem;">Job type: <strong>${isBattOnly?'Battery Only':'Solar + Battery'}</strong> &mdash; Capacity: <strong>${jpd} jobs/day</strong> &mdash; ${customPrice>0?'Your Price':'Rec. Price'}: <strong>${fmt(activePrice)}</strong> &mdash; Margin/job: <strong>${fmt(marginPerJob)}</strong></div>`;
