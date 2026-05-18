@@ -586,6 +586,29 @@
       </div>
     </div>
 
+    <!-- PROFIT PROJECTION -->
+    <div class="card" id="s-profit-card">
+      <div class="card-header">Daily &amp; Weekly Profit Projection</div>
+      <div class="card-body">
+        <div class="form-group" style="margin-bottom:0.75rem;">
+          <label>Jobs Per Day</label>
+          <select id="s-jobsPerDay" onchange="calcSig()">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3" selected>3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+          </select>
+        </div>
+        <div id="s-profit"></div>
+      </div>
+    </div>
+
   </div>
 </div><!-- end #section-sig -->
 
@@ -737,6 +760,29 @@
       </div>
     </div>
 
+    <!-- PROFIT PROJECTION -->
+    <div class="card" id="g-profit-card">
+      <div class="card-header">Daily &amp; Weekly Profit Projection</div>
+      <div class="card-body">
+        <div class="form-group" style="margin-bottom:0.75rem;">
+          <label>Jobs Per Day</label>
+          <select id="g-jobsPerDay" onchange="calcGW()">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3" selected>3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+          </select>
+        </div>
+        <div id="g-profit"></div>
+      </div>
+    </div>
+
   </div>
 </div><!-- end #section-gw -->
 
@@ -772,6 +818,10 @@ const SIG_BAT8  = { kwh: 8,   price: 2721.40, label: 'Sigenergy BAT 8.0 (8kWh mo
 const SIG_BAT5  = { kwh: 5,   price: 3056.90, label: 'Sigenergy BAT 5.0 (5kWh module)' };
 const SIG_GATEWAY_PRICES = { sp: 756.86, tp: 935.45 };
 const SIG_STC_BATTERY_CAP = 50;
+// Overheads
+const DAILY_OVERHEAD  = 18600;
+const WEEKLY_OVERHEAD = 93000;
+
 // ================================================================
 // GOODWE PRICING DATA
 // ================================================================
@@ -810,6 +860,34 @@ function calcBatterySTCs(batteryKwh, cap) {
     stcs = 14 * 6.8 + 14 * 4.08 + (cappedKwh - 28) * 1.02;
   }
   return Math.floor(stcs);
+}
+
+function buildProfitHtml(isBatteryOnly, jobsPerDay, marginPerJob, labelExtra, noPriceMsg) {
+  if (noPriceMsg) {
+    return `<div style="padding:0.5rem;color:var(--muted);font-size:0.85rem;text-align:center;">${noPriceMsg}</div>`;
+  }
+  const dailyGrossMargin  = jobsPerDay * marginPerJob;
+  const weeklyGrossMargin = jobsPerDay * 5 * marginPerJob;
+  const dailyNetProfit    = dailyGrossMargin - DAILY_OVERHEAD;
+  const weeklyNetProfit   = weeklyGrossMargin - WEEKLY_OVERHEAD;
+
+  let h = `<div style="font-size:0.75rem;color:var(--muted);margin-bottom:0.5rem;">Job type: <strong>${isBatteryOnly ? 'Battery Only' : 'Solar + Battery'}</strong> &mdash; Capacity: <strong>${jobsPerDay} jobs/day</strong>${labelExtra} &mdash; Margin/job: <strong>${fmt(marginPerJob)}</strong></div>`;
+  h += '<div class="profit-grid">';
+
+  h += '<div class="profit-box"><h4>Daily</h4>';
+  h += `<div class="profit-line"><span class="label">Gross margin (${jobsPerDay} jobs &times; ${fmt(marginPerJob)})</span><span class="value">${fmt(dailyGrossMargin)}</span></div>`;
+  h += `<div class="profit-line"><span class="label">Overhead</span><span class="value">&minus; ${fmt(DAILY_OVERHEAD)}</span></div>`;
+  h += `<div class="profit-line net ${dailyNetProfit < 0 ? 'negative' : ''}"><span class="label">Net Profit</span><span class="value">${fmt(dailyNetProfit)}</span></div>`;
+  h += '</div>';
+
+  h += '<div class="profit-box"><h4>Weekly (5 days)</h4>';
+  h += `<div class="profit-line"><span class="label">Gross margin (${jobsPerDay * 5} jobs &times; ${fmt(marginPerJob)})</span><span class="value">${fmt(weeklyGrossMargin)}</span></div>`;
+  h += `<div class="profit-line"><span class="label">Overhead</span><span class="value">&minus; ${fmt(WEEKLY_OVERHEAD)}</span></div>`;
+  h += `<div class="profit-line net ${weeklyNetProfit < 0 ? 'negative' : ''}"><span class="label">Net Profit</span><span class="value">${fmt(weeklyNetProfit)}</span></div>`;
+  h += '</div>';
+
+  h += '</div>';
+  return h;
 }
 
 // ================================================================
@@ -1005,6 +1083,16 @@ function calcSig() {
 
   document.getElementById('s-summary').innerHTML = sHtml;
   document.getElementById('s-summary-card').style.display = '';
+
+  // Profit (based on entered sale price)
+  const jobsPerDay = parseInt(document.getElementById('s-jobsPerDay').value);
+  if (salePrice !== null && salePrice > 0) {
+    const marginPerJob = salePrice - netMaterialCost - extrasIncGst;
+    document.getElementById('s-profit').innerHTML = buildProfitHtml(isBatteryOnly, jobsPerDay, marginPerJob, '');
+  } else {
+    document.getElementById('s-profit').innerHTML = buildProfitHtml(false, jobsPerDay, 0, '', 'Enter a Sale Price (inc GST) above to project daily &amp; weekly profit.');
+  }
+  document.getElementById('s-profit-card').style.display = '';
 }
 
 // ================================================================
@@ -1205,6 +1293,17 @@ function calcGW() {
 
   document.getElementById('g-summary').innerHTML = sHtml;
   document.getElementById('g-summary-card').style.display = '';
+
+  // Profit (based on entered custom price)
+  const jobsPerDay = parseInt(document.getElementById('g-jobsPerDay').value);
+  if (customPrice > 0) {
+    const marginPerJob = customPrice - netMaterialCost - extrasIncGst;
+    const labelExtra   = ` &mdash; Your Price: <strong>${fmt(customPrice)}</strong>`;
+    document.getElementById('g-profit').innerHTML = buildProfitHtml(isBatteryOnly, jobsPerDay, marginPerJob, labelExtra);
+  } else {
+    document.getElementById('g-profit').innerHTML = buildProfitHtml(false, jobsPerDay, 0, '', 'Enter a price in "Check Your Price (inc GST)" above to project daily &amp; weekly profit.');
+  }
+  document.getElementById('g-profit-card').style.display = '';
 }
 
 // ================================================================
