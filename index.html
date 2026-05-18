@@ -816,9 +816,12 @@ function calculate() {
   let recommendedPrice;
   let recMarginLabel;
 
-  // 50% gross margin (all job types)
-  recommendedPrice = netMaterialCost / (1 - 0.50);
-  recMarginLabel = '50% margin';
+  // Tiered gross margin by number of battery modules (1=65%, 2=60%, 3=57%, 4=54%, 5=51%, 6+=48%)
+  const MODULE_MARGINS = [0.65, 0.60, 0.57, 0.54, 0.51, 0.48];
+  const marginIdx = batteryModules > 0 ? Math.min(batteryModules - 1, MODULE_MARGINS.length - 1) : 0;
+  const tieredMargin = MODULE_MARGINS[marginIdx];
+  recommendedPrice = netMaterialCost / (1 - tieredMargin);
+  recMarginLabel = `${(tieredMargin * 100).toFixed(0)}% margin (${batteryModules || 0} module${batteryModules !== 1 ? 's' : ''})`;
 
   // ── Extras (no margin, add GST) ──
   let extrasExGst = 0;
