@@ -804,6 +804,7 @@ function calcSig() {
   if (!adminModeSig) document.querySelectorAll('#section-sig .admin-only').forEach(el => el.style.display = 'none');
 
   // Profit
+  const isBattOnly = !hasPanels && hasBattery;
   const jpd = parseInt(g('s-jobsPerDay').value);
   const activePrice = customPrice > 0 ? customPrice : recPrice;
   const marginPerJob = activePrice - netCost - extrasInc;
