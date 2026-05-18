@@ -756,21 +756,10 @@ function calcSig() {
   sHtml += '</div>';
 
   // Recommended price
-  const isBattOnly = !hasPanels && hasBattery;
-  let recPrice;
-  if (isBattOnly) {
-    recPrice = netCost / (1 - 0.35);
-  } else if (!hasBattery || battMods <= 3) {
-    recPrice = netCost / (1 - 0.45);
-  } else {
-    const extraPrices = Array(battMods - 3).fill(batMod.price);
-    const extraCost   = extraPrices.reduce((s,p)=>s+p,0);
-    const basePrice   = (netCost - extraCost) / (1 - 0.45);
-    const tiers       = [0.30, 0.20, 0.15];
-    let extraPrice = 0;
-    extraPrices.forEach((p, i) => { extraPrice += p / (1 - (tiers[i]??0.20)); });
-    recPrice = basePrice + extraPrice;
-  }
+  const SIG_MODULE_MARGINS = [0.65, 0.60, 0.57, 0.54, 0.51, 0.48];
+  const sigMarginIdx = battMods > 0 ? Math.min(battMods - 1, SIG_MODULE_MARGINS.length - 1) : 0;
+  const sigTieredMargin = SIG_MODULE_MARGINS[sigMarginIdx];
+  let recPrice = netCost / (1 - sigTieredMargin);
 
   // Extras
   let extrasEx = 0;
