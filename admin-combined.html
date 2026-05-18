@@ -586,29 +586,6 @@
       </div>
     </div>
 
-    <!-- PROFIT PROJECTION -->
-    <div class="card" id="s-profit-card">
-      <div class="card-header">Daily &amp; Weekly Profit Projection</div>
-      <div class="card-body">
-        <div class="form-group" style="margin-bottom:0.75rem;">
-          <label>Jobs Per Day</label>
-          <select id="s-jobsPerDay" onchange="calcSig()">
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3" selected>3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="6">6</option>
-            <option value="7">7</option>
-            <option value="8">8</option>
-            <option value="9">9</option>
-            <option value="10">10</option>
-          </select>
-        </div>
-        <div id="s-profit"></div>
-      </div>
-    </div>
-
   </div>
 </div><!-- end #section-sig -->
 
@@ -760,29 +737,6 @@
       </div>
     </div>
 
-    <!-- PROFIT PROJECTION -->
-    <div class="card" id="g-profit-card">
-      <div class="card-header">Daily &amp; Weekly Profit Projection</div>
-      <div class="card-body">
-        <div class="form-group" style="margin-bottom:0.75rem;">
-          <label>Jobs Per Day</label>
-          <select id="g-jobsPerDay" onchange="calcGW()">
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3" selected>3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="6">6</option>
-            <option value="7">7</option>
-            <option value="8">8</option>
-            <option value="9">9</option>
-            <option value="10">10</option>
-          </select>
-        </div>
-        <div id="g-profit"></div>
-      </div>
-    </div>
-
   </div>
 </div><!-- end #section-gw -->
 
@@ -802,8 +756,6 @@ const SENSOR_PRICES = { none: 0, spct100: 109.99, tpct100: 219.98, tpct300dh: 31
 const SENSOR_LABELS = { none: 'None', spct100: 'SP-CT100 Single Phase', tpct100: 'TP-CT100 Three Phase', tpct300dh: 'TP-CT300-DH', tpct600dh: 'TP-CT600-DH', tpdhci: 'TP DH-C&I', nanobanana: 'Nano Beam Sensors' };
 const CAR_CHARGER_PRICES = { none: 0, gw7khca: 1900, gw11khca: 2000, gw22khca: 2400 };
 const CAR_CHARGER_LABELS = { none: '', gw7khca: 'GW7K-HCA (7kW Single Phase)', gw11khca: 'GW11K-HCA (11kW Three Phase)', gw22khca: 'GW22K-HCA (22kW Three Phase)' };
-const DAILY_OVERHEAD  = 18600;
-const WEEKLY_OVERHEAD = 93000;
 
 // ================================================================
 // SIGENERGY PRICING DATA
@@ -820,9 +772,6 @@ const SIG_BAT8  = { kwh: 8,   price: 2721.40, label: 'Sigenergy BAT 8.0 (8kWh mo
 const SIG_BAT5  = { kwh: 5,   price: 3056.90, label: 'Sigenergy BAT 5.0 (5kWh module)' };
 const SIG_GATEWAY_PRICES = { sp: 756.86, tp: 935.45 };
 const SIG_STC_BATTERY_CAP = 50;
-// Tiered gross margin by total module count: index 0 = 1 module, 5 = 6+ modules
-const MODULE_MARGINS = [0.65, 0.60, 0.57, 0.54, 0.51, 0.48];
-
 // ================================================================
 // GOODWE PRICING DATA
 // ================================================================
@@ -861,31 +810,6 @@ function calcBatterySTCs(batteryKwh, cap) {
     stcs = 14 * 6.8 + 14 * 4.08 + (cappedKwh - 28) * 1.02;
   }
   return Math.floor(stcs);
-}
-
-function buildProfitHtml(isBatteryOnly, jobsPerDay, marginPerJob, labelExtra) {
-  const dailyGrossMargin  = jobsPerDay * marginPerJob;
-  const weeklyGrossMargin = jobsPerDay * 5 * marginPerJob;
-  const dailyNetProfit    = dailyGrossMargin - DAILY_OVERHEAD;
-  const weeklyNetProfit   = weeklyGrossMargin - WEEKLY_OVERHEAD;
-
-  let h = `<div style="font-size:0.75rem;color:var(--muted);margin-bottom:0.5rem;">Job type: <strong>${isBatteryOnly ? 'Battery Only' : 'Solar + Battery'}</strong> &mdash; Capacity: <strong>${jobsPerDay} jobs/day</strong>${labelExtra} &mdash; Margin/job: <strong>${fmt(marginPerJob)}</strong></div>`;
-  h += '<div class="profit-grid">';
-
-  h += '<div class="profit-box"><h4>Daily</h4>';
-  h += `<div class="profit-line"><span class="label">Gross margin (${jobsPerDay} jobs &times; ${fmt(marginPerJob)})</span><span class="value">${fmt(dailyGrossMargin)}</span></div>`;
-  h += `<div class="profit-line"><span class="label">Overhead</span><span class="value">&minus; ${fmt(DAILY_OVERHEAD)}</span></div>`;
-  h += `<div class="profit-line net ${dailyNetProfit < 0 ? 'negative' : ''}"><span class="label">Net Profit</span><span class="value">${fmt(dailyNetProfit)}</span></div>`;
-  h += '</div>';
-
-  h += '<div class="profit-box"><h4>Weekly (5 days)</h4>';
-  h += `<div class="profit-line"><span class="label">Gross margin (${jobsPerDay * 5} jobs &times; ${fmt(marginPerJob)})</span><span class="value">${fmt(weeklyGrossMargin)}</span></div>`;
-  h += `<div class="profit-line"><span class="label">Overhead</span><span class="value">&minus; ${fmt(WEEKLY_OVERHEAD)}</span></div>`;
-  h += `<div class="profit-line net ${weeklyNetProfit < 0 ? 'negative' : ''}"><span class="label">Net Profit</span><span class="value">${fmt(weeklyNetProfit)}</span></div>`;
-  h += '</div>';
-
-  h += '</div>';
-  return h;
 }
 
 // ================================================================
@@ -1027,12 +951,6 @@ function calcSig() {
   const totalSTCvalue  = solarSTCvalue + batterySTCvalue;
   const netMaterialCost = grossTotal - totalSTCvalue;
 
-  // Tiered margin
-  const marginIdx    = batteryModules > 0 ? Math.min(batteryModules - 1, MODULE_MARGINS.length - 1) : 0;
-  const tieredMargin = MODULE_MARGINS[marginIdx];
-  let recommendedPrice = netMaterialCost / (1 - tieredMargin);
-  const recMarginLabel = `${(tieredMargin * 100).toFixed(0)}% margin (${batteryModules} module${batteryModules !== 1 ? 's' : ''})`;
-
   // Extras
   let extrasExGst = 0;
   const carChargerType = document.getElementById('s-carCharger').value;
@@ -1049,7 +967,6 @@ function calcSig() {
     extrasExGst += unitPrice * qty;
   });
   const extrasIncGst = extrasExGst * 1.1;
-  recommendedPrice += extrasIncGst;
 
   // Summary HTML
   let sHtml = '';
@@ -1068,7 +985,8 @@ function calcSig() {
     sHtml += summaryRow('Extras Total (inc GST)', fmt(extrasIncGst));
   }
 
-  sHtml += `<div class="recommended-row"><span class="label">Recommended Sale Price${extrasIncGst > 0 ? ' (+ extras)' : ''} (${recMarginLabel})</span><span class="value">${fmt(recommendedPrice)}</span></div>`;
+  const totalCost = netMaterialCost + extrasIncGst;
+  sHtml += `<div class="recommended-row"><span class="label">Total Job Cost (inc GST)</span><span class="value">${fmt(totalCost)}</span></div>`;
 
   // Sale price margin check
   if (salePrice !== null && salePrice > 0) {
@@ -1087,17 +1005,6 @@ function calcSig() {
 
   document.getElementById('s-summary').innerHTML = sHtml;
   document.getElementById('s-summary-card').style.display = '';
-
-  // Profit
-  let marginPerJob = 0;
-  if (salePrice !== null && salePrice > 0) {
-    marginPerJob = salePrice - netMaterialCost - extrasIncGst;
-  } else {
-    marginPerJob = recommendedPrice - netMaterialCost - extrasIncGst;
-  }
-  const jobsPerDay = parseInt(document.getElementById('s-jobsPerDay').value);
-  document.getElementById('s-profit').innerHTML = buildProfitHtml(isBatteryOnly, jobsPerDay, marginPerJob, '');
-  document.getElementById('s-profit-card').style.display = '';
 }
 
 // ================================================================
@@ -1243,11 +1150,6 @@ function calcGW() {
   const totalSTCvalue   = solarSTCvalue + batterySTCvalue;
   const netMaterialCost = grossTotal - totalSTCvalue;
 
-  // Margin
-  const margin = isBatteryOnly ? 0.35 : 0.54;
-  const recMarginLabel = isBatteryOnly ? '35% margin' : '54% margin';
-  let recommendedPrice = netMaterialCost / (1 - margin);
-
   // Extras
   let extrasExGst = 0;
   const carChargerType  = document.getElementById('g-carCharger').value;
@@ -1264,13 +1166,8 @@ function calcGW() {
     extrasExGst += unitPrice * qty;
   });
   const extrasIncGst = extrasExGst * 1.1;
-  recommendedPrice += extrasIncGst;
 
   // Summary
-  const recPriceExExtras = recommendedPrice - extrasIncGst;
-  const recMarginDollars = recPriceExExtras - netMaterialCost;
-  const recMarginPct     = recPriceExExtras > 0 ? (recMarginDollars / recPriceExExtras * 100) : 0;
-
   let sHtml = '';
   sHtml += summaryRow('Gross Material Total', fmt(grossTotal));
   sHtml += '<div class="summary-divider"></div>';
@@ -1287,8 +1184,8 @@ function calcGW() {
     sHtml += summaryRow('Extras Total (inc GST)', fmt(extrasIncGst));
   }
 
-  sHtml += `<div class="recommended-row"><span class="label">Recommended Sale Price (${recMarginPct.toFixed(0)}% margin)${extrasIncGst > 0 ? ' + extras' : ''}</span><span class="value">${fmt(recommendedPrice)}</span></div>`;
-  sHtml += `<div class="recommended-margin">Margin: ${fmt(recMarginDollars)} (${recMarginPct.toFixed(1)}%)</div>`;
+  const totalCost = netMaterialCost + extrasIncGst;
+  sHtml += `<div class="recommended-row"><span class="label">Total Job Cost (inc GST)</span><span class="value">${fmt(totalCost)}</span></div>`;
 
   // Custom price margin checker
   if (customPrice > 0) {
@@ -1308,19 +1205,6 @@ function calcGW() {
 
   document.getElementById('g-summary').innerHTML = sHtml;
   document.getElementById('g-summary-card').style.display = '';
-
-  // Profit
-  let marginPerJob = 0;
-  let usingCustom  = customPrice > 0;
-  if (usingCustom) {
-    marginPerJob = customPrice - netMaterialCost - extrasIncGst;
-  } else {
-    marginPerJob = recommendedPrice - netMaterialCost - extrasIncGst;
-  }
-  const jobsPerDay  = parseInt(document.getElementById('g-jobsPerDay').value);
-  const labelExtra  = usingCustom ? ` &mdash; Your Price: <strong>${fmt(customPrice)}</strong>` : '';
-  document.getElementById('g-profit').innerHTML = buildProfitHtml(isBatteryOnly, jobsPerDay, marginPerJob, labelExtra);
-  document.getElementById('g-profit-card').style.display = '';
 }
 
 // ================================================================
