@@ -823,8 +823,14 @@ const DAILY_OVERHEAD  = 18600;
 const WEEKLY_OVERHEAD = 93000;
 
 // Tiered gross margin by battery module count (3% step)
-// index 0 = 0 or 1 module (64%), index 5 = 6+ modules (49%)
+// Solar + battery: index 0 = 0 or 1 module (64%), index 5 = 6+ modules (49%)
 const MODULE_MARGINS = [0.64, 0.61, 0.58, 0.55, 0.52, 0.49];
+// Battery-only: -10pt across the board (less work, do more per day)
+const BATTERY_ONLY_MARGINS = [0.54, 0.51, 0.48, 0.45, 0.42, 0.39];
+
+// Tracks the previous job-type per tab so we only auto-set jobs/day on a transition
+let sigPrevIsBatteryOnly = null;
+let gwPrevIsBatteryOnly  = null;
 
 // ================================================================
 // GOODWE PRICING DATA
@@ -1033,11 +1039,13 @@ function calcSig() {
   const totalSTCvalue  = solarSTCvalue + batterySTCvalue;
   const netMaterialCost = grossTotal - totalSTCvalue;
 
-  // Tiered margin (by total battery modules)
-  const marginIdx    = batteryModules > 0 ? Math.min(batteryModules - 1, MODULE_MARGINS.length - 1) : 0;
-  const tieredMargin = MODULE_MARGINS[marginIdx];
+  // Tiered margin (by total battery modules — battery-only uses a lower tier)
+  const marginTier   = isBatteryOnly ? BATTERY_ONLY_MARGINS : MODULE_MARGINS;
+  const marginIdx    = batteryModules > 0 ? Math.min(batteryModules - 1, marginTier.length - 1) : 0;
+  const tieredMargin = marginTier[marginIdx];
   let recommendedPrice = netMaterialCost / (1 - tieredMargin);
-  const recMarginLabel = `${(tieredMargin * 100).toFixed(0)}% margin (${batteryModules} module${batteryModules !== 1 ? 's' : ''})`;
+  const jobTypeLabel = isBatteryOnly ? 'battery only' : `${batteryModules} module${batteryModules !== 1 ? 's' : ''}`;
+  const recMarginLabel = `${(tieredMargin * 100).toFixed(0)}% margin, ${jobTypeLabel}`;
 
   // Extras
   let extrasExGst = 0;
@@ -1093,6 +1101,12 @@ function calcSig() {
 
   document.getElementById('s-summary').innerHTML = sHtml;
   document.getElementById('s-summary-card').style.display = '';
+
+  // Auto-default jobs/day on job-type transition (battery-only = 4, solar+battery = 3)
+  if (sigPrevIsBatteryOnly !== isBatteryOnly) {
+    document.getElementById('s-jobsPerDay').value = isBatteryOnly ? '4' : '3';
+    sigPrevIsBatteryOnly = isBatteryOnly;
+  }
 
   // Profit (uses entered Sale Price if given, else falls back to recommended price)
   const jobsPerDay = parseInt(document.getElementById('s-jobsPerDay').value);
@@ -1249,11 +1263,13 @@ function calcGW() {
   const totalSTCvalue   = solarSTCvalue + batterySTCvalue;
   const netMaterialCost = grossTotal - totalSTCvalue;
 
-  // Tiered margin (by battery module count)
-  const marginIdx    = batteryModules > 0 ? Math.min(batteryModules - 1, MODULE_MARGINS.length - 1) : 0;
-  const tieredMargin = MODULE_MARGINS[marginIdx];
+  // Tiered margin (by battery module count — battery-only uses a lower tier)
+  const marginTier   = isBatteryOnly ? BATTERY_ONLY_MARGINS : MODULE_MARGINS;
+  const marginIdx    = batteryModules > 0 ? Math.min(batteryModules - 1, marginTier.length - 1) : 0;
+  const tieredMargin = marginTier[marginIdx];
   let recommendedPrice = netMaterialCost / (1 - tieredMargin);
-  const recMarginLabel = `${(tieredMargin * 100).toFixed(0)}% margin (${batteryModules} module${batteryModules !== 1 ? 's' : ''})`;
+  const jobTypeLabel = isBatteryOnly ? 'battery only' : `${batteryModules} module${batteryModules !== 1 ? 's' : ''}`;
+  const recMarginLabel = `${(tieredMargin * 100).toFixed(0)}% margin, ${jobTypeLabel}`;
 
   // Extras
   let extrasExGst = 0;
@@ -1310,6 +1326,12 @@ function calcGW() {
 
   document.getElementById('g-summary').innerHTML = sHtml;
   document.getElementById('g-summary-card').style.display = '';
+
+  // Auto-default jobs/day on job-type transition (battery-only = 4, solar+battery = 3)
+  if (gwPrevIsBatteryOnly !== isBatteryOnly) {
+    document.getElementById('g-jobsPerDay').value = isBatteryOnly ? '4' : '3';
+    gwPrevIsBatteryOnly = isBatteryOnly;
+  }
 
   // Profit (uses entered Your Price if given, else falls back to recommended price)
   const jobsPerDay  = parseInt(document.getElementById('g-jobsPerDay').value);
