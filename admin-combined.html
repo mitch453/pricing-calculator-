@@ -466,7 +466,7 @@
                 <option value="ec5sp">EC 5.0 SP — $1,413.50</option>
                 <option value="ec6sp">EC 6.0 SP — $1,527.90</option>
                 <option value="ec8sp">EC 8.0 SP — $2,611.40</option>
-                <option value="ec10sp">EC 10.0 SP — $2,814.90</option>
+                <option value="ec10sp" selected>EC 10.0 SP — $2,814.90</option>
                 <option value="ec12sp">EC 12.0 SP — $3,019.50</option>
               </optgroup>
               <optgroup label="Three Phase">
@@ -491,11 +491,11 @@
             <select id="s-num8kwh" onchange="calcSig()">
               <option value="0">0</option>
               <option value="1">1</option>
-              <option value="2" selected>2</option>
+              <option value="2">2</option>
               <option value="3">3</option>
               <option value="4">4</option>
               <option value="5">5</option>
-              <option value="6">6</option>
+              <option value="6" selected>6</option>
             </select>
           </div>
           <div class="form-group">
@@ -659,7 +659,7 @@
               <optgroup label="Single Phase">
                 <option value="gw5k">GW5K-EHA-G20 — $1,225.40</option>
                 <option value="gw8k">GW8K-EHA-G20 — $1,857.90</option>
-                <option value="gw10k">GW9.999K-EHA-G20 — $2,008.60</option>
+                <option value="gw10k" selected>GW9.999K-EHA-G20 — $2,008.60</option>
               </optgroup>
               <optgroup label="Three Phase">
                 <option value="gw10ktp">GW10K-ET-G20 — $2,062.50</option>
@@ -1153,8 +1153,8 @@ function updateGwBatterySizes() {
     const kwh = parseFloat((i * mod.kwh).toFixed(1));
     sel.innerHTML += `<option value="${kwh}">${kwh} kWh (${i} module${i > 1 ? 's' : ''})</option>`;
   }
-  // Default to 2 modules (16.6 kWh)
-  const defaultKwh = parseFloat((2 * mod.kwh).toFixed(1));
+  // Default to 6 modules (49.8 kWh) — most common system
+  const defaultKwh = parseFloat((6 * mod.kwh).toFixed(1));
   if (prevKwh > 0) {
     const closest = Math.round(prevKwh / mod.kwh) * mod.kwh;
     const best = parseFloat(Math.min(Math.max(closest, mod.kwh), maxModules * mod.kwh).toFixed(1));
