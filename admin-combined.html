@@ -2,158 +2,216 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#F2F2F7">
 <title>Ausave Energy — Admin Combined Pricing Calculator</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
+  /* ================================================================
+     iOS Design Language — SF Pro, system colors, grouped inset cards
+     ================================================================ */
   :root {
-    --dark-green: #1F4E2C;
-    --mid-green: #2E7D32;
-    --light-green: #E8F5E9;
-    --accent: #43A047;
-    --white: #ffffff;
-    --off-white: #fafbfc;
-    --border: #d4e8d6;
-    --border-light: #e8f0e9;
-    --text: #1a2e1f;
-    --text-secondary: #4a5e4f;
-    --muted: #6b7e6f;
-    --danger: #c62828;
-    --danger-bg: #fff0f0;
-    --success-bg: #f0faf1;
+    /* iOS System Backgrounds */
+    --ios-bg:           #F2F2F7;      /* grouped background */
+    --ios-bg-elevated:  #FFFFFF;      /* card surface */
+    --ios-bg-tertiary:  #FFFFFF;
+    --ios-fill:         rgba(120,120,128,0.12);
+    --ios-fill-2:       rgba(120,120,128,0.08);
+    --ios-separator:    rgba(60,60,67,0.10);
+    --ios-separator-opaque: #C6C6C8;
+
+    /* iOS Text */
+    --ios-label:        #000000;
+    --ios-label-2:      rgba(60,60,67,0.60);
+    --ios-label-3:      rgba(60,60,67,0.30);
+    --ios-label-4:      rgba(60,60,67,0.18);
+
+    /* iOS Semantic Colors */
+    --ios-blue:    #007AFF;
+    --ios-green:   #34C759;
+    --ios-red:     #FF3B30;
+    --ios-orange:  #FF9500;
+    --ios-yellow:  #FFCC00;
+    --ios-purple:  #AF52DE;
+
+    /* Ausave brand accent (used sparingly — header gradient & primary CTA) */
+    --brand-green:  #1F4E2C;
+    --brand-green-2:#2E7D32;
+
+    /* Backwards-compat aliases for inline-styled HTML still referencing old vars */
+    --dark-green: var(--brand-green);
+    --mid-green:  var(--ios-green);
+    --light-green:#E8F5E9;
+    --accent:     var(--ios-green);
+    --white:      #ffffff;
+    --off-white:  #fafafa;
+    --border:     var(--ios-separator);
+    --border-light: rgba(60,60,67,0.06);
+    --text:       var(--ios-label);
+    --text-secondary: var(--ios-label-2);
+    --muted:      var(--ios-label-2);
+    --danger:     var(--ios-red);
+    --danger-bg:  #FFF1F0;
+    --success-bg: #E8F8EC;
   }
+
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { -webkit-text-size-adjust: 100%; }
   body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: linear-gradient(135deg, #f0f4f1 0%, #e8ece9 100%);
-    color: var(--text);
-    line-height: 1.5;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text',
+                 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background: var(--ios-bg);
+    color: var(--ios-label);
+    line-height: 1.4;
     min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-size: 17px;
+    letter-spacing: -0.01em;
   }
 
-  /* Header */
+  /* ── Translucent iOS Nav Bar ── */
   header {
-    background: linear-gradient(135deg, var(--dark-green) 0%, #245a33 50%, var(--mid-green) 100%);
-    color: var(--white);
-    padding: 0.65rem 1.5rem;
+    background: rgba(242,242,247,0.82);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+            backdrop-filter: saturate(180%) blur(20px);
+    color: var(--ios-label);
+    padding: 1rem 1.25rem 0.85rem;
     display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    box-shadow: 0 2px 12px rgba(31,78,44,0.3);
-    position: relative;
+    align-items: baseline;
+    gap: 0.6rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 0.5px solid var(--ios-separator);
   }
-  header::after {
-    content: '';
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, var(--accent), #66BB6A, var(--accent));
+  header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.024em;
+    color: var(--ios-label);
   }
-  header h1 { font-size: 1.15rem; font-weight: 700; letter-spacing: -0.02em; }
   header span {
-    font-size: 0.8rem; opacity: 0.8; font-weight: 400;
-    padding-left: 0.5rem;
-    border-left: 1px solid rgba(255,255,255,0.3);
+    font-size: 0.95rem;
+    color: var(--ios-label-2);
+    font-weight: 400;
+    letter-spacing: -0.01em;
   }
 
-  /* Tab Bar */
+  /* ── iOS Segmented Control ── */
   .tab-bar-wrap {
-    background: var(--dark-green);
-    padding: 0 1.5rem;
+    max-width: 460px;
+    margin: 0.85rem auto 0;
+    background: var(--ios-fill);
+    border-radius: 9px;
+    padding: 2px;
     display: flex;
-    align-items: flex-end;
-    gap: 0.25rem;
-    border-bottom: 3px solid var(--accent);
+    justify-content: center;
+    gap: 0;
+    border-bottom: none;
   }
   .tab-btn {
-    padding: 0.5rem 1.5rem;
+    flex: 1;
+    padding: 0.5rem 1.25rem;
     font-family: inherit;
-    font-size: 0.82rem;
-    font-weight: 600;
+    font-size: 0.92rem;
+    font-weight: 500;
     border: none;
-    border-radius: 6px 6px 0 0;
+    border-radius: 7px;
     cursor: pointer;
-    transition: all 0.2s;
-    letter-spacing: 0.02em;
-    background: rgba(255,255,255,0.1);
-    color: rgba(255,255,255,0.7);
+    transition: all 0.18s ease;
+    background: transparent;
+    color: var(--ios-label);
+    letter-spacing: -0.01em;
   }
-  .tab-btn:hover { background: rgba(255,255,255,0.2); color: white; }
   .tab-btn.active {
-    background: var(--white);
-    color: var(--dark-green);
-    box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+    background: #ffffff;
+    color: var(--ios-label);
+    font-weight: 600;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.08), 0 0.5px 1px rgba(0,0,0,0.04);
   }
+  .tab-btn:active { transform: scale(0.97); }
 
-  /* Container */
+  /* ── Container ── */
   .container {
-    max-width: 1400px;
-    margin: 0.75rem auto;
-    padding: 0 1rem 2rem;
+    max-width: 900px;
+    margin: 1rem auto 2.5rem;
+    padding: 0 1rem;
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 1.1rem;
   }
 
-  /* Cards */
+  /* ── iOS Grouped Cards ── */
   .card {
-    background: var(--white);
-    border-radius: 10px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(31,78,44,0.04);
+    background: var(--ios-bg-elevated);
+    border-radius: 14px;
     overflow: hidden;
-    border: 1px solid var(--border-light);
+    border: none;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 0.5px 0 rgba(60,60,67,0.04);
   }
   .card-header {
-    background: linear-gradient(135deg, var(--mid-green), #3a8a3f);
-    color: var(--white);
-    padding: 0.5rem 1rem;
+    background: transparent;
+    color: var(--ios-label-2);
+    padding: 0.9rem 1rem 0.4rem;
     font-weight: 600;
-    font-size: 0.82rem;
-    letter-spacing: 0.02em;
+    font-size: 0.74rem;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
   }
-  .card-body { padding: 0.75rem 1rem; }
+  .card-body { padding: 0.25rem 1rem 1rem; }
 
-  /* Form */
-  .form-group { margin-bottom: 0.5rem; }
+  /* ── iOS Form Inputs ── */
+  .form-group { margin-bottom: 0.8rem; }
   .form-group label {
     display: block;
-    font-weight: 600;
-    font-size: 0.7rem;
-    margin-bottom: 0.15rem;
-    color: var(--text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
+    font-weight: 500;
+    font-size: 0.82rem;
+    margin-bottom: 0.35rem;
+    color: var(--ios-label-2);
+    text-transform: none;
+    letter-spacing: -0.01em;
   }
   .form-group select,
   .form-group input[type="number"],
   .form-group input[type="text"] {
     width: 100%;
-    padding: 0.35rem 0.5rem;
-    border: 1.5px solid var(--border);
-    border-radius: 6px;
-    font-size: 0.82rem;
+    padding: 0.65rem 0.85rem;
+    border: 0.5px solid var(--ios-separator-opaque);
+    border-radius: 10px;
+    font-size: 1rem;
     font-family: inherit;
-    background: var(--off-white);
-    color: var(--text);
-    transition: all 0.2s;
+    background: #ffffff;
+    color: var(--ios-label);
+    transition: all 0.15s ease;
+    appearance: none;
+    -webkit-appearance: none;
+    letter-spacing: -0.01em;
+  }
+  .form-group select {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%238E8E93' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.8' d='M4 6l4 4 4-4'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.7rem center;
+    background-size: 18px;
+    padding-right: 2.25rem;
   }
   .form-group select:hover,
-  .form-group input:hover { border-color: var(--accent); }
+  .form-group input:hover { border-color: var(--ios-label-3); }
   .form-group select:focus,
   .form-group input:focus {
     outline: none;
-    border-color: var(--mid-green);
-    box-shadow: 0 0 0 3px rgba(46,125,50,0.12);
-    background: var(--white);
+    border-color: var(--ios-green);
+    box-shadow: 0 0 0 3px rgba(52,199,89,0.18);
+    background: #ffffff;
   }
 
-  /* Form Grid */
+  /* ── Form Grid ── */
   .form-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 0.5rem 0.75rem;
+    gap: 0.85rem 0.85rem;
   }
   @media (max-width: 900px) { .form-grid { grid-template-columns: repeat(2, 1fr); } }
   @media (max-width: 500px) { .form-grid { grid-template-columns: 1fr; } }
@@ -161,85 +219,129 @@
 
   .form-footer {
     display: flex;
-    gap: 0.75rem;
+    gap: 0.85rem;
     align-items: end;
     flex-wrap: wrap;
-    margin-top: 0.6rem;
-    padding-top: 0.6rem;
-    border-top: 1px solid var(--border-light);
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 0.5px solid var(--ios-separator);
   }
   .form-footer .form-group { flex: 1; min-width: 200px; margin-bottom: 0; }
 
-  /* Extras */
+  /* ── Extras (iOS-style chips) ── */
   .extras-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 0.35rem 0.75rem;
+    gap: 0.5rem;
   }
   @media (max-width: 900px) { .extras-grid { grid-template-columns: repeat(2, 1fr); } }
   @media (max-width: 500px) { .extras-grid { grid-template-columns: 1fr; } }
   .extras-grid label {
-    display: flex; align-items: center; gap: 0.4rem;
-    font-size: 0.78rem; font-weight: 500; color: var(--text);
-    cursor: pointer; padding: 0.35rem 0.5rem;
-    border-radius: 6px; border: 1.5px solid var(--border-light);
-    background: var(--off-white); transition: all 0.2s;
+    display: flex; align-items: center; gap: 0.55rem;
+    font-size: 0.92rem; font-weight: 400; color: var(--ios-label);
+    cursor: pointer; padding: 0.6rem 0.8rem;
+    border-radius: 10px;
+    border: 0.5px solid var(--ios-separator-opaque);
+    background: #ffffff;
+    transition: all 0.15s ease;
+    letter-spacing: -0.01em;
   }
-  .extras-grid label:hover { border-color: var(--accent); background: var(--light-green); }
-  .extras-grid input[type="checkbox"] { accent-color: var(--mid-green); width: 16px; height: 16px; flex-shrink: 0; }
-  .extras-grid input[type="checkbox"]:checked + span { color: var(--dark-green); font-weight: 600; }
-  .extras-grid .extra-price { margin-left: auto; color: var(--muted); font-size: 0.72rem; white-space: nowrap; }
+  .extras-grid label:hover {
+    border-color: var(--ios-green);
+    background: rgba(52,199,89,0.05);
+  }
+  .extras-grid label:has(input:checked) {
+    background: rgba(52,199,89,0.10);
+    border-color: var(--ios-green);
+  }
+  .extras-grid input[type="checkbox"] {
+    accent-color: var(--ios-green);
+    width: 18px; height: 18px;
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+  .extras-grid input[type="checkbox"]:checked + span {
+    color: var(--ios-label);
+    font-weight: 500;
+  }
+  .extras-grid .extra-price {
+    margin-left: auto;
+    color: var(--ios-label-2);
+    font-size: 0.85rem;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
   .extras-grid .extra-select {
-    width: 60px; padding: 0.15rem 0.25rem; border: 1.5px solid var(--border);
-    border-radius: 4px; font-size: 0.75rem; font-family: inherit;
-    background: var(--white); margin-left: auto; flex-shrink: 0;
+    width: 64px;
+    padding: 0.3rem 0.4rem;
+    border: 0.5px solid var(--ios-separator-opaque);
+    border-radius: 7px;
+    font-size: 0.85rem;
+    font-family: inherit;
+    background: #ffffff;
+    margin-left: auto;
+    flex-shrink: 0;
+    appearance: none;
+    -webkit-appearance: none;
   }
-  .extras-grid .per-panel-tag { font-size: 0.62rem; color: var(--accent); font-weight: 600; white-space: nowrap; }
+  .extras-grid .per-panel-tag {
+    font-size: 0.72rem;
+    color: var(--ios-green);
+    font-weight: 600;
+    white-space: nowrap;
+    background: rgba(52,199,89,0.12);
+    padding: 0.1rem 0.4rem;
+    border-radius: 100px;
+  }
   .extras-section-label {
-    font-weight: 600; font-size: 0.7rem; color: var(--text-secondary);
-    text-transform: uppercase; letter-spacing: 0.04em;
-    margin-bottom: 0.25rem; margin-top: 0.4rem;
+    font-weight: 600;
+    font-size: 0.74rem;
+    color: var(--ios-label-2);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 0.6rem;
+    margin-top: 0.4rem;
   }
 
-  /* Calculate Button */
+  /* ── iOS Primary Button ── */
   .btn-calculate {
     width: 100%;
-    padding: 0.45rem 1.5rem;
-    background: linear-gradient(135deg, var(--mid-green), var(--accent));
-    color: white;
+    padding: 0.85rem 1.5rem;
+    background: var(--ios-green);
+    color: #ffffff;
     border: none;
-    border-radius: 6px;
-    font-size: 0.82rem;
-    font-weight: 700;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
     font-family: inherit;
     cursor: pointer;
-    transition: all 0.2s;
-    letter-spacing: 0.02em;
-    text-transform: uppercase;
-    box-shadow: 0 2px 6px rgba(46,125,50,0.25);
+    transition: all 0.15s ease;
+    letter-spacing: -0.01em;
+    text-transform: none;
     min-width: 150px;
-    height: 34px;
+    box-shadow: 0 1px 3px rgba(52,199,89,0.25);
   }
   .btn-calculate:hover {
-    background: linear-gradient(135deg, var(--dark-green), var(--mid-green));
-    box-shadow: 0 3px 10px rgba(31,78,44,0.35);
-    transform: translateY(-1px);
+    background: #2DB84F;
+    box-shadow: 0 2px 8px rgba(52,199,89,0.35);
   }
-  .btn-calculate:active { transform: translateY(0); }
+  .btn-calculate:active {
+    transform: scale(0.98);
+    background: #28A547;
+  }
 
-  /* Output Grid */
+  /* ── Output Grid ── */
   .output-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 0.75rem;
+    gap: 1.1rem;
     align-items: start;
-    max-width: 480px;
+    max-width: 520px;
     margin-left: auto;
     margin-right: auto;
   }
-  /* When admin mode is on, expand to two-column layout with breakdown */
   body.admin-on .output-grid {
-    grid-template-columns: 1fr 360px;
+    grid-template-columns: 1fr 380px;
     max-width: none;
   }
   @media (max-width: 1200px) {
@@ -247,204 +349,246 @@
     .summary-card { margin-top: 0.5rem; }
   }
 
-  /* Breakdown Table */
+  /* ── Breakdown Table (iOS grouped list style) ── */
   .breakdown-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.78rem;
+    font-size: 0.92rem;
   }
   .breakdown-table th {
     text-align: left;
-    padding: 0.3rem 0.6rem;
-    background: var(--dark-green);
-    color: var(--white);
+    padding: 0.6rem 1rem;
+    background: transparent;
+    color: var(--ios-label-2);
     font-weight: 600;
-    font-size: 0.7rem;
+    font-size: 0.72rem;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.06em;
+    border-bottom: 0.5px solid var(--ios-separator);
   }
   .breakdown-table th:last-child { text-align: right; }
   .breakdown-table td {
-    padding: 0.25rem 0.6rem;
-    border-bottom: 1px solid var(--border-light);
+    padding: 0.55rem 1rem;
+    border-bottom: 0.5px solid var(--ios-separator);
+    color: var(--ios-label);
   }
-  .breakdown-table tbody tr:hover { background: rgba(232,245,233,0.3); }
+  .breakdown-table tbody tr:last-child td { border-bottom: none; }
+  .breakdown-table tbody tr:hover { background: var(--ios-fill-2); }
   .breakdown-table td:last-child {
     text-align: right;
     font-variant-numeric: tabular-nums;
     font-weight: 500;
+    color: var(--ios-label);
   }
   .breakdown-table tr.section-header td {
-    background: var(--light-green);
-    font-weight: 700;
-    color: var(--dark-green);
-    font-size: 0.74rem;
+    background: var(--ios-bg);
+    font-weight: 600;
+    color: var(--ios-label-2);
+    font-size: 0.72rem;
     text-transform: uppercase;
-    letter-spacing: 0.03em;
-    padding: 0.3rem 0.6rem;
-    border-bottom: 2px solid var(--border);
+    letter-spacing: 0.06em;
+    padding: 0.4rem 1rem;
+    border-bottom: 0.5px solid var(--ios-separator);
   }
   .breakdown-table tr.total-row td {
     font-weight: 700;
-    font-size: 0.88rem;
-    border-top: 2px solid var(--dark-green);
-    background: var(--light-green);
-    padding: 0.4rem 0.6rem;
-    color: var(--dark-green);
-  }
-  .breakdown-table tr.subtotal-row td {
-    font-weight: 600;
-    background: #fafafa;
-    border-top: 1px solid var(--border);
+    font-size: 1rem;
+    border-top: 0.5px solid var(--ios-separator);
+    background: var(--ios-bg);
+    padding: 0.7rem 1rem;
+    color: var(--ios-label);
   }
 
-  /* Summary */
+  /* ── Summary Rows ── */
   .summary-card { margin-top: 0; }
   .summary-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.4rem 0;
-    border-bottom: 1px solid var(--border-light);
-    font-size: 0.82rem;
+    padding: 0.55rem 0;
+    border-bottom: 0.5px solid var(--ios-separator);
+    font-size: 0.95rem;
     gap: 0.5rem;
   }
   .summary-row:last-child { border-bottom: none; }
-  .summary-row .label { color: var(--muted); font-weight: 500; }
+  .summary-row .label {
+    color: var(--ios-label-2);
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
   .summary-row .value {
-    font-weight: 700;
+    font-weight: 600;
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
-    color: var(--text);
+    color: var(--ios-label);
   }
-  .summary-row.big { padding: 0.5rem 0; }
-  .summary-row.big .label { color: var(--dark-green); font-weight: 600; }
-  .summary-row.big .value { font-size: 1.1rem; color: var(--dark-green); }
-  .summary-row.danger .value { color: var(--danger); }
-  .summary-row.danger .label { color: var(--danger); }
+  .summary-row.big { padding: 0.7rem 0; }
+  .summary-row.big .label { color: var(--ios-label); font-weight: 500; }
+  .summary-row.big .value { font-size: 1.15rem; color: var(--ios-label); font-weight: 700; }
+  .summary-row.danger .value { color: var(--ios-red); }
+  .summary-row.danger .label { color: var(--ios-red); }
 
   .summary-divider {
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--border), transparent);
-    margin: 0.4rem 0;
+    height: 0.5px;
+    background: var(--ios-separator);
+    margin: 0.5rem 0;
   }
 
+  /* ── iOS Alert Banner ── */
   .margin-alert {
-    margin-top: 0.5rem;
-    padding: 0.4rem 0.75rem;
-    border-radius: 6px;
-    font-weight: 600;
-    font-size: 0.78rem;
+    margin-top: 0.7rem;
+    padding: 0.65rem 0.9rem;
+    border-radius: 10px;
+    font-weight: 500;
+    font-size: 0.9rem;
     display: none;
+    letter-spacing: -0.01em;
   }
   .margin-alert.low {
     display: block;
-    background: var(--danger-bg);
-    color: var(--danger);
-    border: 1px solid #ffcdd2;
+    background: rgba(255,59,48,0.12);
+    color: var(--ios-red);
   }
   .margin-alert.ok {
     display: block;
-    background: var(--success-bg);
-    color: var(--mid-green);
-    border: 1px solid var(--border);
+    background: rgba(52,199,89,0.14);
+    color: #1F8A3A;
   }
 
+  /* ── Hero Stat — Recommended Sale Price ── */
   .recommended-row {
-    background: linear-gradient(135deg, var(--light-green), #d7eeda);
-    padding: 0.5rem 0.65rem;
-    border-radius: 8px;
-    margin: 0.3rem 0;
-    border: 1px solid var(--border);
+    background: linear-gradient(135deg, #34C759 0%, #30B14E 100%);
+    padding: 1rem 1.1rem;
+    border-radius: 14px;
+    margin: 0.85rem 0 0.4rem;
+    border: none;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 0.5rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.2rem;
+    box-shadow: 0 4px 14px rgba(52,199,89,0.28);
   }
   .recommended-row .label {
-    color: var(--dark-green);
-    font-weight: 700;
-    font-size: 0.78rem;
+    color: rgba(255,255,255,0.92);
+    font-weight: 500;
+    font-size: 0.82rem;
+    letter-spacing: -0.01em;
   }
   .recommended-row .value {
-    font-size: 1.15rem;
-    font-weight: 800;
-    color: var(--dark-green);
+    font-size: 2rem;
+    font-weight: 700;
+    color: #ffffff;
     font-variant-numeric: tabular-nums;
+    letter-spacing: -0.025em;
+    line-height: 1.1;
   }
   .recommended-margin {
     text-align: right;
-    font-size: 0.9em;
-    color: #27ae60;
+    font-size: 0.85rem;
+    color: var(--ios-green);
     font-weight: 600;
-    padding: 2px 0 8px 0;
+    padding: 0.1rem 0 0.5rem 0;
   }
 
-  /* BESS2 (NSW VPP) rebate — shown in red below pricing */
+  /* ── BESS2 VPP Rebate (iOS red banner) ── */
   .bess2-rebate {
-    background: linear-gradient(135deg, #fff0f0, #ffe0e0);
-    padding: 0.5rem 0.65rem;
-    border-radius: 8px;
-    margin: 0.35rem 0 0.15rem;
-    border: 1px solid #ffcdd2;
+    background: linear-gradient(135deg, #FF3B30 0%, #E0271D 100%);
+    padding: 0.85rem 1rem;
+    border-radius: 12px;
+    margin: 0.6rem 0 0.1rem;
+    border: none;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 0.5rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.15rem;
+    box-shadow: 0 3px 10px rgba(255,59,48,0.28);
   }
   .bess2-rebate .label {
-    color: var(--danger);
-    font-weight: 700;
+    color: rgba(255,255,255,0.92);
+    font-weight: 500;
     font-size: 0.78rem;
+    letter-spacing: -0.01em;
   }
   .bess2-rebate .value {
-    font-size: 1.05rem;
-    font-weight: 800;
-    color: var(--danger);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #ffffff;
     font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
   }
   .bess2-note {
-    font-size: 0.68rem;
-    color: var(--danger);
-    text-align: right;
-    font-style: italic;
-    padding: 0 0.65rem 0.25rem;
-    margin-top: -0.1rem;
+    font-size: 0.78rem;
+    color: var(--ios-label-2);
+    text-align: left;
+    font-style: normal;
+    padding: 0.4rem 0.1rem 0.2rem;
+    margin-top: 0;
+    letter-spacing: -0.01em;
   }
 
-  /* Profit Section */
+  /* ── Profit Projection (iOS stat cards) ── */
   .profit-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 0.75rem;
+    gap: 0.85rem;
   }
   @media (max-width: 700px) { .profit-grid { grid-template-columns: 1fr; } }
   .profit-box {
-    padding: 0.6rem 0.75rem;
-    border-radius: 8px;
-    border: 1px solid var(--border);
+    padding: 0.9rem 1rem;
+    border-radius: 12px;
+    border: none;
+    background: var(--ios-bg);
   }
   .profit-box h4 {
-    font-size: 0.72rem;
+    font-size: 0.74rem;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: var(--muted);
-    margin-bottom: 0.4rem;
+    letter-spacing: 0.06em;
+    color: var(--ios-label-2);
+    margin-bottom: 0.55rem;
     font-weight: 600;
   }
   .profit-line {
     display: flex;
     justify-content: space-between;
-    font-size: 0.8rem;
-    padding: 0.15rem 0;
+    font-size: 0.92rem;
+    padding: 0.25rem 0;
+    color: var(--ios-label);
   }
-  .profit-line .label { color: var(--text-secondary); }
-  .profit-line .value { font-weight: 600; font-variant-numeric: tabular-nums; }
-  .profit-line.net { border-top: 1px solid var(--border-light); padding-top: 0.3rem; margin-top: 0.2rem; }
-  .profit-line.net .label { color: var(--dark-green); font-weight: 700; }
-  .profit-line.net .value { color: var(--dark-green); font-weight: 800; font-size: 0.95rem; }
-  .profit-line.net.negative .label { color: var(--danger); }
-  .profit-line.net.negative .value { color: var(--danger); }
+  .profit-line .label { color: var(--ios-label-2); }
+  .profit-line .value {
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    color: var(--ios-label);
+  }
+  .profit-line.net {
+    border-top: 0.5px solid var(--ios-separator);
+    padding-top: 0.5rem;
+    margin-top: 0.35rem;
+  }
+  .profit-line.net .label { color: var(--ios-label); font-weight: 600; }
+  .profit-line.net .value {
+    color: var(--ios-green);
+    font-weight: 700;
+    font-size: 1.1rem;
+    letter-spacing: -0.02em;
+  }
+  .profit-line.net.negative .label { color: var(--ios-red); }
+  .profit-line.net.negative .value { color: var(--ios-red); }
+
+  /* ── Smooth scroll on iOS ── */
+  body { -webkit-overflow-scrolling: touch; }
+
+  /* ── Mobile tweaks ── */
+  @media (max-width: 500px) {
+    header { padding: 0.85rem 1rem 0.7rem; }
+    header h1 { font-size: 1.25rem; }
+    header span { font-size: 0.85rem; display: block; width: 100%; padding-top: 0.1rem; }
+    .container { padding: 0 0.85rem; margin: 0.5rem auto 2rem; }
+    .card-body { padding: 0.25rem 0.85rem 0.85rem; }
+    .recommended-row .value { font-size: 1.7rem; }
+    .bess2-rebate .value { font-size: 1.3rem; }
+  }
 </style>
 </head>
 <body>
