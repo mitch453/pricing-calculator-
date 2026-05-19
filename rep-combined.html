@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ausave Energy — Admin Combined Pricing Calculator</title>
+<title>Ausave Energy — Rep Combined Pricing Calculator</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -451,7 +451,7 @@
 
 <header>
   <h1>Ausave Energy</h1>
-  <span>Combined Pricing Calculator</span>
+  <span>Rep — Combined Pricing Calculator</span>
 </header>
 
 <div class="tab-bar-wrap">
@@ -1436,7 +1436,7 @@ function calcGW() {
 // VIEW MODE
 // ================================================================
 document.addEventListener('keydown', function(e) {
-  if (e.ctrlKey && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
+  if (e.ctrlKey && e.shiftKey && (e.key === 'P' || e.key === 'p')) {
     adminMode = !adminMode;
     document.body.classList.toggle('admin-on', adminMode);
     document.querySelectorAll('.admin-only').forEach(el => {

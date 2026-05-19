@@ -451,7 +451,7 @@
 
 <header>
   <h1>Ausave Energy</h1>
-  <span>Combined Pricing Calculator</span>
+  <span>Admin — Combined Pricing Calculator</span>
 </header>
 
 <div class="tab-bar-wrap">
@@ -1436,7 +1436,7 @@ function calcGW() {
 // VIEW MODE
 // ================================================================
 document.addEventListener('keydown', function(e) {
-  if (e.ctrlKey && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
+  if (e.ctrlKey && e.shiftKey && (e.key === 'P' || e.key === 'p')) {
     adminMode = !adminMode;
     document.body.classList.toggle('admin-on', adminMode);
     document.querySelectorAll('.admin-only').forEach(el => {
