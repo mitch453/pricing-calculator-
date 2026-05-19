@@ -883,8 +883,10 @@ const BATTERY_ONLY_MARGINS = [0.54, 0.51, 0.48, 0.45, 0.42, 0.39];
 let sigPrevIsBatteryOnly = null;
 let gwPrevIsBatteryOnly  = null;
 
-// Admin mode (false by default → reps see limited view). Toggle with Ctrl+Shift+A.
-let adminMode = false;
+// Admin mode (TRUE by default on admin-combined → admins see everything immediately).
+// Ctrl+Shift+A still toggles to preview the rep view.
+// On rep-combined.html, flip this back to `false` so reps get the limited view by default.
+let adminMode = true;
 
 // ================================================================
 // GOODWE PRICING DATA
