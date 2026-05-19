@@ -452,7 +452,6 @@
 <header>
   <h1>Ausave Energy</h1>
   <span>Combined Pricing Calculator</span>
-  <span style="margin-left:auto;font-size:0.7rem;opacity:0.5;border:none;padding:0;">Ctrl+Shift+A for admin</span>
 </header>
 
 <div class="tab-bar-wrap">
@@ -883,7 +882,6 @@ const BATTERY_ONLY_MARGINS = [0.54, 0.51, 0.48, 0.45, 0.42, 0.39];
 let sigPrevIsBatteryOnly = null;
 let gwPrevIsBatteryOnly  = null;
 
-// Admin mode (false by default → reps see limited view). Toggle with Ctrl+Shift+A.
 let adminMode = false;
 
 // ================================================================
@@ -1435,9 +1433,8 @@ function calcGW() {
 }
 
 // ================================================================
-// ADMIN TOGGLE (Ctrl+Shift+A)
+// VIEW MODE
 // ================================================================
-// adminMode is declared at the top of the script so calc functions can read it.
 document.addEventListener('keydown', function(e) {
   if (e.ctrlKey && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
     adminMode = !adminMode;
@@ -1445,7 +1442,6 @@ document.addEventListener('keydown', function(e) {
     document.querySelectorAll('.admin-only').forEach(el => {
       el.style.display = adminMode ? '' : 'none';
     });
-    // Recalc so card-level admin flags update consistently
     calcSig();
     calcGW();
   }
