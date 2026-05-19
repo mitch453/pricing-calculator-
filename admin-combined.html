@@ -380,6 +380,38 @@
     padding: 2px 0 8px 0;
   }
 
+  /* BESS2 (NSW VPP) rebate — shown in red below pricing */
+  .bess2-rebate {
+    background: linear-gradient(135deg, #fff0f0, #ffe0e0);
+    padding: 0.5rem 0.65rem;
+    border-radius: 8px;
+    margin: 0.35rem 0 0.15rem;
+    border: 1px solid #ffcdd2;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .bess2-rebate .label {
+    color: var(--danger);
+    font-weight: 700;
+    font-size: 0.78rem;
+  }
+  .bess2-rebate .value {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--danger);
+    font-variant-numeric: tabular-nums;
+  }
+  .bess2-note {
+    font-size: 0.68rem;
+    color: var(--danger);
+    text-align: right;
+    font-style: italic;
+    padding: 0 0.65rem 0.25rem;
+    margin-top: -0.1rem;
+  }
+
   /* Profit Section */
   .profit-grid {
     display: grid;
@@ -831,6 +863,16 @@ const SIG_STC_BATTERY_CAP = 50;
 const DAILY_OVERHEAD  = 18600;
 const WEEKLY_OVERHEAD = 93000;
 
+// BESS2 (NSW PDRS VPP) — eligibility & PRC math
+// All Ausave batteries are assumed CEC-listed, warranty-compliant, VPP-contracted via nominated ACP.
+// The ONLY cliff that drops eligibility is usable capacity: must be > 2 kWh AND < 28 kWh.
+const BESS2_MIN_KWH   = 2;
+const BESS2_MAX_KWH   = 28;
+const BESS2_DEEMING   = 23.3;   // PRCs per usable kWh (enhanced post-1 Jul 2025) — confirm with ACP
+const BESS2_NLF       = 1.04;   // Ausgrid (Newcastle / Central Coast / Sydney)
+const BESS2_PRC_PRICE = 2.80;   // $/PRC ex GST — refresh from ACP as market moves
+const BESS2_ACP_FEE   = 0.30;   // ACP admin margin (30% typical)
+
 // Tiered gross margin by battery module count (3% step)
 // Solar + battery: index 0 = 0 or 1 module (64%), index 5 = 6+ modules (49%)
 const MODULE_MARGINS = [0.64, 0.61, 0.58, 0.55, 0.52, 0.49];
@@ -869,6 +911,15 @@ function fmt(n) {
 function isTPinv(inv) { return inv.endsWith('tp'); }
 function summaryRow(label, value, cls) {
   return `<div class="summary-row ${cls || ''}"><span class="label">${label}</span><span class="value">${value}</span></div>`;
+}
+
+// BESS2 — returns { prcs, gross, net } or null when ineligible by capacity cliff
+function calcBess2(usableKwh) {
+  if (usableKwh <= BESS2_MIN_KWH || usableKwh >= BESS2_MAX_KWH) return null;
+  const prcs  = Math.floor(usableKwh * BESS2_DEEMING * BESS2_NLF);
+  const gross = prcs * BESS2_PRC_PRICE;
+  const net   = gross * (1 - BESS2_ACP_FEE);
+  return { prcs, gross, net };
 }
 
 function calcBatterySTCs(batteryKwh, cap) {
@@ -1100,6 +1151,13 @@ function calcSig() {
 
   sHtml += `<div class="recommended-row"><span class="label">Recommended Sale Price${extrasIncGst > 0 ? ' (+ extras)' : ''}<span class="admin-only"> (${recMarginLabel})</span></span><span class="value">${fmt(recommendedPrice)}</span></div>`;
 
+  // BESS2 NSW VPP rebate (only when usable capacity is strictly between 2 and 28 kWh)
+  const sigBess2 = calcBess2(batteryKwh);
+  if (sigBess2) {
+    sHtml += `<div class="bess2-rebate"><span class="label">NSW VPP Rebate (BESS2) &mdash; ${sigBess2.prcs} PRCs</span><span class="value">&minus; ${fmt(sigBess2.net)}</span></div>`;
+    sHtml += `<div class="bess2-note">${sigBess2.prcs} PRCs &times; $${BESS2_PRC_PRICE.toFixed(2)} &times; ${((1 - BESS2_ACP_FEE) * 100).toFixed(0)}% (net of ACP fee) &mdash; paid after VPP onboarding</div>`;
+  }
+
   // Sale price margin check
   if (salePrice !== null && salePrice > 0) {
     const marginDollars = salePrice - netMaterialCost - extrasIncGst;
@@ -1330,6 +1388,13 @@ function calcGW() {
   }
 
   sHtml += `<div class="recommended-row"><span class="label">Recommended Sale Price${extrasIncGst > 0 ? ' (+ extras)' : ''}<span class="admin-only"> (${recMarginLabel})</span></span><span class="value">${fmt(recommendedPrice)}</span></div>`;
+
+  // BESS2 NSW VPP rebate (only when usable capacity is strictly between 2 and 28 kWh)
+  const gwBess2 = calcBess2(batteryKwh);
+  if (gwBess2) {
+    sHtml += `<div class="bess2-rebate"><span class="label">NSW VPP Rebate (BESS2) &mdash; ${gwBess2.prcs} PRCs</span><span class="value">&minus; ${fmt(gwBess2.net)}</span></div>`;
+    sHtml += `<div class="bess2-note">${gwBess2.prcs} PRCs &times; $${BESS2_PRC_PRICE.toFixed(2)} &times; ${((1 - BESS2_ACP_FEE) * 100).toFixed(0)}% (net of ACP fee) &mdash; paid after VPP onboarding</div>`;
+  }
 
   // Custom price margin checker
   if (customPrice > 0) {
