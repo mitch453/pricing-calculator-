@@ -230,12 +230,20 @@
   /* Output Grid */
   .output-grid {
     display: grid;
-    grid-template-columns: 1fr 360px;
+    grid-template-columns: 1fr;
     gap: 0.75rem;
     align-items: start;
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  /* When admin mode is on, expand to two-column layout with breakdown */
+  body.admin-on .output-grid {
+    grid-template-columns: 1fr 360px;
+    max-width: none;
   }
   @media (max-width: 1200px) {
-    .output-grid { grid-template-columns: 1fr; }
+    body.admin-on .output-grid { grid-template-columns: 1fr; }
     .summary-card { margin-top: 0.5rem; }
   }
 
@@ -411,7 +419,8 @@
 
 <header>
   <h1>Ausave Energy</h1>
-  <span>Admin — Combined Pricing Calculator</span>
+  <span>Combined Pricing Calculator</span>
+  <span style="margin-left:auto;font-size:0.7rem;opacity:0.5;border:none;padding:0;">Ctrl+Shift+A for admin</span>
 </header>
 
 <div class="tab-bar-wrap">
@@ -573,7 +582,7 @@
 
     <!-- OUTPUT PANEL -->
     <div class="output-grid">
-      <div class="card" id="s-results-card">
+      <div class="card admin-only" id="s-results-card" style="display:none;">
         <div class="card-header">Itemised Cost Breakdown</div>
         <div class="card-body" style="padding:0;">
           <table class="breakdown-table" id="s-breakdown"></table>
@@ -587,7 +596,7 @@
     </div>
 
     <!-- PROFIT PROJECTION -->
-    <div class="card" id="s-profit-card">
+    <div class="card admin-only" id="s-profit-card" style="display:none;">
       <div class="card-header">Daily &amp; Weekly Profit Projection</div>
       <div class="card-body">
         <div class="form-group" style="margin-bottom:0.75rem;">
@@ -747,7 +756,7 @@
 
     <!-- OUTPUT PANEL -->
     <div class="output-grid">
-      <div class="card" id="g-results-card">
+      <div class="card admin-only" id="g-results-card" style="display:none;">
         <div class="card-header">Itemised Cost Breakdown</div>
         <div class="card-body" style="padding:0;">
           <table class="breakdown-table" id="g-breakdown"></table>
@@ -761,7 +770,7 @@
     </div>
 
     <!-- PROFIT PROJECTION -->
-    <div class="card" id="g-profit-card">
+    <div class="card admin-only" id="g-profit-card" style="display:none;">
       <div class="card-header">Daily &amp; Weekly Profit Projection</div>
       <div class="card-body">
         <div class="form-group" style="margin-bottom:0.75rem;">
@@ -831,6 +840,9 @@ const BATTERY_ONLY_MARGINS = [0.54, 0.51, 0.48, 0.45, 0.42, 0.39];
 // Tracks the previous job-type per tab so we only auto-set jobs/day on a transition
 let sigPrevIsBatteryOnly = null;
 let gwPrevIsBatteryOnly  = null;
+
+// Admin mode (false by default → reps see limited view). Toggle with Ctrl+Shift+A.
+let adminMode = false;
 
 // ================================================================
 // GOODWE PRICING DATA
@@ -1023,7 +1035,7 @@ function calcSig() {
   html += `<tr class="total-row"><td colspan="3">Gross Material Total</td><td style="text-align:right">${fmt(grossTotal)}</td></tr>`;
   html += '</tbody>';
   document.getElementById('s-breakdown').innerHTML = html;
-  document.getElementById('s-results-card').style.display = '';
+  document.getElementById('s-results-card').style.display = adminMode ? '' : 'none';
 
   // STC Rebates
   let solarSTCs = 0, solarSTCvalue = 0;
@@ -1067,13 +1079,17 @@ function calcSig() {
 
   // Summary HTML
   let sHtml = '';
+  sHtml += '<div class="admin-only">';
   sHtml += summaryRow('Gross Material Total', fmt(grossTotal));
+  sHtml += '</div>';
   sHtml += '<div class="summary-divider"></div>';
   if (hasPanels)  sHtml += summaryRow(`Solar STCs (${solarSTCs} &times; $${STC_PRICE})`, '&minus; ' + fmt(solarSTCvalue));
   if (hasBattery) sHtml += summaryRow(`Battery STCs (${batterySTCs} &times; $${STC_PRICE})`, '&minus; ' + fmt(batterySTCvalue));
   sHtml += summaryRow('Total STC Rebate', '&minus; ' + fmt(totalSTCvalue), 'big');
+  sHtml += '<div class="admin-only">';
   sHtml += '<div class="summary-divider"></div>';
   sHtml += summaryRow('Net Material Cost', fmt(netMaterialCost), 'big');
+  sHtml += '</div>';
 
   if (extrasIncGst > 0) {
     sHtml += '<div class="summary-divider"></div>';
@@ -1082,25 +1098,28 @@ function calcSig() {
     sHtml += summaryRow('Extras Total (inc GST)', fmt(extrasIncGst));
   }
 
-  sHtml += `<div class="recommended-row"><span class="label">Recommended Sale Price${extrasIncGst > 0 ? ' (+ extras)' : ''} (${recMarginLabel})</span><span class="value">${fmt(recommendedPrice)}</span></div>`;
+  sHtml += `<div class="recommended-row"><span class="label">Recommended Sale Price${extrasIncGst > 0 ? ' (+ extras)' : ''}<span class="admin-only"> (${recMarginLabel})</span></span><span class="value">${fmt(recommendedPrice)}</span></div>`;
 
   // Sale price margin check
   if (salePrice !== null && salePrice > 0) {
     const marginDollars = salePrice - netMaterialCost - extrasIncGst;
     const marginPct = (marginDollars / salePrice) * 100;
+    sHtml += '<div class="admin-only">';
     sHtml += '<div class="summary-divider"></div>';
     sHtml += summaryRow('Sale Price (inc GST)', fmt(salePrice));
     sHtml += summaryRow('Gross Margin', fmt(marginDollars), marginPct < 35 ? 'danger' : '');
     sHtml += summaryRow('Margin %', marginPct.toFixed(2) + '%', marginPct < 35 ? 'danger' : '');
+    sHtml += '</div>';
     if (marginPct < 35) {
-      sHtml += `<div class="margin-alert low">Margin is ${marginPct.toFixed(2)}% &mdash; below the 35% threshold</div>`;
+      sHtml += `<div class="margin-alert low">Price is below the recommended minimum &mdash; please review<span class="admin-only"> (margin ${marginPct.toFixed(2)}%, below 35%)</span></div>`;
     } else {
-      sHtml += `<div class="margin-alert ok">Margin is ${marginPct.toFixed(2)}% &mdash; above the 35% threshold</div>`;
+      sHtml += `<div class="margin-alert ok">Price is acceptable<span class="admin-only"> (margin ${marginPct.toFixed(2)}%, above 35%)</span></div>`;
     }
   }
 
   document.getElementById('s-summary').innerHTML = sHtml;
   document.getElementById('s-summary-card').style.display = '';
+  if (!adminMode) document.querySelectorAll('.admin-only').forEach(el => { el.style.display = 'none'; });
 
   // Auto-default jobs/day on job-type transition (battery-only = 4, solar+battery = 3)
   if (sigPrevIsBatteryOnly !== isBatteryOnly) {
@@ -1117,7 +1136,7 @@ function calcSig() {
     ? ` &mdash; Sale Price: <strong>${fmt(salePrice)}</strong>`
     : ` &mdash; Recommended: <strong>${fmt(recommendedPrice)}</strong>`;
   document.getElementById('s-profit').innerHTML = buildProfitHtml(isBatteryOnly, jobsPerDay, marginPerJob, labelExtra);
-  document.getElementById('s-profit-card').style.display = '';
+  document.getElementById('s-profit-card').style.display = adminMode ? '' : 'none';
 }
 
 // ================================================================
@@ -1247,7 +1266,7 @@ function calcGW() {
   html += `<tr class="total-row"><td colspan="3">Gross Material Total</td><td style="text-align:right">${fmt(grossTotal)}</td></tr>`;
   html += '</tbody>';
   document.getElementById('g-breakdown').innerHTML = html;
-  document.getElementById('g-results-card').style.display = '';
+  document.getElementById('g-results-card').style.display = adminMode ? '' : 'none';
 
   // STC Rebates
   let solarSTCs = 0, solarSTCvalue = 0;
@@ -1291,13 +1310,17 @@ function calcGW() {
 
   // Summary
   let sHtml = '';
+  sHtml += '<div class="admin-only">';
   sHtml += summaryRow('Gross Material Total', fmt(grossTotal));
+  sHtml += '</div>';
   sHtml += '<div class="summary-divider"></div>';
   if (hasPanels)  sHtml += summaryRow(`Solar STCs (${solarSTCs} &times; $${STC_PRICE})`, '&minus; ' + fmt(solarSTCvalue));
   if (hasBattery) sHtml += summaryRow(`Battery STCs (${batterySTCs} &times; $${STC_PRICE})`, '&minus; ' + fmt(batterySTCvalue));
   sHtml += summaryRow('Total STC Rebate', '&minus; ' + fmt(totalSTCvalue), 'big');
+  sHtml += '<div class="admin-only">';
   sHtml += '<div class="summary-divider"></div>';
   sHtml += summaryRow('Net Material Cost', fmt(netMaterialCost), 'big');
+  sHtml += '</div>';
 
   if (extrasIncGst > 0) {
     sHtml += '<div class="summary-divider"></div>';
@@ -1306,7 +1329,7 @@ function calcGW() {
     sHtml += summaryRow('Extras Total (inc GST)', fmt(extrasIncGst));
   }
 
-  sHtml += `<div class="recommended-row"><span class="label">Recommended Sale Price${extrasIncGst > 0 ? ' (+ extras)' : ''} (${recMarginLabel})</span><span class="value">${fmt(recommendedPrice)}</span></div>`;
+  sHtml += `<div class="recommended-row"><span class="label">Recommended Sale Price${extrasIncGst > 0 ? ' (+ extras)' : ''}<span class="admin-only"> (${recMarginLabel})</span></span><span class="value">${fmt(recommendedPrice)}</span></div>`;
 
   // Custom price margin checker
   if (customPrice > 0) {
@@ -1317,15 +1340,16 @@ function calcGW() {
     sHtml += '<div class="summary-divider"></div>';
     sHtml += `<div style="padding:10px;border-radius:8px;background:${cpMarginPct < 35 ? '#ffeaea' : '#eafff0'};border:1px solid ${cpColor};">`;
     sHtml += `<div style="font-weight:700;font-size:0.95em;margin-bottom:4px;">Your Price: ${fmt(customPrice)}</div>`;
-    sHtml += `<span style="font-weight:700;color:${cpColor};font-size:1.1em;">Margin: ${fmt(cpMarginDollars)} (${cpMarginPct.toFixed(1)}%)</span>`;
+    sHtml += `<span class="admin-only" style="font-weight:700;color:${cpColor};font-size:1.1em;">Margin: ${fmt(cpMarginDollars)} (${cpMarginPct.toFixed(1)}%)</span>`;
     sHtml += cpMarginPct < 35
-      ? '<div style="color:#c0392b;font-size:0.85em;margin-top:4px;">Warning: Below 35% threshold</div>'
-      : '<div style="color:#27ae60;font-size:0.85em;margin-top:4px;">Above 35% threshold</div>';
+      ? `<div style="color:#c0392b;font-size:0.85em;margin-top:4px;">Price is below the recommended minimum &mdash; please review<span class="admin-only"> (margin ${cpMarginPct.toFixed(1)}%, below 35%)</span></div>`
+      : `<div style="color:#27ae60;font-size:0.85em;margin-top:4px;">Price is acceptable<span class="admin-only"> (margin ${cpMarginPct.toFixed(1)}%, above 35%)</span></div>`;
     sHtml += '</div>';
   }
 
   document.getElementById('g-summary').innerHTML = sHtml;
   document.getElementById('g-summary-card').style.display = '';
+  if (!adminMode) document.querySelectorAll('.admin-only').forEach(el => { el.style.display = 'none'; });
 
   // Auto-default jobs/day on job-type transition (battery-only = 4, solar+battery = 3)
   if (gwPrevIsBatteryOnly !== isBatteryOnly) {
@@ -1342,8 +1366,25 @@ function calcGW() {
     ? ` &mdash; Your Price: <strong>${fmt(customPrice)}</strong>`
     : ` &mdash; Recommended: <strong>${fmt(recommendedPrice)}</strong>`;
   document.getElementById('g-profit').innerHTML = buildProfitHtml(isBatteryOnly, jobsPerDay, marginPerJob, labelExtra);
-  document.getElementById('g-profit-card').style.display = '';
+  document.getElementById('g-profit-card').style.display = adminMode ? '' : 'none';
 }
+
+// ================================================================
+// ADMIN TOGGLE (Ctrl+Shift+A)
+// ================================================================
+// adminMode is declared at the top of the script so calc functions can read it.
+document.addEventListener('keydown', function(e) {
+  if (e.ctrlKey && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
+    adminMode = !adminMode;
+    document.body.classList.toggle('admin-on', adminMode);
+    document.querySelectorAll('.admin-only').forEach(el => {
+      el.style.display = adminMode ? '' : 'none';
+    });
+    // Recalc so card-level admin flags update consistently
+    calcSig();
+    calcGW();
+  }
+});
 
 // ================================================================
 // INIT
