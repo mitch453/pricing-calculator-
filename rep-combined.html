@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ausave Energy — Pricing Calculator</title>
+<title>Ausave Energy — Admin Combined Pricing Calculator</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -118,39 +118,63 @@
   /* Form */
   .form-group { margin-bottom: 0.5rem; }
   .form-group label {
-    display: block; font-weight: 600; font-size: 0.7rem;
-    margin-bottom: 0.15rem; color: var(--text-secondary);
-    text-transform: uppercase; letter-spacing: 0.04em;
+    display: block;
+    font-weight: 600;
+    font-size: 0.7rem;
+    margin-bottom: 0.15rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
   }
   .form-group select,
   .form-group input[type="number"],
   .form-group input[type="text"] {
-    width: 100%; padding: 0.35rem 0.5rem;
-    border: 1.5px solid var(--border); border-radius: 6px;
-    font-size: 0.82rem; font-family: inherit;
-    background: var(--off-white); color: var(--text); transition: all 0.2s;
+    width: 100%;
+    padding: 0.35rem 0.5rem;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    font-size: 0.82rem;
+    font-family: inherit;
+    background: var(--off-white);
+    color: var(--text);
+    transition: all 0.2s;
   }
-  .form-group select:hover, .form-group input:hover { border-color: var(--accent); }
-  .form-group select:focus, .form-group input:focus {
-    outline: none; border-color: var(--mid-green);
-    box-shadow: 0 0 0 3px rgba(46,125,50,0.12); background: var(--white);
+  .form-group select:hover,
+  .form-group input:hover { border-color: var(--accent); }
+  .form-group select:focus,
+  .form-group input:focus {
+    outline: none;
+    border-color: var(--mid-green);
+    box-shadow: 0 0 0 3px rgba(46,125,50,0.12);
+    background: var(--white);
   }
+
+  /* Form Grid */
   .form-grid {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem 0.75rem;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem 0.75rem;
   }
   @media (max-width: 900px) { .form-grid { grid-template-columns: repeat(2, 1fr); } }
   @media (max-width: 500px) { .form-grid { grid-template-columns: 1fr; } }
   .form-grid .form-group { margin-bottom: 0; }
+
   .form-footer {
-    display: flex; gap: 0.75rem; align-items: end; flex-wrap: wrap;
-    margin-top: 0.6rem; padding-top: 0.6rem;
+    display: flex;
+    gap: 0.75rem;
+    align-items: end;
+    flex-wrap: wrap;
+    margin-top: 0.6rem;
+    padding-top: 0.6rem;
     border-top: 1px solid var(--border-light);
   }
   .form-footer .form-group { flex: 1; min-width: 200px; margin-bottom: 0; }
 
   /* Extras */
   .extras-grid {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.35rem 0.75rem;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.35rem 0.75rem;
   }
   @media (max-width: 900px) { .extras-grid { grid-template-columns: repeat(2, 1fr); } }
   @media (max-width: 500px) { .extras-grid { grid-template-columns: 1fr; } }
@@ -177,83 +201,243 @@
     margin-bottom: 0.25rem; margin-top: 0.4rem;
   }
 
-  /* Button */
-  #s-btn-calculate, #g-btn-calculate {
-    width: 100%; padding: 0.45rem 1.5rem;
+  /* Calculate Button */
+  .btn-calculate {
+    width: 100%;
+    padding: 0.45rem 1.5rem;
     background: linear-gradient(135deg, var(--mid-green), var(--accent));
-    color: white; border: none; border-radius: 6px;
-    font-size: 0.82rem; font-weight: 700; font-family: inherit;
-    cursor: pointer; transition: all 0.2s;
-    letter-spacing: 0.02em; text-transform: uppercase;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
     box-shadow: 0 2px 6px rgba(46,125,50,0.25);
+    min-width: 150px;
+    height: 34px;
   }
-  #s-btn-calculate:hover, #g-btn-calculate:hover {
+  .btn-calculate:hover {
     background: linear-gradient(135deg, var(--dark-green), var(--mid-green));
-    box-shadow: 0 3px 10px rgba(31,78,44,0.35); transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(31,78,44,0.35);
+    transform: translateY(-1px);
   }
+  .btn-calculate:active { transform: translateY(0); }
 
   /* Output Grid */
   .output-grid {
-    display: grid; grid-template-columns: 1fr 360px; gap: 0.75rem; align-items: start;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    align-items: start;
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
   }
-  @media (max-width: 1200px) { .output-grid { grid-template-columns: 1fr; } .summary-card { margin-top: 0.5rem; } }
+  /* When admin mode is on, expand to two-column layout with breakdown */
+  body.admin-on .output-grid {
+    grid-template-columns: 1fr 360px;
+    max-width: none;
+  }
+  @media (max-width: 1200px) {
+    body.admin-on .output-grid { grid-template-columns: 1fr; }
+    .summary-card { margin-top: 0.5rem; }
+  }
 
   /* Breakdown Table */
-  .breakdown-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+  .breakdown-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.78rem;
+  }
   .breakdown-table th {
-    text-align: left; padding: 0.3rem 0.6rem;
-    background: var(--dark-green); color: var(--white);
-    font-weight: 600; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.04em;
+    text-align: left;
+    padding: 0.3rem 0.6rem;
+    background: var(--dark-green);
+    color: var(--white);
+    font-weight: 600;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
   }
   .breakdown-table th:last-child { text-align: right; }
-  .breakdown-table td { padding: 0.25rem 0.6rem; border-bottom: 1px solid var(--border-light); }
+  .breakdown-table td {
+    padding: 0.25rem 0.6rem;
+    border-bottom: 1px solid var(--border-light);
+  }
   .breakdown-table tbody tr:hover { background: rgba(232,245,233,0.3); }
-  .breakdown-table td:last-child { text-align: right; font-variant-numeric: tabular-nums; font-weight: 500; }
+  .breakdown-table td:last-child {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    font-weight: 500;
+  }
   .breakdown-table tr.section-header td {
-    background: var(--light-green); font-weight: 700; color: var(--dark-green);
-    font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.03em;
-    padding: 0.3rem 0.6rem; border-bottom: 2px solid var(--border);
+    background: var(--light-green);
+    font-weight: 700;
+    color: var(--dark-green);
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 0.3rem 0.6rem;
+    border-bottom: 2px solid var(--border);
   }
   .breakdown-table tr.total-row td {
-    font-weight: 700; font-size: 0.88rem; border-top: 2px solid var(--dark-green);
-    background: var(--light-green); padding: 0.4rem 0.6rem; color: var(--dark-green);
+    font-weight: 700;
+    font-size: 0.88rem;
+    border-top: 2px solid var(--dark-green);
+    background: var(--light-green);
+    padding: 0.4rem 0.6rem;
+    color: var(--dark-green);
   }
-  .breakdown-table tr.subtotal-row td { font-weight: 600; background: #fafafa; border-top: 1px solid var(--border); }
+  .breakdown-table tr.subtotal-row td {
+    font-weight: 600;
+    background: #fafafa;
+    border-top: 1px solid var(--border);
+  }
 
   /* Summary */
   .summary-card { margin-top: 0; }
   .summary-row {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 0.4rem 0; border-bottom: 1px solid var(--border-light);
-    font-size: 0.82rem; gap: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.4rem 0;
+    border-bottom: 1px solid var(--border-light);
+    font-size: 0.82rem;
+    gap: 0.5rem;
   }
   .summary-row:last-child { border-bottom: none; }
   .summary-row .label { color: var(--muted); font-weight: 500; }
-  .summary-row .value { font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--text); }
+  .summary-row .value {
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    color: var(--text);
+  }
   .summary-row.big { padding: 0.5rem 0; }
   .summary-row.big .label { color: var(--dark-green); font-weight: 600; }
   .summary-row.big .value { font-size: 1.1rem; color: var(--dark-green); }
   .summary-row.danger .value { color: var(--danger); }
   .summary-row.danger .label { color: var(--danger); }
-  .summary-divider { height: 1px; background: linear-gradient(90deg, transparent, var(--border), transparent); margin: 0.4rem 0; }
-  .margin-alert { margin-top: 0.5rem; padding: 0.4rem 0.75rem; border-radius: 6px; font-weight: 600; font-size: 0.78rem; display: none; }
-  .margin-alert.low { display: block; background: var(--danger-bg); color: var(--danger); border: 1px solid #ffcdd2; }
-  .margin-alert.ok { display: block; background: var(--success-bg); color: var(--mid-green); border: 1px solid var(--border); }
+
+  .summary-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 0.4rem 0;
+  }
+
+  .margin-alert {
+    margin-top: 0.5rem;
+    padding: 0.4rem 0.75rem;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.78rem;
+    display: none;
+  }
+  .margin-alert.low {
+    display: block;
+    background: var(--danger-bg);
+    color: var(--danger);
+    border: 1px solid #ffcdd2;
+  }
+  .margin-alert.ok {
+    display: block;
+    background: var(--success-bg);
+    color: var(--mid-green);
+    border: 1px solid var(--border);
+  }
+
   .recommended-row {
     background: linear-gradient(135deg, var(--light-green), #d7eeda);
-    padding: 0.5rem 0.65rem; border-radius: 8px; margin: 0.3rem 0;
-    border: 1px solid var(--border); display: flex;
-    justify-content: space-between; align-items: center; gap: 0.5rem;
+    padding: 0.5rem 0.65rem;
+    border-radius: 8px;
+    margin: 0.3rem 0;
+    border: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
   }
-  .recommended-row .label { color: var(--dark-green); font-weight: 700; font-size: 0.78rem; }
-  .recommended-row .value { font-size: 1.15rem; font-weight: 800; color: var(--dark-green); font-variant-numeric: tabular-nums; }
+  .recommended-row .label {
+    color: var(--dark-green);
+    font-weight: 700;
+    font-size: 0.78rem;
+  }
+  .recommended-row .value {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--dark-green);
+    font-variant-numeric: tabular-nums;
+  }
+  .recommended-margin {
+    text-align: right;
+    font-size: 0.9em;
+    color: #27ae60;
+    font-weight: 600;
+    padding: 2px 0 8px 0;
+  }
+
+  /* BESS2 (NSW VPP) rebate — shown in red below pricing */
+  .bess2-rebate {
+    background: linear-gradient(135deg, #fff0f0, #ffe0e0);
+    padding: 0.5rem 0.65rem;
+    border-radius: 8px;
+    margin: 0.35rem 0 0.15rem;
+    border: 1px solid #ffcdd2;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .bess2-rebate .label {
+    color: var(--danger);
+    font-weight: 700;
+    font-size: 0.78rem;
+  }
+  .bess2-rebate .value {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--danger);
+    font-variant-numeric: tabular-nums;
+  }
+  .bess2-note {
+    font-size: 0.68rem;
+    color: var(--danger);
+    text-align: right;
+    font-style: italic;
+    padding: 0 0.65rem 0.25rem;
+    margin-top: -0.1rem;
+  }
 
   /* Profit Section */
-  .profit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .profit-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
   @media (max-width: 700px) { .profit-grid { grid-template-columns: 1fr; } }
-  .profit-box { padding: 0.6rem 0.75rem; border-radius: 8px; border: 1px solid var(--border); }
-  .profit-box h4 { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); margin-bottom: 0.4rem; font-weight: 600; }
-  .profit-line { display: flex; justify-content: space-between; font-size: 0.8rem; padding: 0.15rem 0; }
+  .profit-box {
+    padding: 0.6rem 0.75rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+  .profit-box h4 {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+    margin-bottom: 0.4rem;
+    font-weight: 600;
+  }
+  .profit-line {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    padding: 0.15rem 0;
+  }
   .profit-line .label { color: var(--text-secondary); }
   .profit-line .value { font-weight: 600; font-variant-numeric: tabular-nums; }
   .profit-line.net { border-top: 1px solid var(--border-light); padding-top: 0.3rem; margin-top: 0.2rem; }
@@ -267,7 +451,8 @@
 
 <header>
   <h1>Ausave Energy</h1>
-  <span>Solar & Battery Pricing Calculator</span>
+  <span>Combined Pricing Calculator</span>
+  <span style="margin-left:auto;font-size:0.7rem;opacity:0.5;border:none;padding:0;">Ctrl+Shift+A for admin</span>
 </header>
 
 <div class="tab-bar-wrap">
@@ -275,819 +460,1002 @@
   <button class="tab-btn" id="tab-gw" onclick="switchTab('gw')">GoodWe ESA</button>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════
-     SIGENERGY SECTION
-═══════════════════════════════════════════════════════ -->
+<!-- ============================================================ -->
+<!-- SIGENERGY SECTION                                            -->
+<!-- ============================================================ -->
 <div id="section-sig">
-<div class="container">
-  <div class="card">
-    <div class="card-header">Job Configuration — Sigenergy</div>
-    <div class="card-body">
-      <div class="form-grid">
-        <div class="form-group">
-          <label>Number of Panels</label>
-          <input type="number" id="s-numPanels" min="0" value="20" oninput="calcSig()">
+  <div class="container">
+
+    <!-- INPUT PANEL -->
+    <div class="card">
+      <div class="card-header">Sigenergy — Job Configuration</div>
+      <div class="card-body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Number of Panels</label>
+            <input type="number" id="s-numPanels" min="0" value="20" oninput="calcSig()">
+          </div>
+          <div class="form-group">
+            <label>Panel Type</label>
+            <select id="s-panelType" onchange="calcSig()">
+              <option value="ae440">AE Solar 440W — $92</option>
+              <option value="ja475">JA 475W — $122</option>
+              <option value="jinko475">Jinko 475W (All Black) — $142</option>
+              <option value="aiko475">AIKO 490W — $175</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Roof Type</label>
+            <select id="s-roofType" onchange="calcSig()">
+              <option value="tin">Tin Roof</option>
+              <option value="tile">Tile Roof</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Inverter</label>
+            <select id="s-inverterType" onchange="calcSig()">
+              <optgroup label="Single Phase">
+                <option value="ec5sp">EC 5.0 SP — $1,413.50</option>
+                <option value="ec6sp">EC 6.0 SP — $1,527.90</option>
+                <option value="ec8sp">EC 8.0 SP — $2,611.40</option>
+                <option value="ec10sp" selected>EC 10.0 SP — $2,814.90</option>
+                <option value="ec12sp">EC 12.0 SP — $3,019.50</option>
+              </optgroup>
+              <optgroup label="Three Phase">
+                <option value="ec5tp">EC 5.0 TP — $2,420.00</option>
+                <option value="ec10tp">EC 10.0 TP — $2,802.80</option>
+                <option value="ec15tp">EC 15.0 TP — $3,693.80</option>
+                <option value="ec20tp">EC 20.0 TP — $4,215.20</option>
+                <option value="ec25tp">EC 25.0 TP — $4,840.00</option>
+                <option value="ec30tp">EC 30.0 TP — $5,324.00</option>
+              </optgroup>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>No. of Inverters</label>
+            <select id="s-numInverters" onchange="calcSig()">
+              <option value="1">1</option>
+              <option value="2">2 (Dual)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>BAT 8.0 (8 kWh) Modules — $2,721.40 ea</label>
+            <select id="s-num8kwh" onchange="calcSig()">
+              <option value="0">0</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6" selected>6</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>BAT 5.0 (5 kWh) Modules — $3,056.90 ea</label>
+            <select id="s-num5kwh" onchange="calcSig()">
+              <option value="0" selected>0</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Gateway</label>
+            <select id="s-gatewayType" onchange="calcSig()">
+              <option value="sp">SP Gateway AU (Pro) — $756.86</option>
+              <option value="tp">TP Gateway AU (Pro) — $935.45</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Install Kits</label>
+            <select id="s-numInstallKits" onchange="calcSig()">
+              <option value="1">1 (Standard)</option>
+              <option value="2">2 (Dual Inverter)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Power Sensor</label>
+            <select id="s-powerSensor" onchange="calcSig()">
+              <option value="none">None</option>
+              <option value="spct100">SP-CT100 Single Phase — $109.99</option>
+              <option value="tpct100">TP-CT100 Three Phase — $219.98</option>
+              <option value="tpct300dh">TP-CT300-DH — $316.90</option>
+              <option value="tpct600dh">TP-CT600-DH — $372.44</option>
+              <option value="tpdhci">TP DH-C&amp;I — $331.06</option>
+              <option value="nanobanana">Nano Beam Sensors — $1,200.00</option>
+            </select>
+          </div>
+          <input type="hidden" id="s-installPeriod" value="after">
         </div>
-        <div class="form-group">
-          <label>Panel Type</label>
-          <select id="s-panelType" onchange="calcSig()">
-            <option value="ae440">AE Solar 440W</option>
-            <option value="ja475">JA 475W</option>
-            <option value="jinko475">Jinko 475W (All Black)</option>
-            <option value="aiko475">AIKO 490W</option>
-          </select>
+
+        <div style="padding: 0.75rem 0 0.25rem;">
+          <div class="extras-section-label">Extras (ex GST — added to final price)</div>
+          <div class="extras-grid">
+            <label><input type="checkbox" class="s-extra-cb" data-price="250" onchange="calcSig()"><span>Double Storey Install</span><span class="extra-price">$250</span></label>
+            <label><input type="checkbox" class="s-extra-cb" data-price="70" data-per-panel="true" onchange="calcSig()"><span>Tilt Frames</span><span class="per-panel-tag">/panel</span><span class="extra-price">$70</span></label>
+            <label><input type="checkbox" class="s-extra-cb" data-price="30" data-per-panel="true" onchange="calcSig()"><span>Kliplock Feet</span><span class="per-panel-tag">/panel</span><span class="extra-price">$30</span></label>
+            <label><input type="checkbox" class="s-extra-cb" data-price="200" data-qty-select="s-splitQty" onchange="calcSig()"><span>Split Array</span><select class="extra-select" id="s-splitQty" onchange="calcSig()"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option></select><span class="extra-price">$200 ea</span></label>
+            <label><input type="checkbox" class="s-extra-cb" data-price="70" data-per-panel="true" onchange="calcSig()"><span>30-Degree Pitch</span><span class="per-panel-tag">/panel</span><span class="extra-price">$70</span></label>
+            <label><input type="checkbox" class="s-extra-cb" data-price="650" onchange="calcSig()"><span>New Additional Sub Board</span><span class="extra-price">$650</span></label>
+            <label><input type="checkbox" class="s-extra-cb" data-price="500" onchange="calcSig()"><span>Decommission (4–8 Panels)</span><span class="extra-price">$500</span></label>
+            <label><input type="checkbox" class="s-extra-cb" data-price="700" onchange="calcSig()"><span>Decommission (10–20 Panels)</span><span class="extra-price">$700</span></label>
+            <label><input type="checkbox" class="s-extra-cb" data-price="380" onchange="calcSig()"><span>Bollard</span><span class="extra-price">$380</span></label>
+            <label><input type="checkbox" class="s-extra-cb" data-price="250" onchange="calcSig()"><span>Fireproof Backing</span><span class="extra-price">$250</span></label>
+            <label><input type="checkbox" class="s-extra-cb" data-price="70" data-per-panel="true" onchange="calcSig()"><span>Optimizers</span><span class="per-panel-tag">/panel</span><span class="extra-price">$70</span></label>
+            <label><input type="checkbox" class="s-extra-cb" data-price="200" onchange="calcSig()"><span>Concrete Plinth</span><span class="extra-price">$200</span></label>
+            <label><input type="checkbox" class="s-extra-cb" data-price="50" data-qty-select="s-cableMetres" onchange="calcSig()"><span>Cable (per metre)</span><select class="extra-select" id="s-cableMetres" onchange="calcSig()"><option value="1">1m</option><option value="2">2m</option><option value="3">3m</option><option value="4">4m</option><option value="5">5m</option><option value="10">10m</option><option value="15">15m</option><option value="20">20m</option><option value="25">25m</option><option value="30">30m</option></select><span class="extra-price">$50/m</span></label>
+            <label><input type="checkbox" class="s-extra-cb" data-price="150" data-qty-select="s-breakerQty" onchange="calcSig()"><span>Breakers</span><select class="extra-select" id="s-breakerQty" onchange="calcSig()"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option></select><span class="extra-price">$150 ea</span></label>
+            <label><input type="checkbox" class="s-extra-cb" data-price="650" onchange="calcSig()"><span>Hot Water Timer</span><span class="extra-price">$650</span></label>
+            <label><input type="checkbox" class="s-extra-cb" data-price="2000" onchange="calcSig()"><span>Decommission Existing Battery</span><span class="extra-price">$2,000</span></label>
+          </div>
+          <div class="form-group" style="margin-top:0.5rem;">
+            <label>Car Charger</label>
+            <select id="s-carCharger" onchange="calcSig()">
+              <option value="none">None</option>
+              <option value="gw7khca">GW7K-HCA — 7kW Single Phase ($1,900 ex GST)</option>
+              <option value="gw11khca">GW11K-HCA — 11kW Three Phase ($2,000 ex GST)</option>
+              <option value="gw22khca">GW22K-HCA — 22kW Three Phase ($2,400 ex GST)</option>
+            </select>
+          </div>
         </div>
-        <div class="form-group">
-          <label>Roof Type</label>
-          <select id="s-roofType" onchange="calcSig()">
-            <option value="tin">Tin Roof</option>
-            <option value="tile">Tile Roof</option>
-          </select>
+
+        <div class="form-footer">
+          <div class="form-group">
+            <label>Sale Price (inc GST)</label>
+            <input type="number" id="s-salePrice" min="0" step="0.01" placeholder="Leave blank to skip" oninput="calcSig()">
+          </div>
+          <button class="btn-calculate" onclick="calcSig()">Calculate</button>
         </div>
-        <div class="form-group">
-          <label>Inverter</label>
-          <select id="s-inverterType" onchange="calcSig()">
-            <optgroup label="Single Phase">
-              <option value="ec5sp">EC 5.0 SP</option>
-              <option value="ec6sp">EC 6.0 SP</option>
-              <option value="ec8sp">EC 8.0 SP</option>
-              <option value="ec10sp">EC 10.0 SP</option>
-              <option value="ec12sp">EC 12.0 SP</option>
-            </optgroup>
-            <optgroup label="Three Phase">
-              <option value="ec5tp">EC 5.0 TP</option>
-              <option value="ec10tp">EC 10.0 TP</option>
-              <option value="ec15tp">EC 15.0 TP</option>
-              <option value="ec20tp">EC 20.0 TP</option>
-              <option value="ec25tp">EC 25.0 TP</option>
-              <option value="ec30tp">EC 30.0 TP</option>
-            </optgroup>
-          </select>
+      </div>
+    </div>
+
+    <!-- OUTPUT PANEL -->
+    <div class="output-grid">
+      <div class="card admin-only" id="s-results-card" style="display:none;">
+        <div class="card-header">Itemised Cost Breakdown</div>
+        <div class="card-body" style="padding:0;">
+          <table class="breakdown-table" id="s-breakdown"></table>
         </div>
-        <div class="form-group">
-          <label>No. of Inverters</label>
-          <select id="s-numInverters" onchange="calcSig()">
+      </div>
+
+      <div class="card summary-card" id="s-summary-card">
+        <div class="card-header">Summary</div>
+        <div class="card-body" id="s-summary"></div>
+      </div>
+    </div>
+
+    <!-- PROFIT PROJECTION -->
+    <div class="card admin-only" id="s-profit-card" style="display:none;">
+      <div class="card-header">Daily &amp; Weekly Profit Projection</div>
+      <div class="card-body">
+        <div class="form-group" style="margin-bottom:0.75rem;">
+          <label>Jobs Per Day</label>
+          <select id="s-jobsPerDay" onchange="calcSig()">
             <option value="1">1</option>
-            <option value="2">2 (Dual)</option>
+            <option value="2">2</option>
+            <option value="3" selected>3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
           </select>
         </div>
-        <div class="form-group">
-          <label>Battery Module</label>
-          <select id="s-batteryModule" onchange="updateSigBatterySizes()">
-            <option value="bat8">BAT 8.0 (8 kWh)</option>
-            <option value="bat5">BAT 5.0 (5 kWh)</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Battery Size (kWh)</label>
-          <select id="s-batteryKwh" onchange="calcSig()">
-            <option value="0">No Battery</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Gateway</label>
-          <select id="s-gatewayType" onchange="calcSig()">
-            <option value="sp">SP Gateway AU (Pro)</option>
-            <option value="tp">TP Gateway AU (Pro)</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Install Kits</label>
-          <select id="s-numInstallKits" onchange="calcSig()">
-            <option value="1">1 (Standard)</option>
-            <option value="2">2 (Dual Inverter)</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Power Sensor</label>
-          <select id="s-powerSensor" onchange="calcSig()">
-            <option value="none">None</option>
-            <option value="spct100">SP-CT100 Single Phase</option>
-            <option value="tpct100">TP-CT100 Three Phase</option>
-            <option value="tpct300dh">TP-CT300-DH</option>
-            <option value="tpct600dh">TP-CT600-DH</option>
-            <option value="tpdhci">TP DH-C&I</option>
-            <option value="nanobanana">Nano Beam Sensors</option>
-          </select>
-        </div>
-        <input type="hidden" id="s-installPeriod" value="after">
-      </div>
-
-      <div class="extras-section-label">Extras (ex GST — added to final price)</div>
-      <div class="extras-grid">
-        <label><input type="checkbox" class="s-extra-cb" data-price="250" onchange="calcSig()"><span>Double Storey Install</span><span class="extra-price">$250</span></label>
-        <label><input type="checkbox" class="s-extra-cb" data-price="70" data-per-panel="true" onchange="calcSig()"><span>Tilt Frames</span><span class="per-panel-tag">/panel</span><span class="extra-price">$70</span></label>
-        <label><input type="checkbox" class="s-extra-cb" data-price="30" data-per-panel="true" onchange="calcSig()"><span>Kliplock Feet</span><span class="per-panel-tag">/panel</span><span class="extra-price">$30</span></label>
-        <label><input type="checkbox" class="s-extra-cb" data-price="200" data-qty-select="s-splitQty" onchange="calcSig()"><span>Split Array</span><select class="extra-select" id="s-splitQty" onchange="calcSig()"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select><span class="extra-price">$200 ea</span></label>
-        <label><input type="checkbox" class="s-extra-cb" data-price="70" data-per-panel="true" onchange="calcSig()"><span>30-Degree Pitch</span><span class="per-panel-tag">/panel</span><span class="extra-price">$70</span></label>
-        <label><input type="checkbox" class="s-extra-cb" data-price="650" onchange="calcSig()"><span>New Additional Sub Board</span><span class="extra-price">$650</span></label>
-        <label><input type="checkbox" class="s-extra-cb" data-price="500" onchange="calcSig()"><span>Decommission (4–8 Panels)</span><span class="extra-price">$500</span></label>
-        <label><input type="checkbox" class="s-extra-cb" data-price="700" onchange="calcSig()"><span>Decommission (10–20 Panels)</span><span class="extra-price">$700</span></label>
-        <label><input type="checkbox" class="s-extra-cb" data-price="380" onchange="calcSig()"><span>Bollard</span><span class="extra-price">$380</span></label>
-        <label><input type="checkbox" class="s-extra-cb" data-price="250" onchange="calcSig()"><span>Fireproof Backing</span><span class="extra-price">$250</span></label>
-        <label><input type="checkbox" class="s-extra-cb" data-price="70" data-per-panel="true" onchange="calcSig()"><span>Optimizers</span><span class="per-panel-tag">/panel</span><span class="extra-price">$70</span></label>
-        <label><input type="checkbox" class="s-extra-cb" data-price="200" onchange="calcSig()"><span>Concrete Plinth</span><span class="extra-price">$200</span></label>
-        <label><input type="checkbox" class="s-extra-cb" data-price="50" data-qty-select="s-cableMetres" onchange="calcSig()"><span>Cable (per metre)</span><select class="extra-select" id="s-cableMetres" onchange="calcSig()"><option value="1">1m</option><option value="2">2m</option><option value="3">3m</option><option value="4">4m</option><option value="5">5m</option><option value="10">10m</option><option value="15">15m</option><option value="20">20m</option><option value="25">25m</option><option value="30">30m</option></select><span class="extra-price">$50/m</span></label>
-        <label><input type="checkbox" class="s-extra-cb" data-price="150" data-qty-select="s-breakerQty" onchange="calcSig()"><span>Breakers</span><select class="extra-select" id="s-breakerQty" onchange="calcSig()"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select><span class="extra-price">$150 ea</span></label>
-        <label><input type="checkbox" class="s-extra-cb" data-price="650" onchange="calcSig()"><span>Hot Water Timer</span><span class="extra-price">$650</span></label>
-        <label><input type="checkbox" class="s-extra-cb" data-price="2000" onchange="calcSig()"><span>Decommission Existing Battery</span><span class="extra-price">$2,000</span></label>
-      </div>
-      <div class="form-group" style="margin-top:0.5rem;">
-        <label>Car Charger</label>
-        <select id="s-carCharger" onchange="calcSig()">
-          <option value="none">None</option>
-          <option value="gw7khca">GW7K-HCA — 7kW Single Phase ($1,900 ex GST)</option>
-          <option value="gw11khca">GW11K-HCA — 11kW Three Phase ($2,000 ex GST)</option>
-          <option value="gw22khca">GW22K-HCA — 22kW Three Phase ($2,400 ex GST)</option>
-        </select>
-      </div>
-
-      <div class="form-group" style="margin-top:0.6rem;">
-        <label style="font-weight:700;">Input Price (inc GST)</label>
-        <input type="number" id="s-customPriceField" placeholder="Enter sale price inc GST" step="0.01" style="width:100%;padding:10px;border:2px solid #3a6b35;border-radius:8px;font-size:1em;" oninput="calcSig()">
-      </div>
-      <div class="form-footer">
-        <button id="s-btn-calculate" onclick="calcSig()">Calculate</button>
+        <div id="s-profit"></div>
       </div>
     </div>
+
   </div>
+</div><!-- end #section-sig -->
 
-  <div class="output-grid">
-    <div class="card" id="s-results-card" style="display:none;">
-      <div class="card-header">Itemised Cost Breakdown</div>
-      <div class="card-body" style="padding:0;">
-        <table class="breakdown-table" id="s-breakdown"></table>
-      </div>
-    </div>
-    <div class="card summary-card" id="s-summary-card" style="display:none;">
-      <div class="card-header">Summary</div>
-      <div class="card-body" id="s-summary"></div>
-    </div>
-  </div>
 
-  <div class="card" id="s-profit-card" style="display:none;">
-    <div class="card-header">Daily & Weekly Profit Projection</div>
-    <div class="card-body">
-      <div class="form-group" style="margin-bottom:0.75rem;">
-        <label>Jobs Per Day</label>
-        <select id="s-jobsPerDay" onchange="calcSig()">
-          <option>1</option><option>2</option><option selected>3</option><option>4</option>
-          <option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option>
-        </select>
-      </div>
-      <div id="s-profit"></div>
-    </div>
-  </div>
-</div>
-</div><!-- end section-sig -->
-
-<!-- ═══════════════════════════════════════════════════════
-     GOODWE ESA SECTION
-═══════════════════════════════════════════════════════ -->
+<!-- ============================================================ -->
+<!-- GOODWE SECTION                                               -->
+<!-- ============================================================ -->
 <div id="section-gw" style="display:none;">
-<div class="container">
-  <div class="card">
-    <div class="card-header">Job Configuration — GoodWe ESA</div>
-    <div class="card-body">
-      <div class="form-grid">
-        <div class="form-group">
-          <label>Number of Panels</label>
-          <input type="number" id="g-numPanels" min="0" value="20" oninput="calcGW()">
+  <div class="container">
+
+    <!-- INPUT PANEL -->
+    <div class="card">
+      <div class="card-header">GoodWe ESA — Job Configuration</div>
+      <div class="card-body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Number of Panels</label>
+            <input type="number" id="g-numPanels" min="0" value="20" oninput="calcGW()">
+          </div>
+          <div class="form-group">
+            <label>Panel Type</label>
+            <select id="g-panelType" onchange="calcGW()">
+              <option value="ae440">AE Solar 440W — $92</option>
+              <option value="ja475">JA 475W — $122</option>
+              <option value="jinko475">Jinko 475W (All Black) — $142</option>
+              <option value="aiko475">AIKO 490W — $175</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Roof Type</label>
+            <select id="g-roofType" onchange="calcGW()">
+              <option value="tin">Tin Roof</option>
+              <option value="tile">Tile Roof</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Inverter</label>
+            <select id="g-inverterType" onchange="calcGW()">
+              <optgroup label="Single Phase">
+                <option value="gw5k">GW5K-EHA-G20 — $1,225.40</option>
+                <option value="gw8k">GW8K-EHA-G20 — $1,857.90</option>
+                <option value="gw10k" selected>GW9.999K-EHA-G20 — $2,008.60</option>
+              </optgroup>
+              <optgroup label="Three Phase">
+                <option value="gw10ktp">GW10K-ET-G20 — $2,062.50</option>
+                <option value="gw15ktp">GW15K-ET-G20 — $2,202.20</option>
+                <option value="gw20ktp">GW20K-ET-G20 — $2,277.00</option>
+                <option value="gw25ktp">GW25K-ET-G20 — $2,343.00</option>
+              </optgroup>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>No. of Inverters</label>
+            <select id="g-numInverters" onchange="calcGW()">
+              <option value="1">1</option>
+              <option value="2">2 (Dual)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Battery Module</label>
+            <select id="g-batteryModule" onchange="updateGwBatterySizes()">
+              <option value="gw83">GW8.3-BAT-D-G20 (8.3 kWh) — $2,640</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Battery Size (kWh)</label>
+            <select id="g-batteryKwh" onchange="calcGW()">
+              <!-- populated by updateGwBatterySizes() -->
+            </select>
+          </div>
+          <input type="hidden" id="g-gatewayType" value="none">
+          <input type="hidden" id="g-installPeriod" value="after">
+          <div class="form-group">
+            <label>Install Kits</label>
+            <select id="g-numInstallKits" onchange="calcGW()">
+              <option value="1">1 (Standard)</option>
+              <option value="2">2 (Dual Inverter)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Power Sensor</label>
+            <select id="g-powerSensor" onchange="calcGW()">
+              <option value="none">None</option>
+              <option value="spct100">SP-CT100 Single Phase — $109.99</option>
+              <option value="tpct100">TP-CT100 Three Phase — $219.98</option>
+              <option value="tpct300dh">TP-CT300-DH — $316.90</option>
+              <option value="tpct600dh">TP-CT600-DH — $372.44</option>
+              <option value="tpdhci">TP DH-C&amp;I — $331.06</option>
+              <option value="nanobanana">Nano Beam Sensors — $1,200.00</option>
+            </select>
+          </div>
         </div>
-        <div class="form-group">
-          <label>Panel Type</label>
-          <select id="g-panelType" onchange="calcGW()">
-            <option value="ae440">AE Solar 440W</option>
-            <option value="ja475">JA 475W</option>
-            <option value="jinko475">Jinko 475W (All Black)</option>
-            <option value="aiko475">AIKO 490W</option>
-          </select>
+
+        <div class="extras-section-label" style="margin-top:0.75rem;">Extras (ex GST — added to final price)</div>
+        <div class="extras-grid">
+          <label><input type="checkbox" class="g-extra-cb" data-price="250" onchange="calcGW()"><span>Double Storey Install</span><span class="extra-price">$250</span></label>
+          <label><input type="checkbox" class="g-extra-cb" data-price="70" data-per-panel="true" onchange="calcGW()"><span>Tilt Frames</span><span class="per-panel-tag">/panel</span><span class="extra-price">$70</span></label>
+          <label><input type="checkbox" class="g-extra-cb" data-price="30" data-per-panel="true" onchange="calcGW()"><span>Kliplock Feet</span><span class="per-panel-tag">/panel</span><span class="extra-price">$30</span></label>
+          <label><input type="checkbox" class="g-extra-cb" data-price="200" data-qty-select="g-splitQty" onchange="calcGW()"><span>Split Array</span><select class="extra-select" id="g-splitQty" onchange="calcGW()"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option></select><span class="extra-price">$200 ea</span></label>
+          <label><input type="checkbox" class="g-extra-cb" data-price="70" data-per-panel="true" onchange="calcGW()"><span>30-Degree Pitch</span><span class="per-panel-tag">/panel</span><span class="extra-price">$70</span></label>
+          <label><input type="checkbox" class="g-extra-cb" data-price="650" onchange="calcGW()"><span>New Additional Sub Board</span><span class="extra-price">$650</span></label>
+          <label><input type="checkbox" class="g-extra-cb" data-price="500" onchange="calcGW()"><span>Decommission (4–8 Panels)</span><span class="extra-price">$500</span></label>
+          <label><input type="checkbox" class="g-extra-cb" data-price="700" onchange="calcGW()"><span>Decommission (10–20 Panels)</span><span class="extra-price">$700</span></label>
+          <label><input type="checkbox" class="g-extra-cb" data-price="380" onchange="calcGW()"><span>Bollard</span><span class="extra-price">$380</span></label>
+          <label><input type="checkbox" class="g-extra-cb" data-price="250" onchange="calcGW()"><span>Fireproof Backing</span><span class="extra-price">$250</span></label>
+          <label><input type="checkbox" class="g-extra-cb" data-price="70" data-per-panel="true" onchange="calcGW()"><span>Optimizers</span><span class="per-panel-tag">/panel</span><span class="extra-price">$70</span></label>
+          <label><input type="checkbox" class="g-extra-cb" data-price="200" onchange="calcGW()"><span>Concrete Plinth</span><span class="extra-price">$200</span></label>
+          <label><input type="checkbox" class="g-extra-cb" data-price="50" data-qty-select="g-cableMetres" onchange="calcGW()"><span>Cable (per metre)</span><select class="extra-select" id="g-cableMetres" onchange="calcGW()"><option value="1">1m</option><option value="2">2m</option><option value="3">3m</option><option value="4">4m</option><option value="5">5m</option><option value="10">10m</option><option value="15">15m</option><option value="20">20m</option><option value="25">25m</option><option value="30">30m</option></select><span class="extra-price">$50/m</span></label>
+          <label><input type="checkbox" class="g-extra-cb" data-price="150" data-qty-select="g-breakerQty" onchange="calcGW()"><span>Breakers</span><select class="extra-select" id="g-breakerQty" onchange="calcGW()"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option></select><span class="extra-price">$150 ea</span></label>
+          <label><input type="checkbox" class="g-extra-cb" data-price="650" onchange="calcGW()"><span>Hot Water Timer</span><span class="extra-price">$650</span></label>
+          <label><input type="checkbox" class="g-extra-cb" data-price="2000" onchange="calcGW()"><span>Decommission Existing Battery</span><span class="extra-price">$2,000</span></label>
         </div>
-        <div class="form-group">
-          <label>Roof Type</label>
-          <select id="g-roofType" onchange="calcGW()">
-            <option value="tin">Tin Roof</option>
-            <option value="tile">Tile Roof</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Inverter</label>
-          <select id="g-inverterType" onchange="calcGW()">
-            <optgroup label="Single Phase">
-              <option value="gw5k">GW5K-EHA-G20</option>
-              <option value="gw8k">GW8K-EHA-G20</option>
-              <option value="gw10k">GW9.999K-EHA-G20</option>
-            </optgroup>
-            <optgroup label="Three Phase">
-              <option value="gw10ktp">GW10K-ET-G20</option>
-              <option value="gw15ktp">GW15K-ET-G20</option>
-              <option value="gw20ktp">GW20K-ET-G20</option>
-              <option value="gw25ktp">GW25K-ET-G20</option>
-            </optgroup>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>No. of Inverters</label>
-          <select id="g-numInverters" onchange="calcGW()">
-            <option value="1">1</option>
-            <option value="2">2 (Dual)</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Battery Module</label>
-          <select id="g-batteryModule" onchange="updateGwBatterySizes()">
-            <option value="gw83">GW8.3-BAT-D-G20 (8.3 kWh)</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Battery Size (kWh)</label>
-          <select id="g-batteryKwh" onchange="calcGW()">
-            <option value="0">No Battery</option>
-            <option value="8.3" selected>8.3 kWh (1 module)</option>
-            <option value="16.6">16.6 kWh (2 modules)</option>
-            <option value="24.9">24.9 kWh (3 modules)</option>
-            <option value="33.2">33.2 kWh (4 modules)</option>
-            <option value="41.5">41.5 kWh (5 modules)</option>
-            <option value="49.8">49.8 kWh (6 modules)</option>
-          </select>
-        </div>
-        <input type="hidden" id="g-gatewayType" value="none">
-        <div class="form-group">
-          <label>Install Kits</label>
-          <select id="g-numInstallKits" onchange="calcGW()">
-            <option value="1">1 (Standard)</option>
-            <option value="2">2 (Dual Inverter)</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Power Sensor</label>
-          <select id="g-powerSensor" onchange="calcGW()">
+
+        <div class="form-group" style="margin-top:0.5rem;">
+          <label>Car Charger</label>
+          <select id="g-carCharger" onchange="calcGW()">
             <option value="none">None</option>
-            <option value="spct100">SP-CT100 Single Phase</option>
-            <option value="tpct100">TP-CT100 Three Phase</option>
-            <option value="tpct300dh">TP-CT300-DH</option>
-            <option value="tpct600dh">TP-CT600-DH</option>
-            <option value="tpdhci">TP DH-C&I</option>
-            <option value="nanobanana">Nano Beam Sensors</option>
+            <option value="gw7khca">GW7K-HCA — 7kW Single Phase ($1,900 ex GST)</option>
+            <option value="gw11khca">GW11K-HCA — 11kW Three Phase ($2,000 ex GST)</option>
+            <option value="gw22khca">GW22K-HCA — 22kW Three Phase ($2,400 ex GST)</option>
           </select>
         </div>
-        <input type="hidden" id="g-installPeriod" value="after">
-      </div>
 
-      <div class="extras-section-label">Extras (ex GST — added to final price)</div>
-      <div class="extras-grid">
-        <label><input type="checkbox" class="g-extra-cb" data-price="250" onchange="calcGW()"><span>Double Storey Install</span><span class="extra-price">$250</span></label>
-        <label><input type="checkbox" class="g-extra-cb" data-price="70" data-qty-select="g-tiltQty" onchange="calcGW()"><span>Tilt Frames</span><select class="extra-select" id="g-tiltQty" onchange="calcGW()"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option><option>12</option><option>14</option><option>16</option><option>18</option><option>20</option><option>22</option><option>24</option><option>26</option><option>28</option><option>30</option></select><span class="extra-price">$70 ea</span></label>
-        <label><input type="checkbox" class="g-extra-cb" data-price="30" data-qty-select="g-kliplockQty" onchange="calcGW()"><span>Kliplock Feet</span><select class="extra-select" id="g-kliplockQty" onchange="calcGW()"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option><option>12</option><option>14</option><option>16</option><option>18</option><option>20</option><option>22</option><option>24</option><option>26</option><option>28</option><option>30</option></select><span class="extra-price">$30 ea</span></label>
-        <label><input type="checkbox" class="g-extra-cb" data-price="200" data-qty-select="g-splitQty" onchange="calcGW()"><span>Split Array</span><select class="extra-select" id="g-splitQty" onchange="calcGW()"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select><span class="extra-price">$200 ea</span></label>
-        <label><input type="checkbox" class="g-extra-cb" data-price="70" data-qty-select="g-pitchQty" onchange="calcGW()"><span>30-Degree Pitch</span><select class="extra-select" id="g-pitchQty" onchange="calcGW()"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option><option>12</option><option>14</option><option>16</option><option>18</option><option>20</option><option>22</option><option>24</option><option>26</option><option>28</option><option>30</option></select><span class="extra-price">$70 ea</span></label>
-        <label><input type="checkbox" class="g-extra-cb" data-price="650" onchange="calcGW()"><span>New Additional Sub Board</span><span class="extra-price">$650</span></label>
-        <label><input type="checkbox" class="g-extra-cb" data-price="500" onchange="calcGW()"><span>Decommission (4–8 Panels)</span><span class="extra-price">$500</span></label>
-        <label><input type="checkbox" class="g-extra-cb" data-price="700" onchange="calcGW()"><span>Decommission (10–20 Panels)</span><span class="extra-price">$700</span></label>
-        <label><input type="checkbox" class="g-extra-cb" data-price="380" onchange="calcGW()"><span>Bollard</span><span class="extra-price">$380</span></label>
-        <label><input type="checkbox" class="g-extra-cb" data-price="250" onchange="calcGW()"><span>Fireproof Backing</span><span class="extra-price">$250</span></label>
-        <label><input type="checkbox" class="g-extra-cb" data-price="70" data-qty-select="g-optimizerQty" onchange="calcGW()"><span>Optimizers</span><select class="extra-select" id="g-optimizerQty" onchange="calcGW()"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option><option>12</option><option>14</option><option>16</option><option>18</option><option>20</option><option>22</option><option>24</option><option>26</option><option>28</option><option>30</option></select><span class="extra-price">$70 ea</span></label>
-        <label><input type="checkbox" class="g-extra-cb" data-price="200" onchange="calcGW()"><span>Concrete Plinth</span><span class="extra-price">$200</span></label>
-        <label><input type="checkbox" class="g-extra-cb" data-price="50" data-qty-select="g-cableMetres" onchange="calcGW()"><span>Cable (per metre)</span><select class="extra-select" id="g-cableMetres" onchange="calcGW()"><option value="1">1m</option><option value="2">2m</option><option value="3">3m</option><option value="4">4m</option><option value="5">5m</option><option value="10">10m</option><option value="15">15m</option><option value="20">20m</option><option value="25">25m</option><option value="30">30m</option></select><span class="extra-price">$50/m</span></label>
-        <label><input type="checkbox" class="g-extra-cb" data-price="150" data-qty-select="g-breakerQty" onchange="calcGW()"><span>Breakers</span><select class="extra-select" id="g-breakerQty" onchange="calcGW()"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select><span class="extra-price">$150 ea</span></label>
-        <label><input type="checkbox" class="g-extra-cb" data-price="650" onchange="calcGW()"><span>Hot Water Timer</span><span class="extra-price">$650</span></label>
-        <label><input type="checkbox" class="g-extra-cb" data-price="2000" onchange="calcGW()"><span>Decommission Existing Battery</span><span class="extra-price">$2,000</span></label>
-      </div>
-      <div class="form-group" style="margin-top:0.5rem;">
-        <label>Car Charger</label>
-        <select id="g-carCharger" onchange="calcGW()">
-          <option value="none">None</option>
-          <option value="gw7khca">GW7K-HCA — 7kW Single Phase ($1,900 ex GST)</option>
-          <option value="gw11khca">GW11K-HCA — 11kW Three Phase ($2,000 ex GST)</option>
-          <option value="gw22khca">GW22K-HCA — 22kW Three Phase ($2,400 ex GST)</option>
-        </select>
-      </div>
+        <div class="form-group" style="margin-top:0.75rem;">
+          <label style="font-weight:700;color:var(--dark-green);">Check Your Price (inc GST)</label>
+          <input type="number" id="g-customPriceField" placeholder="Enter sale price inc GST" step="0.01"
+            style="width:100%;padding:10px;border:2px solid #3a6b35;border-radius:8px;font-size:1em;"
+            oninput="calcGW()">
+        </div>
 
-      <div class="form-group" style="margin-top:0.6rem;">
-        <label style="font-weight:700;">Input Price (inc GST)</label>
-        <input type="number" id="g-customPriceField" placeholder="Enter sale price inc GST" step="0.01" style="width:100%;padding:10px;border:2px solid #3a6b35;border-radius:8px;font-size:1em;" oninput="calcGW()">
-      </div>
-      <div class="form-footer">
-        <button id="g-btn-calculate" onclick="calcGW()">Calculate</button>
+        <div class="form-footer">
+          <button class="btn-calculate" onclick="calcGW()">Calculate</button>
+        </div>
       </div>
     </div>
+
+    <!-- OUTPUT PANEL -->
+    <div class="output-grid">
+      <div class="card admin-only" id="g-results-card" style="display:none;">
+        <div class="card-header">Itemised Cost Breakdown</div>
+        <div class="card-body" style="padding:0;">
+          <table class="breakdown-table" id="g-breakdown"></table>
+        </div>
+      </div>
+
+      <div class="card summary-card" id="g-summary-card">
+        <div class="card-header">Summary</div>
+        <div class="card-body" id="g-summary"></div>
+      </div>
+    </div>
+
+    <!-- PROFIT PROJECTION -->
+    <div class="card admin-only" id="g-profit-card" style="display:none;">
+      <div class="card-header">Daily &amp; Weekly Profit Projection</div>
+      <div class="card-body">
+        <div class="form-group" style="margin-bottom:0.75rem;">
+          <label>Jobs Per Day</label>
+          <select id="g-jobsPerDay" onchange="calcGW()">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3" selected>3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+          </select>
+        </div>
+        <div id="g-profit"></div>
+      </div>
+    </div>
+
   </div>
-
-  <div class="output-grid">
-    <div class="card" id="g-results-card" style="display:none;">
-      <div class="card-header">Itemised Cost Breakdown</div>
-      <div class="card-body" style="padding:0;">
-        <table class="breakdown-table" id="g-breakdown"></table>
-      </div>
-    </div>
-    <div class="card summary-card" id="g-summary-card" style="display:none;">
-      <div class="card-header">Summary</div>
-      <div class="card-body" id="g-summary"></div>
-    </div>
-  </div>
-
-  <div class="card" id="g-profit-card" style="display:none;">
-    <div class="card-header">Daily & Weekly Profit Projection</div>
-    <div class="card-body">
-      <div class="form-group" style="margin-bottom:0.75rem;">
-        <label>Jobs Per Day</label>
-        <select id="g-jobsPerDay" onchange="calcGW()">
-          <option>1</option><option>2</option><option selected>3</option><option>4</option>
-          <option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option>
-        </select>
-      </div>
-      <div id="g-profit"></div>
-    </div>
-  </div>
-</div>
-</div><!-- end section-gw -->
+</div><!-- end #section-gw -->
 
 <script>
-// ── Shared Utilities ──
+// ================================================================
+// SHARED PRICING DATA
+// ================================================================
 const STC_PRICE = 37.50;
-function fmt(n) { return '$' + n.toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
-function isTP(inv) { return inv.endsWith('tp'); }
-function summaryRow(label, value, cls) {
-  return `<div class="summary-row ${cls||''}"><span class="label">${label}</span><span class="value">${value}</span></div>`;
-}
+const PANEL_PRICES = { ae440: 92, ja475: 122, jinko475: 142, aiko475: 175 };
+const PANEL_WATTS  = { ae440: 440, ja475: 475, jinko475: 475, aiko475: 490 };
+const PANEL_LABELS = { ae440: 'AE Solar 440W', ja475: 'JA 475W', jinko475: 'Jinko 475W (All Black)', aiko475: 'AIKO 490W' };
+const MOUNTING = { tin: 6.50, tile: 14.50 };
+const RAIL_PER_PANEL   = 13.75;
+const DC_CABLE_PER_PANEL = 8;
+const INSTALL_KIT_PRICE  = 219.98;
+const SENSOR_PRICES = { none: 0, spct100: 109.99, tpct100: 219.98, tpct300dh: 316.90, tpct600dh: 372.44, tpdhci: 331.06, nanobanana: 1200 };
+const SENSOR_LABELS = { none: 'None', spct100: 'SP-CT100 Single Phase', tpct100: 'TP-CT100 Three Phase', tpct300dh: 'TP-CT300-DH', tpct600dh: 'TP-CT600-DH', tpdhci: 'TP DH-C&I', nanobanana: 'Nano Beam Sensors' };
+const CAR_CHARGER_PRICES = { none: 0, gw7khca: 1900, gw11khca: 2000, gw22khca: 2400 };
+const CAR_CHARGER_LABELS = { none: '', gw7khca: 'GW7K-HCA (7kW Single Phase)', gw11khca: 'GW11K-HCA (11kW Three Phase)', gw22khca: 'GW22K-HCA (22kW Three Phase)' };
 
-// ─────────────────────────────────────────────
-//  SIGENERGY
-// ─────────────────────────────────────────────
-const SIG_PANEL_PRICES  = { ae440: 92, ja475: 122, jinko475: 142, aiko475: 175 };
-const SIG_PANEL_WATTS   = { ae440: 440, ja475: 475, jinko475: 475, aiko475: 490 };
-const SIG_PANEL_LABELS  = { ae440: 'AE Solar 440W', ja475: 'JA 475W', jinko475: 'Jinko 475W (All Black)', aiko475: 'AIKO 490W' };
-const SIG_MOUNTING      = { tin: 6.50, tile: 14.50 };
-const SIG_RAIL          = 13.75;
-const SIG_DC_CABLE      = 8;
+// ================================================================
+// SIGENERGY PRICING DATA
+// ================================================================
 const SIG_INVERTER_PRICES = {
   ec5sp: 1413.50, ec6sp: 1527.90, ec8sp: 2611.40, ec10sp: 2814.90, ec12sp: 3019.50,
   ec5tp: 2420.00, ec10tp: 2802.80, ec15tp: 3693.80, ec20tp: 4215.20, ec25tp: 4840.00, ec30tp: 5324.00
 };
 const SIG_INVERTER_LABELS = {
-  ec5sp:'EC 5.0 SP', ec6sp:'EC 6.0 SP', ec8sp:'EC 8.0 SP', ec10sp:'EC 10.0 SP', ec12sp:'EC 12.0 SP',
-  ec5tp:'EC 5.0 TP', ec10tp:'EC 10.0 TP', ec15tp:'EC 15.0 TP', ec20tp:'EC 20.0 TP', ec25tp:'EC 25.0 TP', ec30tp:'EC 30.0 TP'
+  ec5sp: 'EC 5.0 SP', ec6sp: 'EC 6.0 SP', ec8sp: 'EC 8.0 SP', ec10sp: 'EC 10.0 SP', ec12sp: 'EC 12.0 SP',
+  ec5tp: 'EC 5.0 TP', ec10tp: 'EC 10.0 TP', ec15tp: 'EC 15.0 TP', ec20tp: 'EC 20.0 TP', ec25tp: 'EC 25.0 TP', ec30tp: 'EC 30.0 TP'
 };
-const SIG_BATTERY_MODULES = {
-  bat8: { kwh: 8, price: 2721.40, label: 'Sigenergy BAT 8.0 (8kWh module)' },
-  bat5: { kwh: 5, price: 3056.90, label: 'Sigenergy BAT 5.0 (5kWh module)' }
-};
+const SIG_BAT8  = { kwh: 8,   price: 2721.40, label: 'Sigenergy BAT 8.0 (8kWh module)' };
+const SIG_BAT5  = { kwh: 5,   price: 3056.90, label: 'Sigenergy BAT 5.0 (5kWh module)' };
 const SIG_GATEWAY_PRICES = { sp: 756.86, tp: 935.45 };
-const SIG_SENSOR_PRICES = { none:0, spct100:109.99, tpct100:219.98, tpct300dh:316.90, tpct600dh:372.44, tpdhci:331.06, nanobanana:1200 };
-const SIG_SENSOR_LABELS = { none:'None', spct100:'SP-CT100 Single Phase', tpct100:'TP-CT100 Three Phase', tpct300dh:'TP-CT300-DH', tpct600dh:'TP-CT600-DH', tpdhci:'TP DH-C&I', nanobanana:'Nano Beam Sensors' };
-const SIG_INSTALL_KIT = 219.98;
 const SIG_STC_BATTERY_CAP = 50;
+// Overheads
+const DAILY_OVERHEAD  = 18600;
+const WEEKLY_OVERHEAD = 93000;
 
-let adminModeSig = false;
+// BESS2 (NSW PDRS VPP) — eligibility & PRC math
+// All Ausave batteries are assumed CEC-listed, warranty-compliant, VPP-contracted via nominated ACP.
+// The ONLY cliff that drops eligibility is usable capacity: must be > 2 kWh AND < 28 kWh.
+const BESS2_MIN_KWH   = 2;
+const BESS2_MAX_KWH   = 28;
+const BESS2_DEEMING   = 23.3;   // PRCs per usable kWh (enhanced post-1 Jul 2025) — confirm with ACP
+const BESS2_NLF       = 1.04;   // Ausgrid (Newcastle / Central Coast / Sydney)
+const BESS2_PRC_PRICE = 2.80;   // $/PRC ex GST — refresh from ACP as market moves
+const BESS2_ACP_FEE   = 0.30;   // ACP admin margin (30% typical)
 
-function g(id) { return document.getElementById(id); }
+// Tiered gross margin by battery module count (3% step)
+// Solar + battery: index 0 = 0 or 1 module (64%), index 5 = 6+ modules (49%)
+const MODULE_MARGINS = [0.64, 0.61, 0.58, 0.55, 0.52, 0.49];
+// Battery-only: -10pt across the board (less work, do more per day)
+const BATTERY_ONLY_MARGINS = [0.54, 0.51, 0.48, 0.45, 0.42, 0.39];
 
+// Tracks the previous job-type per tab so we only auto-set jobs/day on a transition
+let sigPrevIsBatteryOnly = null;
+let gwPrevIsBatteryOnly  = null;
+
+// Admin mode (false by default → reps see limited view). Toggle with Ctrl+Shift+A.
+let adminMode = false;
+
+// ================================================================
+// GOODWE PRICING DATA
+// ================================================================
+const GW_INVERTER_PRICES = {
+  gw5k: 1225.40, gw8k: 1857.90, gw10k: 2008.60,
+  gw10ktp: 2062.50, gw15ktp: 2202.20, gw20ktp: 2277.00, gw25ktp: 2343.00
+};
+const GW_INVERTER_LABELS = {
+  gw5k: 'GW5K-EHA-G20', gw8k: 'GW8K-EHA-G20', gw10k: 'GW9.999K-EHA-G20',
+  gw10ktp: 'GW10K-ET-G20', gw15ktp: 'GW15K-ET-G20', gw20ktp: 'GW20K-ET-G20', gw25ktp: 'GW25K-ET-G20'
+};
+const GW_BATTERY_MODULES = {
+  gw83: { kwh: 8.3, price: 2640.00, label: 'GW8.3-BAT-D-G20 (8.3kWh module)' }
+};
+const GW_STC_CAP = 50;
+
+// ================================================================
+// HELPERS
+// ================================================================
+function fmt(n) {
+  return '$' + n.toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+function isTPinv(inv) { return inv.endsWith('tp'); }
+function summaryRow(label, value, cls) {
+  return `<div class="summary-row ${cls || ''}"><span class="label">${label}</span><span class="value">${value}</span></div>`;
+}
+
+// BESS2 — returns { prcs, gross, net } or null when ineligible by capacity cliff
+function calcBess2(usableKwh) {
+  if (usableKwh <= BESS2_MIN_KWH || usableKwh >= BESS2_MAX_KWH) return null;
+  const prcs  = Math.floor(usableKwh * BESS2_DEEMING * BESS2_NLF);
+  const gross = prcs * BESS2_PRC_PRICE;
+  const net   = gross * (1 - BESS2_ACP_FEE);
+  return { prcs, gross, net };
+}
+
+function calcBatterySTCs(batteryKwh, cap) {
+  const cappedKwh = Math.min(batteryKwh, cap);
+  let stcs = 0;
+  if (cappedKwh <= 14) {
+    stcs = cappedKwh * 6.8;
+  } else if (cappedKwh <= 28) {
+    stcs = 14 * 6.8 + (cappedKwh - 14) * 4.08;
+  } else {
+    stcs = 14 * 6.8 + 14 * 4.08 + (cappedKwh - 28) * 1.02;
+  }
+  return Math.floor(stcs);
+}
+
+function buildProfitHtml(isBatteryOnly, jobsPerDay, marginPerJob, labelExtra, noPriceMsg) {
+  if (noPriceMsg) {
+    return `<div style="padding:0.5rem;color:var(--muted);font-size:0.85rem;text-align:center;">${noPriceMsg}</div>`;
+  }
+  const dailyGrossMargin  = jobsPerDay * marginPerJob;
+  const weeklyGrossMargin = jobsPerDay * 5 * marginPerJob;
+  const dailyNetProfit    = dailyGrossMargin - DAILY_OVERHEAD;
+  const weeklyNetProfit   = weeklyGrossMargin - WEEKLY_OVERHEAD;
+
+  let h = `<div style="font-size:0.75rem;color:var(--muted);margin-bottom:0.5rem;">Job type: <strong>${isBatteryOnly ? 'Battery Only' : 'Solar + Battery'}</strong> &mdash; Capacity: <strong>${jobsPerDay} jobs/day</strong>${labelExtra} &mdash; Margin/job: <strong>${fmt(marginPerJob)}</strong></div>`;
+  h += '<div class="profit-grid">';
+
+  h += '<div class="profit-box"><h4>Daily</h4>';
+  h += `<div class="profit-line"><span class="label">Gross margin (${jobsPerDay} jobs &times; ${fmt(marginPerJob)})</span><span class="value">${fmt(dailyGrossMargin)}</span></div>`;
+  h += `<div class="profit-line"><span class="label">Overhead</span><span class="value">&minus; ${fmt(DAILY_OVERHEAD)}</span></div>`;
+  h += `<div class="profit-line net ${dailyNetProfit < 0 ? 'negative' : ''}"><span class="label">Net Profit</span><span class="value">${fmt(dailyNetProfit)}</span></div>`;
+  h += '</div>';
+
+  h += '<div class="profit-box"><h4>Weekly (5 days)</h4>';
+  h += `<div class="profit-line"><span class="label">Gross margin (${jobsPerDay * 5} jobs &times; ${fmt(marginPerJob)})</span><span class="value">${fmt(weeklyGrossMargin)}</span></div>`;
+  h += `<div class="profit-line"><span class="label">Overhead</span><span class="value">&minus; ${fmt(WEEKLY_OVERHEAD)}</span></div>`;
+  h += `<div class="profit-line net ${weeklyNetProfit < 0 ? 'negative' : ''}"><span class="label">Net Profit</span><span class="value">${fmt(weeklyNetProfit)}</span></div>`;
+  h += '</div>';
+
+  h += '</div>';
+  return h;
+}
+
+// ================================================================
+// TAB SWITCHER
+// ================================================================
+function switchTab(tab) {
+  document.getElementById('section-sig').style.display = (tab === 'sig') ? '' : 'none';
+  document.getElementById('section-gw').style.display  = (tab === 'gw')  ? '' : 'none';
+  document.getElementById('tab-sig').classList.toggle('active', tab === 'sig');
+  document.getElementById('tab-gw').classList.toggle('active',  tab === 'gw');
+}
+
+// ================================================================
+// SIGENERGY CALCULATOR
+// ================================================================
 function calcSig() {
-  const numPanels    = parseInt(g('s-numPanels').value) || 0;
-  const panelType    = g('s-panelType').value;
-  const roofType     = g('s-roofType').value;
-  const inverterType = g('s-inverterType').value;
-  const numInverters = parseInt(g('s-numInverters').value);
-  const batteryKwh   = parseFloat(g('s-batteryKwh').value) || 0;
-  const batModType   = g('s-batteryModule').value;
-  const batMod       = SIG_BATTERY_MODULES[batModType];
-  const gatewayType  = g('s-gatewayType').value;
-  const numKits      = parseInt(g('s-numInstallKits').value);
-  const powerSensor  = g('s-powerSensor').value;
-  const installPeriod = g('s-installPeriod').value;
+  const numPanels    = parseInt(document.getElementById('s-numPanels').value) || 0;
+  const panelType    = document.getElementById('s-panelType').value;
+  const roofType     = document.getElementById('s-roofType').value;
+  const inverterType = document.getElementById('s-inverterType').value;
+  const numInverters = parseInt(document.getElementById('s-numInverters').value);
+  const num8kwh      = parseInt(document.getElementById('s-num8kwh').value) || 0;
+  const num5kwh      = parseInt(document.getElementById('s-num5kwh').value) || 0;
+  const gatewayType  = document.getElementById('s-gatewayType').value;
+  const numInstallKits = parseInt(document.getElementById('s-numInstallKits').value);
+  const powerSensor  = document.getElementById('s-powerSensor').value;
+  const salePriceVal = document.getElementById('s-salePrice').value;
+  const salePrice    = salePriceVal ? parseFloat(salePriceVal) : null;
 
+  const batteryKwh    = num8kwh * SIG_BAT8.kwh + num5kwh * SIG_BAT5.kwh;
+  const batteryModules = num8kwh + num5kwh;
   const hasPanels  = numPanels > 0;
-  const hasBattery = batteryKwh > 0;
-  const threePhase = isTP(inverterType);
-  const battMods   = hasBattery ? Math.ceil(batteryKwh / batMod.kwh) : 0;
+  const hasBattery = batteryModules > 0;
+  const threePhase = isTPinv(inverterType);
+  const isBatteryOnly = !hasPanels && hasBattery;
 
-  const rows = []; let grossTotal = 0;
-  function addSection(t) { rows.push({ section:true, title:t }); }
-  function addRow(d, q, u, tot) { rows.push({ desc:d, qty:q, unit:u, total:tot }); grossTotal += tot; }
+  const rows = [];
+  let grossTotal = 0;
 
+  function addSection(title) { rows.push({ section: true, title }); }
+  function addRow(desc, qty, unit, total) { rows.push({ desc, qty, unit, total }); grossTotal += total; }
+
+  // Panels
   if (hasPanels) {
     addSection('Panels');
-    addRow(SIG_PANEL_LABELS[panelType], numPanels, fmt(SIG_PANEL_PRICES[panelType]), numPanels * SIG_PANEL_PRICES[panelType]);
-    addSection('Mounting');
-    addRow(roofType==='tin'?'Tin roof feet':'Tile roof feet', numPanels, fmt(SIG_MOUNTING[roofType]), numPanels*SIG_MOUNTING[roofType]);
-    addRow('Rail', numPanels, fmt(SIG_RAIL), numPanels*SIG_RAIL);
-    addRow('DC cable', numPanels, fmt(SIG_DC_CABLE), numPanels*SIG_DC_CABLE);
+    const panelCost = numPanels * PANEL_PRICES[panelType];
+    addRow(PANEL_LABELS[panelType], numPanels, fmt(PANEL_PRICES[panelType]), panelCost);
   }
 
-  addSection('Inverter');
-  addRow(SIG_INVERTER_LABELS[inverterType], numInverters, fmt(SIG_INVERTER_PRICES[inverterType]), numInverters*SIG_INVERTER_PRICES[inverterType]);
+  // Mounting
+  if (hasPanels) {
+    addSection('Mounting');
+    addRow(roofType === 'tin' ? 'Tin roof feet' : 'Tile roof feet', numPanels, fmt(MOUNTING[roofType]), numPanels * MOUNTING[roofType]);
+    addRow('Rail', numPanels, fmt(RAIL_PER_PANEL), numPanels * RAIL_PER_PANEL);
+    addRow('DC cable', numPanels, fmt(DC_CABLE_PER_PANEL), numPanels * DC_CABLE_PER_PANEL);
+  }
 
+  // Inverter
+  addSection('Inverter');
+  const invPrice = SIG_INVERTER_PRICES[inverterType];
+  addRow(SIG_INVERTER_LABELS[inverterType], numInverters, fmt(invPrice), numInverters * invPrice);
+
+  // Battery
   if (hasBattery) {
     addSection('Battery');
-    addRow(batMod.label, battMods, fmt(batMod.price), battMods*batMod.price);
+    if (num8kwh > 0) addRow(SIG_BAT8.label, num8kwh, fmt(SIG_BAT8.price), num8kwh * SIG_BAT8.price);
+    if (num5kwh > 0) addRow(SIG_BAT5.label, num5kwh, fmt(SIG_BAT5.price), num5kwh * SIG_BAT5.price);
   }
 
+  // Gateway
   addSection('Gateway');
-  addRow((gatewayType==='sp'?'SP':'TP')+' Gateway AU (Pro)', 1, fmt(SIG_GATEWAY_PRICES[gatewayType]), SIG_GATEWAY_PRICES[gatewayType]);
+  const gwPrice = SIG_GATEWAY_PRICES[gatewayType];
+  addRow((gatewayType === 'sp' ? 'SP' : 'TP') + ' Gateway AU (Pro)', 1, fmt(gwPrice), gwPrice);
 
+  // Install Kit
   addSection('Install Kit');
-  addRow('Ground mount adj feet', numKits, fmt(SIG_INSTALL_KIT), numKits*SIG_INSTALL_KIT);
+  addRow('Ground mount adj feet', numInstallKits, fmt(INSTALL_KIT_PRICE), numInstallKits * INSTALL_KIT_PRICE);
 
+  // Sensors
   if (powerSensor !== 'none') {
     addSection('Sensors');
-    addRow(SIG_SENSOR_LABELS[powerSensor], 1, fmt(SIG_SENSOR_PRICES[powerSensor]), SIG_SENSOR_PRICES[powerSensor]);
+    addRow(SENSOR_LABELS[powerSensor], 1, fmt(SENSOR_PRICES[powerSensor]), SENSOR_PRICES[powerSensor]);
   }
 
+  // Cables
   if (hasBattery) {
     addSection('Cables');
     if (threePhase) {
-      addRow('3-phase battery cable (10m)', 1, fmt(155), 155);
-      addRow('3-phase gateway cable (6m)', 1, fmt(147), 147);
+      addRow('3-phase battery cable (10m)', 1, fmt(155.00), 155.00);
+      addRow('3-phase gateway cable (6m)',  1, fmt(147.00), 147.00);
     } else {
-      addRow('1-phase battery cable (10m)', 1, fmt(132), 132);
-      addRow('1-phase gateway cable (3m)', 1, fmt(73.50), 73.50);
+      addRow('1-phase battery cable (10m)', 1, fmt(132.00), 132.00);
+      addRow('1-phase gateway cable (3m)',  1, fmt(73.50),  73.50);
     }
   }
 
+  // Electrical
   addSection('Electrical');
-  addRow('RCBOs', 6, fmt(32), 192);
-  addRow(threePhase?'3-phase breakers':'1-phase breakers', 2, threePhase?fmt(45):fmt(10), threePhase?90:20);
+  addRow('RCBOs', 6, fmt(32), 192.00);
+  if (threePhase) {
+    addRow('3-phase breakers', 2, fmt(45), 90.00);
+  } else {
+    addRow('1-phase breakers', 2, fmt(10), 20.00);
+  }
 
+  // Consumables
   addSection('Consumables');
-  addRow('Conduit, fittings, screws & isolators', 1, fmt(hasPanels?650:400), hasPanels?650:400);
+  const conduitCost = hasPanels ? 650 : 400;
+  addRow('Conduit, fittings, screws & isolators', 1, fmt(conduitCost), conduitCost);
   if (hasPanels) { addRow('MC4 connectors', 1, fmt(30), 30); }
-  addRow('Warning label kit', 1, fmt(hasPanels?75:50), hasPanels?75:50);
+  addRow('Warning label kit', 1, fmt(hasPanels ? 75 : 50), hasPanels ? 75 : 50);
   if (hasPanels) { addRow('Earth cable & lugs', 1, fmt(100), 100); }
 
-  // Build table
+  // Build breakdown table
   let html = '<thead><tr><th>Item</th><th>Qty</th><th>Unit Price</th><th>Total</th></tr></thead><tbody>';
   for (const r of rows) {
-    if (r.section) html += `<tr class="section-header"><td colspan="4">${r.title}</td></tr>`;
-    else html += `<tr><td>${r.desc}</td><td>${r.qty}</td><td>${r.unit}</td><td>${fmt(r.total)}</td></tr>`;
+    if (r.section) {
+      html += `<tr class="section-header"><td colspan="4">${r.title}</td></tr>`;
+    } else {
+      html += `<tr><td>${r.desc}</td><td>${r.qty}</td><td>${r.unit}</td><td>${fmt(r.total)}</td></tr>`;
+    }
   }
-  html += `<tr class="total-row"><td colspan="3">Gross Material Total</td><td style="text-align:right">${fmt(grossTotal)}</td></tr></tbody>`;
-  g('s-breakdown').innerHTML = html;
-  if (g('s-results-card').dataset.adminVisible === 'true') g('s-results-card').style.display = '';
+  html += `<tr class="total-row"><td colspan="3">Gross Material Total</td><td style="text-align:right">${fmt(grossTotal)}</td></tr>`;
+  html += '</tbody>';
+  document.getElementById('s-breakdown').innerHTML = html;
+  document.getElementById('s-results-card').style.display = adminMode ? '' : 'none';
 
-  // STCs
+  // STC Rebates
   let solarSTCs = 0, solarSTCvalue = 0;
   if (hasPanels) {
-    solarSTCs = Math.floor(numPanels * (SIG_PANEL_WATTS[panelType]||440) * 0.006875);
+    solarSTCs = Math.floor(numPanels * PANEL_WATTS[panelType] * 0.006875);
     solarSTCvalue = solarSTCs * STC_PRICE;
   }
-  let battSTCs = 0, battSTCvalue = 0;
+  let batterySTCs = 0, batterySTCvalue = 0;
   if (hasBattery) {
-    const cap = Math.min(batteryKwh, SIG_STC_BATTERY_CAP);
-    if (installPeriod === 'before') {
-      battSTCs = Math.floor(cap * 8.1265508685);
-    } else {
-      let s = cap<=14 ? cap*6.8 : cap<=28 ? 14*6.8+(cap-14)*4.08 : 14*6.8+14*4.08+(cap-28)*1.02;
-      battSTCs = Math.floor(s);
-    }
-    battSTCvalue = battSTCs * STC_PRICE;
+    batterySTCs = calcBatterySTCs(batteryKwh, SIG_STC_BATTERY_CAP);
+    batterySTCvalue = batterySTCs * STC_PRICE;
   }
-  const totalSTC = solarSTCvalue + battSTCvalue;
-  const netCost  = grossTotal - totalSTC;
+  const totalSTCvalue  = solarSTCvalue + batterySTCvalue;
+  const netMaterialCost = grossTotal - totalSTCvalue;
 
-  // Summary
-  let sHtml = '<div class="admin-only">';
-  sHtml += summaryRow('Gross Material Total', fmt(grossTotal));
-  sHtml += '<div class="summary-divider"></div>';
-  if (hasPanels) sHtml += summaryRow(`Solar STCs (${solarSTCs} &times; $${STC_PRICE})`, '&minus; '+fmt(solarSTCvalue));
-  if (hasBattery) sHtml += summaryRow(`Battery STCs (${battSTCs} &times; $${STC_PRICE})`, '&minus; '+fmt(battSTCvalue));
-  sHtml += summaryRow('Total STC Rebate', '&minus; '+fmt(totalSTC), 'big');
-  sHtml += '<div class="summary-divider"></div>';
-  sHtml += summaryRow('Net Material Cost', fmt(netCost), 'big');
-  sHtml += '</div>';
-
-  // Recommended price
-  const SIG_MODULE_MARGINS = [0.65, 0.60, 0.57, 0.54, 0.51, 0.48];
-  const sigMarginIdx = battMods > 0 ? Math.min(battMods - 1, SIG_MODULE_MARGINS.length - 1) : 0;
-  const sigTieredMargin = SIG_MODULE_MARGINS[sigMarginIdx];
-  let recPrice = netCost / (1 - sigTieredMargin);
+  // Tiered margin (by total battery modules — battery-only uses a lower tier)
+  const marginTier   = isBatteryOnly ? BATTERY_ONLY_MARGINS : MODULE_MARGINS;
+  const marginIdx    = batteryModules > 0 ? Math.min(batteryModules - 1, marginTier.length - 1) : 0;
+  const tieredMargin = marginTier[marginIdx];
+  let recommendedPrice = netMaterialCost / (1 - tieredMargin);
+  const jobTypeLabel = isBatteryOnly ? 'battery only' : `${batteryModules} module${batteryModules !== 1 ? 's' : ''}`;
+  const recMarginLabel = `${(tieredMargin * 100).toFixed(0)}% margin, ${jobTypeLabel}`;
 
   // Extras
-  let extrasEx = 0;
+  let extrasExGst = 0;
+  const carChargerType = document.getElementById('s-carCharger').value;
+  const carChargerExGst = CAR_CHARGER_PRICES[carChargerType] || 0;
+  if (carChargerExGst > 0) extrasExGst += carChargerExGst;
   document.querySelectorAll('.s-extra-cb:checked').forEach(cb => {
-    const up = parseFloat(cb.dataset.price);
+    const unitPrice = parseFloat(cb.dataset.price);
     let qty = 1;
-    if (cb.dataset.perPanel === 'true') qty = numPanels;
-    else if (cb.dataset.qtySelect) qty = parseInt(g(cb.dataset.qtySelect)?.value) || 1;
-    extrasEx += up * qty;
+    if (cb.dataset.perPanel === 'true') {
+      qty = numPanels;
+    } else if (cb.dataset.qtySelect) {
+      qty = parseInt(document.getElementById(cb.dataset.qtySelect).value) || 1;
+    }
+    extrasExGst += unitPrice * qty;
   });
-  // Car charger
-  const sigCarChargerType = g('s-carCharger').value;
-  extrasEx += GW_CAR_CHARGER_PRICES[sigCarChargerType] || 0;
-  const extrasInc = extrasEx * 1.1;
-  recPrice += extrasInc;
+  const extrasIncGst = extrasExGst * 1.1;
+  recommendedPrice += extrasIncGst;
 
-  if (extrasInc > 0) {
-    sHtml += '<div class="admin-only"><div class="summary-divider"></div>';
-    sHtml += summaryRow('Extras (ex GST)', fmt(extrasEx));
-    sHtml += summaryRow('Extras GST', fmt(extrasInc - extrasEx));
-    sHtml += summaryRow('Extras Total (inc GST)', fmt(extrasInc));
-    sHtml += '</div>';
-  }
-
-  sHtml += `<div class="recommended-row"><span class="label">Recommended Sale Price${extrasInc>0?' (+ extras)':''}</span><span class="value">${fmt(recPrice)}</span></div>`;
-
-  // Custom price margin
-  const customPrice = parseFloat(g('s-customPriceField').value) || 0;
-  if (customPrice > 0) {
-    const mDollars = customPrice - netCost - extrasInc;
-    const mPct = (mDollars / customPrice) * 100;
-    sHtml += '<div class="admin-only"><div class="summary-divider"></div>';
-    sHtml += summaryRow('Your Price', fmt(customPrice));
-    sHtml += summaryRow('Gross Margin', fmt(mDollars), mPct < 35 ? 'danger' : '');
-    sHtml += summaryRow('Margin %', mPct.toFixed(2)+'%', mPct < 35 ? 'danger' : '');
-    sHtml += `<div class="margin-alert ${mPct<35?'low':'ok'}">Margin is ${mPct.toFixed(2)}% &mdash; ${mPct<35?'below':'above'} 35% threshold</div>`;
-    sHtml += '</div>';
-  }
-
-  g('s-summary').innerHTML = sHtml;
-  g('s-summary-card').style.display = '';
-  if (!adminModeSig) document.querySelectorAll('#section-sig .admin-only').forEach(el => el.style.display = 'none');
-
-  // Profit
-  const isBattOnly = !hasPanels && hasBattery;
-  const jpd = parseInt(g('s-jobsPerDay').value);
-  const activePrice = customPrice > 0 ? customPrice : recPrice;
-  const marginPerJob = activePrice - netCost - extrasInc;
-  const dOverhead = 18600, wOverhead = 93000;
-  const dGross = jpd * marginPerJob, wGross = jpd * 5 * marginPerJob;
-  const dNet = dGross - dOverhead, wNet = wGross - wOverhead;
-  let pHtml = `<div style="font-size:0.75rem;color:var(--muted);margin-bottom:0.5rem;">Job type: <strong>${isBattOnly?'Battery Only':'Solar + Battery'}</strong> &mdash; Capacity: <strong>${jpd} jobs/day</strong> &mdash; ${customPrice>0?'Your Price':'Rec. Price'}: <strong>${fmt(activePrice)}</strong> &mdash; Margin/job: <strong>${fmt(marginPerJob)}</strong></div>`;
-  pHtml += '<div class="profit-grid">';
-  pHtml += `<div class="profit-box"><h4>Daily</h4><div class="profit-line"><span class="label">Gross margin (${jpd} &times; ${fmt(marginPerJob)})</span><span class="value">${fmt(dGross)}</span></div><div class="profit-line"><span class="label">Overhead</span><span class="value">&minus; ${fmt(dOverhead)}</span></div><div class="profit-line net ${dNet<0?'negative':''}"><span class="label">Net Profit</span><span class="value">${fmt(dNet)}</span></div></div>`;
-  pHtml += `<div class="profit-box"><h4>Weekly (5 days)</h4><div class="profit-line"><span class="label">Gross margin (${jpd*5} &times; ${fmt(marginPerJob)})</span><span class="value">${fmt(wGross)}</span></div><div class="profit-line"><span class="label">Overhead</span><span class="value">&minus; ${fmt(wOverhead)}</span></div><div class="profit-line net ${wNet<0?'negative':''}"><span class="label">Net Profit</span><span class="value">${fmt(wNet)}</span></div></div>`;
-  pHtml += '</div>';
-  g('s-profit').innerHTML = pHtml;
-  g('s-profit-card').style.display = adminModeSig ? '' : 'none';
-}
-
-function updateSigBatterySizes() {
-  const mod = SIG_BATTERY_MODULES[g('s-batteryModule').value];
-  const sel = g('s-batteryKwh');
-  const prev = parseFloat(sel.value) || 0;
-  sel.innerHTML = '<option value="0">No Battery</option>';
-  const max = Math.floor(50 / mod.kwh);
-  for (let i = 1; i <= max; i++) {
-    const kwh = i * mod.kwh;
-    sel.innerHTML += `<option value="${kwh}">${kwh} kWh (${i} module${i>1?'s':''})</option>`;
-  }
-  if (prev > 0) {
-    const best = Math.min(Math.max(Math.round(prev/mod.kwh)*mod.kwh, mod.kwh), max*mod.kwh);
-    sel.value = best;
-    if (!sel.value || sel.value === '0') sel.value = mod.kwh;
-  }
-  calcSig();
-}
-
-// ─────────────────────────────────────────────
-//  GOODWE ESA
-// ─────────────────────────────────────────────
-const GW_PANEL_PRICES  = { ae440: 92, ja475: 122, jinko475: 142, aiko475: 175 };
-const GW_PANEL_WATTS   = { ae440: 440, ja475: 475, jinko475: 475, aiko475: 490 };
-const GW_PANEL_LABELS  = { ae440: 'AE Solar 440W', ja475: 'JA 475W', jinko475: 'Jinko 475W (All Black)', aiko475: 'AIKO 490W' };
-const GW_MOUNTING      = { tin: 6.50, tile: 14.50 };
-const GW_RAIL          = 13.75;
-const GW_DC_CABLE      = 8;
-const GW_INVERTER_PRICES = {
-  gw5k:1225.40, gw8k:1857.90, gw10k:2008.60,
-  gw10ktp:2062.50, gw15ktp:2202.20, gw20ktp:2277.00, gw25ktp:2343.00
-};
-const GW_INVERTER_LABELS = {
-  gw5k:'GW5K-EHA-G20', gw8k:'GW8K-EHA-G20', gw10k:'GW9.999K-EHA-G20',
-  gw10ktp:'GW10K-ET-G20', gw15ktp:'GW15K-ET-G20', gw20ktp:'GW20K-ET-G20', gw25ktp:'GW25K-ET-G20'
-};
-const GW_CAR_CHARGER_PRICES = { none: 0, gw7khca: 1900, gw11khca: 2000, gw22khca: 2400 };
-const GW_CAR_CHARGER_LABELS = { none: '', gw7khca: 'GW7K-HCA (7kW Single Phase)', gw11khca: 'GW11K-HCA (11kW Three Phase)', gw22khca: 'GW22K-HCA (22kW Three Phase)' };
-const GW_BATTERY_MODULES = {
-  gw83: { kwh: 8.3, price: 2640, label: 'GW8.3-BAT-D-G20 (8.3kWh module)' }
-};
-const GW_SENSOR_PRICES = { none:0, spct100:109.99, tpct100:219.98, tpct300dh:316.90, tpct600dh:372.44, tpdhci:331.06, nanobanana:1200 };
-const GW_SENSOR_LABELS = { none:'None', spct100:'SP-CT100 Single Phase', tpct100:'TP-CT100 Three Phase', tpct300dh:'TP-CT300-DH', tpct600dh:'TP-CT600-DH', tpdhci:'TP DH-C&I', nanobanana:'Nano Beam Sensors' };
-const GW_INSTALL_KIT   = 219.98;
-const GW_STC_CAP       = 50;
-
-let adminModeGW = false;
-
-function calcGW() {
-  const numPanels    = parseInt(g('g-numPanels').value) || 0;
-  const panelType    = g('g-panelType').value;
-  const roofType     = g('g-roofType').value;
-  const inverterType = g('g-inverterType').value;
-  const numInverters = parseInt(g('g-numInverters').value);
-  const batteryKwh   = parseFloat(g('g-batteryKwh').value) || 0;
-  const batModType   = g('g-batteryModule').value;
-  const batMod       = GW_BATTERY_MODULES[batModType];
-  const numKits      = parseInt(g('g-numInstallKits').value);
-  const powerSensor  = g('g-powerSensor').value;
-  const installPeriod = g('g-installPeriod').value;
-  const customPrice  = parseFloat(g('g-customPriceField').value) || 0;
-
-  const hasPanels  = numPanels > 0;
-  const hasBattery = batteryKwh > 0;
-  const threePhase = isTP(inverterType);
-  const battMods   = hasBattery ? Math.ceil(batteryKwh / batMod.kwh) : 0;
-
-  const rows = []; let grossTotal = 0;
-  function addSection(t) { rows.push({ section:true, title:t }); }
-  function addRow(d, q, u, tot) { rows.push({ desc:d, qty:q, unit:u, total:tot }); grossTotal += tot; }
-
-  if (hasPanels) {
-    addSection('Panels');
-    const base = GW_PANEL_PRICES[panelType], dbl = base * 2;
-    const std = Math.min(numPanels, 24), extra = Math.max(numPanels - 24, 0);
-    if (extra > 0) {
-      addRow(GW_PANEL_LABELS[panelType]+' (first 24)', std, fmt(base), std*base);
-      addRow(GW_PANEL_LABELS[panelType]+' (25+)', extra, fmt(dbl), extra*dbl);
-    } else {
-      addRow(GW_PANEL_LABELS[panelType], numPanels, fmt(base), numPanels*base);
-    }
-    addSection('Mounting');
-    addRow(roofType==='tin'?'Tin roof feet':'Tile roof feet', numPanels, fmt(GW_MOUNTING[roofType]), numPanels*GW_MOUNTING[roofType]);
-    addRow('Rail', numPanels, fmt(GW_RAIL), numPanels*GW_RAIL);
-    addRow('DC cable', numPanels, fmt(GW_DC_CABLE), numPanels*GW_DC_CABLE);
-  }
-
-  addSection('Inverter');
-  addRow(GW_INVERTER_LABELS[inverterType], numInverters, fmt(GW_INVERTER_PRICES[inverterType]), numInverters*GW_INVERTER_PRICES[inverterType]);
-
-  if (hasBattery) {
-    addSection('Battery');
-    for (let m = 1; m <= battMods; m++) addRow(`Module ${m} — ${batMod.kwh} kWh`, 1, fmt(batMod.price), batMod.price);
-  }
-
-  addSection('Install Kit');
-  addRow('Ground mount adj feet', numKits, fmt(GW_INSTALL_KIT), numKits*GW_INSTALL_KIT);
-
-  if (powerSensor !== 'none') {
-    addSection('Sensors');
-    addRow(GW_SENSOR_LABELS[powerSensor], 1, fmt(GW_SENSOR_PRICES[powerSensor]), GW_SENSOR_PRICES[powerSensor]);
-  }
-
-  if (hasBattery) { addSection('Cables'); addRow('Battery cable (10m)', 1, fmt(132), 132); }
-
-  addSection('Electrical');
-  addRow('RCBOs', 6, fmt(32), 192);
-  addRow(threePhase?'3-phase breakers':'1-phase breakers', 2, threePhase?fmt(45):fmt(10), threePhase?90:20);
-
-  addSection('Consumables');
-  addRow('Conduit, fittings, screws & isolators', 1, fmt(hasPanels?650:400), hasPanels?650:400);
-  if (hasPanels) { addRow('MC4 connectors', 1, fmt(30), 30); }
-  addRow('Warning label kit', 1, fmt(hasPanels?75:50), hasPanels?75:50);
-  if (hasPanels) { addRow('Earth cable & lugs', 1, fmt(100), 100); }
-
-  let html = '<thead><tr><th>Item</th><th>Qty</th><th>Unit Price</th><th>Total</th></tr></thead><tbody>';
-  for (const r of rows) {
-    if (r.section) html += `<tr class="section-header"><td colspan="4">${r.title}</td></tr>`;
-    else html += `<tr><td>${r.desc}</td><td>${r.qty}</td><td>${r.unit}</td><td>${fmt(r.total)}</td></tr>`;
-  }
-  html += `<tr class="total-row"><td colspan="3">Gross Material Total</td><td style="text-align:right">${fmt(grossTotal)}</td></tr></tbody>`;
-  g('g-breakdown').innerHTML = html;
-  if (g('g-results-card').dataset.adminVisible === 'true') g('g-results-card').style.display = '';
-
-  // STCs
-  let solarSTCs = 0, solarSTCvalue = 0;
-  if (hasPanels) {
-    solarSTCs = Math.floor(numPanels * (GW_PANEL_WATTS[panelType]||440) * 0.006875);
-    solarSTCvalue = solarSTCs * STC_PRICE;
-  }
-  let battSTCs = 0, battSTCvalue = 0;
-  if (hasBattery) {
-    const cap = Math.min(batteryKwh, GW_STC_CAP);
-    if (installPeriod === 'before') {
-      battSTCs = Math.floor(cap * 8.1265508685);
-    } else {
-      let s = cap<=14 ? cap*6.8 : cap<=28 ? 14*6.8+(cap-14)*4.08 : 14*6.8+14*4.08+(cap-28)*1.02;
-      battSTCs = Math.floor(s);
-    }
-    battSTCvalue = battSTCs * STC_PRICE;
-  }
-  const totalSTC = solarSTCvalue + battSTCvalue;
-  const netCost  = grossTotal - totalSTC;
-
-  let sHtml = '<div class="admin-only">';
+  // Summary HTML
+  let sHtml = '';
+  sHtml += '<div class="admin-only">';
   sHtml += summaryRow('Gross Material Total', fmt(grossTotal));
+  sHtml += '</div>';
   sHtml += '<div class="summary-divider"></div>';
-  if (hasPanels) sHtml += summaryRow(`Solar STCs (${solarSTCs} &times; $${STC_PRICE})`, '&minus; '+fmt(solarSTCvalue));
-  if (hasBattery) sHtml += summaryRow(`Battery STCs (${battSTCs} &times; $${STC_PRICE})`, '&minus; '+fmt(battSTCvalue));
-  sHtml += summaryRow('Total STC Rebate', '&minus; '+fmt(totalSTC), 'big');
+  if (hasPanels)  sHtml += summaryRow(`Solar STCs (${solarSTCs} &times; $${STC_PRICE})`, '&minus; ' + fmt(solarSTCvalue));
+  if (hasBattery) sHtml += summaryRow(`Battery STCs (${batterySTCs} &times; $${STC_PRICE})`, '&minus; ' + fmt(batterySTCvalue));
+  sHtml += summaryRow('Total STC Rebate', '&minus; ' + fmt(totalSTCvalue), 'big');
+  sHtml += '<div class="admin-only">';
   sHtml += '<div class="summary-divider"></div>';
-  sHtml += summaryRow('Net Material Cost', fmt(netCost), 'big');
+  sHtml += summaryRow('Net Material Cost', fmt(netMaterialCost), 'big');
   sHtml += '</div>';
 
-  // Tiered margin
-  const tiered = battMods <= 2 ? 0.67 : battMods === 3 ? 0.65 : 0.65 - ((battMods - 3) * 0.025);
-  let recPrice = netCost / (1 - tiered);
-
-  // Extras
-  let extrasEx = 0;
-  document.querySelectorAll('.g-extra-cb:checked').forEach(cb => {
-    const up = parseFloat(cb.dataset.price);
-    let qty = 1;
-    if (cb.dataset.perPanel === 'true') qty = numPanels;
-    else if (cb.dataset.qtySelect) qty = parseInt(g(cb.dataset.qtySelect)?.value) || 1;
-    extrasEx += up * qty;
-  });
-  // Car charger
-  const gwCarChargerType = g('g-carCharger').value;
-  extrasEx += GW_CAR_CHARGER_PRICES[gwCarChargerType] || 0;
-  const extrasInc = extrasEx * 1.1;
-  recPrice += extrasInc;
-
-  if (extrasInc > 0) {
-    sHtml += '<div class="admin-only"><div class="summary-divider"></div>';
-    sHtml += summaryRow('Extras (ex GST)', fmt(extrasEx));
-    sHtml += summaryRow('Extras GST', fmt(extrasInc - extrasEx));
-    sHtml += summaryRow('Extras Total (inc GST)', fmt(extrasInc));
-    sHtml += '</div>';
+  if (extrasIncGst > 0) {
+    sHtml += '<div class="summary-divider"></div>';
+    sHtml += summaryRow('Extras (ex GST)', fmt(extrasExGst));
+    sHtml += summaryRow('Extras GST', fmt(extrasIncGst - extrasExGst));
+    sHtml += summaryRow('Extras Total (inc GST)', fmt(extrasIncGst));
   }
 
-  sHtml += `<div class="recommended-row"><span class="label">Recommended Sale Price${extrasInc>0?' (+ extras)':''}</span><span class="value">${fmt(recPrice)}</span></div>`;
+  sHtml += `<div class="recommended-row"><span class="label">Recommended Sale Price${extrasIncGst > 0 ? ' (+ extras)' : ''}<span class="admin-only"> (${recMarginLabel})</span></span><span class="value">${fmt(recommendedPrice)}</span></div>`;
 
-  // Custom price margin
-  if (customPrice > 0) {
-    const mDollars = customPrice - netCost - extrasInc;
-    const mPct = customPrice > 0 ? (mDollars / customPrice * 100) : 0;
-    sHtml += '<div class="admin-only"><div class="summary-divider"></div>';
-    sHtml += summaryRow('Your Price', fmt(customPrice));
-    sHtml += summaryRow('Gross Margin', fmt(mDollars), mPct < 35 ? 'danger' : '');
-    sHtml += summaryRow('Margin %', mPct.toFixed(2)+'%', mPct < 35 ? 'danger' : '');
-    sHtml += `<div class="margin-alert ${mPct<35?'low':'ok'}">Margin is ${mPct.toFixed(2)}% &mdash; ${mPct<35?'below':'above'} 35% threshold</div>`;
-    sHtml += '</div>';
+  // BESS2 NSW VPP rebate (only when usable capacity is strictly between 2 and 28 kWh)
+  const sigBess2 = calcBess2(batteryKwh);
+  if (sigBess2) {
+    sHtml += `<div class="bess2-rebate"><span class="label">NSW VPP Rebate (BESS2) &mdash; ${sigBess2.prcs} PRCs</span><span class="value">&minus; ${fmt(sigBess2.net)}</span></div>`;
+    sHtml += `<div class="bess2-note">${sigBess2.prcs} PRCs &times; $${BESS2_PRC_PRICE.toFixed(2)} &times; ${((1 - BESS2_ACP_FEE) * 100).toFixed(0)}% (net of ACP fee) &mdash; paid after VPP onboarding</div>`;
   }
 
-  g('g-summary').innerHTML = sHtml;
-  g('g-summary-card').style.display = '';
-  if (!adminModeGW) document.querySelectorAll('#section-gw .admin-only').forEach(el => el.style.display = 'none');
+  // Sale price margin check
+  if (salePrice !== null && salePrice > 0) {
+    const marginDollars = salePrice - netMaterialCost - extrasIncGst;
+    const marginPct = (marginDollars / salePrice) * 100;
+    sHtml += '<div class="admin-only">';
+    sHtml += '<div class="summary-divider"></div>';
+    sHtml += summaryRow('Sale Price (inc GST)', fmt(salePrice));
+    sHtml += summaryRow('Gross Margin', fmt(marginDollars), marginPct < 35 ? 'danger' : '');
+    sHtml += summaryRow('Margin %', marginPct.toFixed(2) + '%', marginPct < 35 ? 'danger' : '');
+    sHtml += '</div>';
+    if (marginPct < 35) {
+      sHtml += `<div class="margin-alert low">Price is below the recommended minimum &mdash; please review<span class="admin-only"> (margin ${marginPct.toFixed(2)}%, below 35%)</span></div>`;
+    } else {
+      sHtml += `<div class="margin-alert ok">Price is acceptable<span class="admin-only"> (margin ${marginPct.toFixed(2)}%, above 35%)</span></div>`;
+    }
+  }
 
-  // Profit
-  const isBattOnly = !hasPanels && hasBattery;
-  const jpd = parseInt(g('g-jobsPerDay').value);
-  const activePrice = customPrice > 0 ? customPrice : recPrice;
-  const marginPerJob = activePrice - netCost - extrasInc;
-  const dOverhead = 18600, wOverhead = 93000;
-  const dGross = jpd * marginPerJob, wGross = jpd * 5 * marginPerJob;
-  const dNet = dGross - dOverhead, wNet = wGross - wOverhead;
-  let pHtml = `<div style="font-size:0.75rem;color:var(--muted);margin-bottom:0.5rem;">Job type: <strong>${isBattOnly?'Battery Only':'Solar + Battery'}</strong> &mdash; Capacity: <strong>${jpd} jobs/day</strong> &mdash; ${customPrice>0?'Your Price':'Rec. Price'}: <strong>${fmt(activePrice)}</strong> &mdash; Margin/job: <strong>${fmt(marginPerJob)}</strong></div>`;
-  pHtml += '<div class="profit-grid">';
-  pHtml += `<div class="profit-box"><h4>Daily</h4><div class="profit-line"><span class="label">Gross margin (${jpd} &times; ${fmt(marginPerJob)})</span><span class="value">${fmt(dGross)}</span></div><div class="profit-line"><span class="label">Overhead</span><span class="value">&minus; ${fmt(dOverhead)}</span></div><div class="profit-line net ${dNet<0?'negative':''}"><span class="label">Net Profit</span><span class="value">${fmt(dNet)}</span></div></div>`;
-  pHtml += `<div class="profit-box"><h4>Weekly (5 days)</h4><div class="profit-line"><span class="label">Gross margin (${jpd*5} &times; ${fmt(marginPerJob)})</span><span class="value">${fmt(wGross)}</span></div><div class="profit-line"><span class="label">Overhead</span><span class="value">&minus; ${fmt(wOverhead)}</span></div><div class="profit-line net ${wNet<0?'negative':''}"><span class="label">Net Profit</span><span class="value">${fmt(wNet)}</span></div></div>`;
-  pHtml += '</div>';
-  g('g-profit').innerHTML = pHtml;
-  g('g-profit-card').style.display = adminModeGW ? '' : 'none';
+  document.getElementById('s-summary').innerHTML = sHtml;
+  document.getElementById('s-summary-card').style.display = '';
+  if (!adminMode) document.querySelectorAll('.admin-only').forEach(el => { el.style.display = 'none'; });
+
+  // Auto-default jobs/day on job-type transition (battery-only = 4, solar+battery = 3)
+  if (sigPrevIsBatteryOnly !== isBatteryOnly) {
+    document.getElementById('s-jobsPerDay').value = isBatteryOnly ? '4' : '3';
+    sigPrevIsBatteryOnly = isBatteryOnly;
+  }
+
+  // Profit (uses entered Sale Price if given, else falls back to recommended price)
+  const jobsPerDay = parseInt(document.getElementById('s-jobsPerDay').value);
+  const usingSale  = salePrice !== null && salePrice > 0;
+  const profitBasis = usingSale ? salePrice : recommendedPrice;
+  const marginPerJob = profitBasis - netMaterialCost - extrasIncGst;
+  const labelExtra = usingSale
+    ? ` &mdash; Sale Price: <strong>${fmt(salePrice)}</strong>`
+    : ` &mdash; Recommended: <strong>${fmt(recommendedPrice)}</strong>`;
+  document.getElementById('s-profit').innerHTML = buildProfitHtml(isBatteryOnly, jobsPerDay, marginPerJob, labelExtra);
+  document.getElementById('s-profit-card').style.display = adminMode ? '' : 'none';
 }
 
+// ================================================================
+// GOODWE BATTERY SIZE UPDATER
+// ================================================================
 function updateGwBatterySizes() {
-  const mod = GW_BATTERY_MODULES[g('g-batteryModule').value];
-  const sel = g('g-batteryKwh');
+  const modType = document.getElementById('g-batteryModule').value;
+  const mod = GW_BATTERY_MODULES[modType];
+  const sel = document.getElementById('g-batteryKwh');
+  const prevKwh = parseFloat(sel.value) || 0;
   sel.innerHTML = '<option value="0">No Battery</option>';
-  for (let i = 1; i <= 6; i++) {
-    const kwh = Math.round(i * mod.kwh * 10) / 10;
-    sel.innerHTML += `<option value="${kwh}">${kwh} kWh (${i} module${i>1?'s':''})</option>`;
+  const maxModules = Math.floor(GW_STC_CAP / mod.kwh);
+  for (let i = 1; i <= maxModules; i++) {
+    const kwh = parseFloat((i * mod.kwh).toFixed(1));
+    sel.innerHTML += `<option value="${kwh}">${kwh} kWh (${i} module${i > 1 ? 's' : ''})</option>`;
   }
-  sel.value = Math.round(mod.kwh * 10) / 10;
+  // Default to 6 modules (49.8 kWh) — most common system
+  const defaultKwh = parseFloat((6 * mod.kwh).toFixed(1));
+  if (prevKwh > 0) {
+    const closest = Math.round(prevKwh / mod.kwh) * mod.kwh;
+    const best = parseFloat(Math.min(Math.max(closest, mod.kwh), maxModules * mod.kwh).toFixed(1));
+    sel.value = best;
+    if (!sel.value || sel.value === '0') sel.value = mod.kwh.toFixed(1);
+  } else {
+    sel.value = defaultKwh;
+  }
   calcGW();
 }
 
-// ─────────────────────────────────────────────
-//  Tab Switching
-// ─────────────────────────────────────────────
-let activeTab = 'sig';
-function switchTab(tab) {
-  activeTab = tab;
-  g('section-sig').style.display = tab === 'sig' ? '' : 'none';
-  g('section-gw').style.display  = tab === 'gw'  ? '' : 'none';
-  g('tab-sig').classList.toggle('active', tab === 'sig');
-  g('tab-gw').classList.toggle('active',  tab === 'gw');
+// ================================================================
+// GOODWE CALCULATOR
+// ================================================================
+function calcGW() {
+  const numPanels    = parseInt(document.getElementById('g-numPanels').value) || 0;
+  const panelType    = document.getElementById('g-panelType').value;
+  const roofType     = document.getElementById('g-roofType').value;
+  const inverterType = document.getElementById('g-inverterType').value;
+  const numInverters = parseInt(document.getElementById('g-numInverters').value);
+  const batteryKwh   = parseFloat(document.getElementById('g-batteryKwh').value) || 0;
+  const modType      = document.getElementById('g-batteryModule').value;
+  const batMod       = GW_BATTERY_MODULES[modType];
+  const numInstallKits = parseInt(document.getElementById('g-numInstallKits').value);
+  const powerSensor  = document.getElementById('g-powerSensor').value;
+  const customPrice  = parseFloat(document.getElementById('g-customPriceField').value) || 0;
+
+  const hasPanels  = numPanels > 0;
+  const hasBattery = batteryKwh > 0;
+  const threePhase = isTPinv(inverterType);
+  const batteryModules = hasBattery ? Math.ceil(batteryKwh / batMod.kwh) : 0;
+  const isBatteryOnly  = !hasPanels && hasBattery;
+
+  const rows = [];
+  let grossTotal = 0;
+
+  function addSection(title) { rows.push({ section: true, title }); }
+  function addRow(desc, qty, unit, total) { rows.push({ desc, qty, unit, total }); grossTotal += total; }
+
+  // Panels
+  if (hasPanels) {
+    addSection('Panels');
+    addRow(PANEL_LABELS[panelType], numPanels, fmt(PANEL_PRICES[panelType]), numPanels * PANEL_PRICES[panelType]);
+  }
+
+  // Mounting
+  if (hasPanels) {
+    addSection('Mounting');
+    addRow(roofType === 'tin' ? 'Tin roof feet' : 'Tile roof feet', numPanels, fmt(MOUNTING[roofType]), numPanels * MOUNTING[roofType]);
+    addRow('Rail', numPanels, fmt(RAIL_PER_PANEL), numPanels * RAIL_PER_PANEL);
+    addRow('DC cable', numPanels, fmt(DC_CABLE_PER_PANEL), numPanels * DC_CABLE_PER_PANEL);
+  }
+
+  // Inverter
+  addSection('Inverter');
+  const invPrice = GW_INVERTER_PRICES[inverterType];
+  addRow(GW_INVERTER_LABELS[inverterType], numInverters, fmt(invPrice), numInverters * invPrice);
+
+  // Battery
+  if (hasBattery) {
+    addSection('Battery');
+    addRow(batMod.label, batteryModules, fmt(batMod.price), batteryModules * batMod.price);
+  }
+
+  // No Gateway for GoodWe
+
+  // Install Kit
+  addSection('Install Kit');
+  addRow('Ground mount adj feet', numInstallKits, fmt(INSTALL_KIT_PRICE), numInstallKits * INSTALL_KIT_PRICE);
+
+  // Sensors
+  if (powerSensor !== 'none') {
+    addSection('Sensors');
+    addRow(SENSOR_LABELS[powerSensor], 1, fmt(SENSOR_PRICES[powerSensor]), SENSOR_PRICES[powerSensor]);
+  }
+
+  // Cables
+  if (hasBattery) {
+    addSection('Cables');
+    addRow('Battery cable (10m)', 1, fmt(132.00), 132.00);
+  }
+
+  // Electrical
+  addSection('Electrical');
+  addRow('RCBOs', 6, fmt(32), 192.00);
+  if (threePhase) {
+    addRow('3-phase breakers', 2, fmt(45), 90.00);
+  } else {
+    addRow('1-phase breakers', 2, fmt(10), 20.00);
+  }
+
+  // Consumables
+  addSection('Consumables');
+  const conduitCost = hasPanels ? 650 : 400;
+  addRow('Conduit, fittings, screws & isolators', 1, fmt(conduitCost), conduitCost);
+  if (hasPanels) { addRow('MC4 connectors', 1, fmt(30), 30); }
+  addRow('Warning label kit', 1, fmt(hasPanels ? 75 : 50), hasPanels ? 75 : 50);
+  if (hasPanels) { addRow('Earth cable & lugs', 1, fmt(100), 100); }
+
+  // Build breakdown table
+  let html = '<thead><tr><th>Item</th><th>Qty</th><th>Unit Price</th><th>Total</th></tr></thead><tbody>';
+  for (const r of rows) {
+    if (r.section) {
+      html += `<tr class="section-header"><td colspan="4">${r.title}</td></tr>`;
+    } else {
+      html += `<tr><td>${r.desc}</td><td>${r.qty}</td><td>${r.unit}</td><td>${fmt(r.total)}</td></tr>`;
+    }
+  }
+  html += `<tr class="total-row"><td colspan="3">Gross Material Total</td><td style="text-align:right">${fmt(grossTotal)}</td></tr>`;
+  html += '</tbody>';
+  document.getElementById('g-breakdown').innerHTML = html;
+  document.getElementById('g-results-card').style.display = adminMode ? '' : 'none';
+
+  // STC Rebates
+  let solarSTCs = 0, solarSTCvalue = 0;
+  if (hasPanels) {
+    solarSTCs = Math.floor(numPanels * PANEL_WATTS[panelType] * 0.006875);
+    solarSTCvalue = solarSTCs * STC_PRICE;
+  }
+  let batterySTCs = 0, batterySTCvalue = 0;
+  if (hasBattery) {
+    batterySTCs = calcBatterySTCs(batteryKwh, GW_STC_CAP);
+    batterySTCvalue = batterySTCs * STC_PRICE;
+  }
+  const totalSTCvalue   = solarSTCvalue + batterySTCvalue;
+  const netMaterialCost = grossTotal - totalSTCvalue;
+
+  // Tiered margin (by battery module count — battery-only uses a lower tier)
+  const marginTier   = isBatteryOnly ? BATTERY_ONLY_MARGINS : MODULE_MARGINS;
+  const marginIdx    = batteryModules > 0 ? Math.min(batteryModules - 1, marginTier.length - 1) : 0;
+  const tieredMargin = marginTier[marginIdx];
+  let recommendedPrice = netMaterialCost / (1 - tieredMargin);
+  const jobTypeLabel = isBatteryOnly ? 'battery only' : `${batteryModules} module${batteryModules !== 1 ? 's' : ''}`;
+  const recMarginLabel = `${(tieredMargin * 100).toFixed(0)}% margin, ${jobTypeLabel}`;
+
+  // Extras
+  let extrasExGst = 0;
+  const carChargerType  = document.getElementById('g-carCharger').value;
+  const carChargerExGst = CAR_CHARGER_PRICES[carChargerType] || 0;
+  if (carChargerExGst > 0) extrasExGst += carChargerExGst;
+  document.querySelectorAll('.g-extra-cb:checked').forEach(cb => {
+    const unitPrice = parseFloat(cb.dataset.price);
+    let qty = 1;
+    if (cb.dataset.perPanel === 'true') {
+      qty = numPanels;
+    } else if (cb.dataset.qtySelect) {
+      qty = parseInt(document.getElementById(cb.dataset.qtySelect).value) || 1;
+    }
+    extrasExGst += unitPrice * qty;
+  });
+  const extrasIncGst = extrasExGst * 1.1;
+  recommendedPrice += extrasIncGst;
+
+  // Summary
+  let sHtml = '';
+  sHtml += '<div class="admin-only">';
+  sHtml += summaryRow('Gross Material Total', fmt(grossTotal));
+  sHtml += '</div>';
+  sHtml += '<div class="summary-divider"></div>';
+  if (hasPanels)  sHtml += summaryRow(`Solar STCs (${solarSTCs} &times; $${STC_PRICE})`, '&minus; ' + fmt(solarSTCvalue));
+  if (hasBattery) sHtml += summaryRow(`Battery STCs (${batterySTCs} &times; $${STC_PRICE})`, '&minus; ' + fmt(batterySTCvalue));
+  sHtml += summaryRow('Total STC Rebate', '&minus; ' + fmt(totalSTCvalue), 'big');
+  sHtml += '<div class="admin-only">';
+  sHtml += '<div class="summary-divider"></div>';
+  sHtml += summaryRow('Net Material Cost', fmt(netMaterialCost), 'big');
+  sHtml += '</div>';
+
+  if (extrasIncGst > 0) {
+    sHtml += '<div class="summary-divider"></div>';
+    sHtml += summaryRow('Extras (ex GST)', fmt(extrasExGst));
+    sHtml += summaryRow('Extras GST', fmt(extrasIncGst - extrasExGst));
+    sHtml += summaryRow('Extras Total (inc GST)', fmt(extrasIncGst));
+  }
+
+  sHtml += `<div class="recommended-row"><span class="label">Recommended Sale Price${extrasIncGst > 0 ? ' (+ extras)' : ''}<span class="admin-only"> (${recMarginLabel})</span></span><span class="value">${fmt(recommendedPrice)}</span></div>`;
+
+  // BESS2 NSW VPP rebate (only when usable capacity is strictly between 2 and 28 kWh)
+  const gwBess2 = calcBess2(batteryKwh);
+  if (gwBess2) {
+    sHtml += `<div class="bess2-rebate"><span class="label">NSW VPP Rebate (BESS2) &mdash; ${gwBess2.prcs} PRCs</span><span class="value">&minus; ${fmt(gwBess2.net)}</span></div>`;
+    sHtml += `<div class="bess2-note">${gwBess2.prcs} PRCs &times; $${BESS2_PRC_PRICE.toFixed(2)} &times; ${((1 - BESS2_ACP_FEE) * 100).toFixed(0)}% (net of ACP fee) &mdash; paid after VPP onboarding</div>`;
+  }
+
+  // Custom price margin checker
+  if (customPrice > 0) {
+    const cpMarginDollars = customPrice - netMaterialCost - extrasIncGst;
+    const cpBase          = customPrice - extrasIncGst;
+    const cpMarginPct     = cpBase > 0 ? (cpMarginDollars / cpBase) * 100 : 0;
+    const cpColor         = cpMarginPct < 35 ? '#c0392b' : '#27ae60';
+    sHtml += '<div class="summary-divider"></div>';
+    sHtml += `<div style="padding:10px;border-radius:8px;background:${cpMarginPct < 35 ? '#ffeaea' : '#eafff0'};border:1px solid ${cpColor};">`;
+    sHtml += `<div style="font-weight:700;font-size:0.95em;margin-bottom:4px;">Your Price: ${fmt(customPrice)}</div>`;
+    sHtml += `<span class="admin-only" style="font-weight:700;color:${cpColor};font-size:1.1em;">Margin: ${fmt(cpMarginDollars)} (${cpMarginPct.toFixed(1)}%)</span>`;
+    sHtml += cpMarginPct < 35
+      ? `<div style="color:#c0392b;font-size:0.85em;margin-top:4px;">Price is below the recommended minimum &mdash; please review<span class="admin-only"> (margin ${cpMarginPct.toFixed(1)}%, below 35%)</span></div>`
+      : `<div style="color:#27ae60;font-size:0.85em;margin-top:4px;">Price is acceptable<span class="admin-only"> (margin ${cpMarginPct.toFixed(1)}%, above 35%)</span></div>`;
+    sHtml += '</div>';
+  }
+
+  document.getElementById('g-summary').innerHTML = sHtml;
+  document.getElementById('g-summary-card').style.display = '';
+  if (!adminMode) document.querySelectorAll('.admin-only').forEach(el => { el.style.display = 'none'; });
+
+  // Auto-default jobs/day on job-type transition (battery-only = 4, solar+battery = 3)
+  if (gwPrevIsBatteryOnly !== isBatteryOnly) {
+    document.getElementById('g-jobsPerDay').value = isBatteryOnly ? '4' : '3';
+    gwPrevIsBatteryOnly = isBatteryOnly;
+  }
+
+  // Profit (uses entered Your Price if given, else falls back to recommended price)
+  const jobsPerDay  = parseInt(document.getElementById('g-jobsPerDay').value);
+  const usingCustom = customPrice > 0;
+  const profitBasis = usingCustom ? customPrice : recommendedPrice;
+  const marginPerJob = profitBasis - netMaterialCost - extrasIncGst;
+  const labelExtra = usingCustom
+    ? ` &mdash; Your Price: <strong>${fmt(customPrice)}</strong>`
+    : ` &mdash; Recommended: <strong>${fmt(recommendedPrice)}</strong>`;
+  document.getElementById('g-profit').innerHTML = buildProfitHtml(isBatteryOnly, jobsPerDay, marginPerJob, labelExtra);
+  document.getElementById('g-profit-card').style.display = adminMode ? '' : 'none';
 }
 
-// ─────────────────────────────────────────────
-//  Admin Toggle (Ctrl+Shift+A)
-// ─────────────────────────────────────────────
+// ================================================================
+// ADMIN TOGGLE (Ctrl+Shift+A)
+// ================================================================
+// adminMode is declared at the top of the script so calc functions can read it.
 document.addEventListener('keydown', function(e) {
-  if (e.ctrlKey && e.shiftKey && e.key === 'A') {
-    if (activeTab === 'sig') {
-      adminModeSig = !adminModeSig;
-      const card = g('s-results-card');
-      card.style.display = adminModeSig ? '' : 'none';
-      card.dataset.adminVisible = adminModeSig ? 'true' : 'false';
-      if (g('s-profit-card')) g('s-profit-card').style.display = adminModeSig ? '' : 'none';
-      document.querySelectorAll('#section-sig .admin-only').forEach(el => el.style.display = adminModeSig ? '' : 'none');
-    } else {
-      adminModeGW = !adminModeGW;
-      const card = g('g-results-card');
-      card.style.display = adminModeGW ? '' : 'none';
-      card.dataset.adminVisible = adminModeGW ? 'true' : 'false';
-      if (g('g-profit-card')) g('g-profit-card').style.display = adminModeGW ? '' : 'none';
-      document.querySelectorAll('#section-gw .admin-only').forEach(el => el.style.display = adminModeGW ? '' : 'none');
-    }
+  if (e.ctrlKey && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
+    adminMode = !adminMode;
+    document.body.classList.toggle('admin-on', adminMode);
+    document.querySelectorAll('.admin-only').forEach(el => {
+      el.style.display = adminMode ? '' : 'none';
+    });
+    // Recalc so card-level admin flags update consistently
+    calcSig();
+    calcGW();
   }
 });
 
-// ─────────────────────────────────────────────
-//  Init
-// ─────────────────────────────────────────────
-updateSigBatterySizes();
+// ================================================================
+// INIT
+// ================================================================
+updateGwBatterySizes(); // populates g-batteryKwh and calls calcGW()
 calcSig();
-calcGW();
 </script>
 </body>
 </html>
