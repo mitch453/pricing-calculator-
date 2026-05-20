@@ -188,7 +188,8 @@
   .extras-grid label:hover { border-color: var(--accent); background: var(--light-green); }
   .extras-grid input[type="checkbox"] { accent-color: var(--mid-green); width: 16px; height: 16px; flex-shrink: 0; }
   .extras-grid input[type="checkbox"]:checked + span { color: var(--dark-green); font-weight: 600; }
-  .extras-grid .extra-price { margin-left: auto; color: var(--muted); font-size: 0.72rem; white-space: nowrap; }
+  /* Rep calc: hide all cost/price tags on extras — reps must not see costs */
+  .extras-grid .extra-price { display: none; }
   .extras-grid .extra-select {
     width: 60px; padding: 0.15rem 0.25rem; border: 1.5px solid var(--border);
     border-radius: 4px; font-size: 0.75rem; font-family: inherit;
@@ -477,10 +478,10 @@
           <div class="form-group">
             <label>Panel Type</label>
             <select id="s-panelType" onchange="calcSig()">
-              <option value="ae440">AE Solar 440W — $92</option>
-              <option value="ja475">JA 475W — $122</option>
-              <option value="jinko475">Jinko 475W (All Black) — $142</option>
-              <option value="aiko475">AIKO 490W — $175</option>
+              <option value="ae440">AE Solar 440W</option>
+              <option value="ja475">JA 475W</option>
+              <option value="jinko475">Jinko 475W (All Black)</option>
+              <option value="aiko475">AIKO 490W</option>
             </select>
           </div>
           <div class="form-group">
@@ -494,19 +495,19 @@
             <label>Inverter</label>
             <select id="s-inverterType" onchange="calcSig()">
               <optgroup label="Single Phase">
-                <option value="ec5sp">EC 5.0 SP — $1,413.50</option>
-                <option value="ec6sp">EC 6.0 SP — $1,527.90</option>
-                <option value="ec8sp">EC 8.0 SP — $2,611.40</option>
-                <option value="ec10sp" selected>EC 10.0 SP — $2,814.90</option>
-                <option value="ec12sp">EC 12.0 SP — $3,019.50</option>
+                <option value="ec5sp">EC 5.0 SP</option>
+                <option value="ec6sp">EC 6.0 SP</option>
+                <option value="ec8sp">EC 8.0 SP</option>
+                <option value="ec10sp" selected>EC 10.0 SP</option>
+                <option value="ec12sp">EC 12.0 SP</option>
               </optgroup>
               <optgroup label="Three Phase">
-                <option value="ec5tp">EC 5.0 TP — $2,420.00</option>
-                <option value="ec10tp">EC 10.0 TP — $2,802.80</option>
-                <option value="ec15tp">EC 15.0 TP — $3,693.80</option>
-                <option value="ec20tp">EC 20.0 TP — $4,215.20</option>
-                <option value="ec25tp">EC 25.0 TP — $4,840.00</option>
-                <option value="ec30tp">EC 30.0 TP — $5,324.00</option>
+                <option value="ec5tp">EC 5.0 TP</option>
+                <option value="ec10tp">EC 10.0 TP</option>
+                <option value="ec15tp">EC 15.0 TP</option>
+                <option value="ec20tp">EC 20.0 TP</option>
+                <option value="ec25tp">EC 25.0 TP</option>
+                <option value="ec30tp">EC 30.0 TP</option>
               </optgroup>
             </select>
           </div>
@@ -518,7 +519,7 @@
             </select>
           </div>
           <div class="form-group">
-            <label>BAT 8.0 (8 kWh) Modules — $2,721.40 ea</label>
+            <label>BAT 8.0 (8 kWh) Modules</label>
             <select id="s-num8kwh" onchange="calcSig()">
               <option value="0">0</option>
               <option value="1">1</option>
@@ -530,7 +531,7 @@
             </select>
           </div>
           <div class="form-group">
-            <label>BAT 5.0 (5 kWh) Modules — $3,056.90 ea</label>
+            <label>BAT 5.0 (5 kWh) Modules</label>
             <select id="s-num5kwh" onchange="calcSig()">
               <option value="0" selected>0</option>
               <option value="1">1</option>
@@ -544,8 +545,8 @@
           <div class="form-group">
             <label>Gateway</label>
             <select id="s-gatewayType" onchange="calcSig()">
-              <option value="sp">SP Gateway AU (Pro) — $756.86</option>
-              <option value="tp">TP Gateway AU (Pro) — $935.45</option>
+              <option value="sp">SP Gateway AU (Pro)</option>
+              <option value="tp">TP Gateway AU (Pro)</option>
             </select>
           </div>
           <div class="form-group">
@@ -559,12 +560,12 @@
             <label>Power Sensor</label>
             <select id="s-powerSensor" onchange="calcSig()">
               <option value="none">None</option>
-              <option value="spct100">SP-CT100 Single Phase — $109.99</option>
-              <option value="tpct100">TP-CT100 Three Phase — $219.98</option>
-              <option value="tpct300dh">TP-CT300-DH — $316.90</option>
-              <option value="tpct600dh">TP-CT600-DH — $372.44</option>
-              <option value="tpdhci">TP DH-C&amp;I — $331.06</option>
-              <option value="nanobanana">Nano Beam Sensors — $1,200.00</option>
+              <option value="spct100">SP-CT100 Single Phase</option>
+              <option value="tpct100">TP-CT100 Three Phase</option>
+              <option value="tpct300dh">TP-CT300-DH</option>
+              <option value="tpct600dh">TP-CT600-DH</option>
+              <option value="tpdhci">TP DH-C&amp;I</option>
+              <option value="nanobanana">Nano Beam Sensors</option>
             </select>
           </div>
           <input type="hidden" id="s-installPeriod" value="after">
@@ -594,9 +595,9 @@
             <label>Car Charger</label>
             <select id="s-carCharger" onchange="calcSig()">
               <option value="none">None</option>
-              <option value="gw7khca">GW7K-HCA — 7kW Single Phase ($1,900 ex GST)</option>
-              <option value="gw11khca">GW11K-HCA — 11kW Three Phase ($2,000 ex GST)</option>
-              <option value="gw22khca">GW22K-HCA — 22kW Three Phase ($2,400 ex GST)</option>
+              <option value="gw7khca">GW7K-HCA — 7kW Single Phase</option>
+              <option value="gw11khca">GW11K-HCA — 11kW Three Phase</option>
+              <option value="gw22khca">GW22K-HCA — 22kW Three Phase</option>
             </select>
           </div>
         </div>
@@ -671,10 +672,10 @@
           <div class="form-group">
             <label>Panel Type</label>
             <select id="g-panelType" onchange="calcGW()">
-              <option value="ae440">AE Solar 440W — $92</option>
-              <option value="ja475">JA 475W — $122</option>
-              <option value="jinko475">Jinko 475W (All Black) — $142</option>
-              <option value="aiko475">AIKO 490W — $175</option>
+              <option value="ae440">AE Solar 440W</option>
+              <option value="ja475">JA 475W</option>
+              <option value="jinko475">Jinko 475W (All Black)</option>
+              <option value="aiko475">AIKO 490W</option>
             </select>
           </div>
           <div class="form-group">
@@ -688,15 +689,15 @@
             <label>Inverter</label>
             <select id="g-inverterType" onchange="calcGW()">
               <optgroup label="Single Phase">
-                <option value="gw5k">GW5K-EHA-G20 — $1,225.40</option>
-                <option value="gw8k">GW8K-EHA-G20 — $1,857.90</option>
-                <option value="gw10k" selected>GW9.999K-EHA-G20 — $2,008.60</option>
+                <option value="gw5k">GW5K-EHA-G20</option>
+                <option value="gw8k">GW8K-EHA-G20</option>
+                <option value="gw10k" selected>GW9.999K-EHA-G20</option>
               </optgroup>
               <optgroup label="Three Phase">
-                <option value="gw10ktp">GW10K-ET-G20 — $2,062.50</option>
-                <option value="gw15ktp">GW15K-ET-G20 — $2,202.20</option>
-                <option value="gw20ktp">GW20K-ET-G20 — $2,277.00</option>
-                <option value="gw25ktp">GW25K-ET-G20 — $2,343.00</option>
+                <option value="gw10ktp">GW10K-ET-G20</option>
+                <option value="gw15ktp">GW15K-ET-G20</option>
+                <option value="gw20ktp">GW20K-ET-G20</option>
+                <option value="gw25ktp">GW25K-ET-G20</option>
               </optgroup>
             </select>
           </div>
@@ -710,7 +711,7 @@
           <div class="form-group">
             <label>Battery Module</label>
             <select id="g-batteryModule" onchange="updateGwBatterySizes()">
-              <option value="gw83">GW8.3-BAT-D-G20 (8.3 kWh) — $2,640</option>
+              <option value="gw83">GW8.3-BAT-D-G20 (8.3 kWh)</option>
             </select>
           </div>
           <div class="form-group">
@@ -732,12 +733,12 @@
             <label>Power Sensor</label>
             <select id="g-powerSensor" onchange="calcGW()">
               <option value="none">None</option>
-              <option value="spct100">SP-CT100 Single Phase — $109.99</option>
-              <option value="tpct100">TP-CT100 Three Phase — $219.98</option>
-              <option value="tpct300dh">TP-CT300-DH — $316.90</option>
-              <option value="tpct600dh">TP-CT600-DH — $372.44</option>
-              <option value="tpdhci">TP DH-C&amp;I — $331.06</option>
-              <option value="nanobanana">Nano Beam Sensors — $1,200.00</option>
+              <option value="spct100">SP-CT100 Single Phase</option>
+              <option value="tpct100">TP-CT100 Three Phase</option>
+              <option value="tpct300dh">TP-CT300-DH</option>
+              <option value="tpct600dh">TP-CT600-DH</option>
+              <option value="tpdhci">TP DH-C&amp;I</option>
+              <option value="nanobanana">Nano Beam Sensors</option>
             </select>
           </div>
         </div>
@@ -766,9 +767,9 @@
           <label>Car Charger</label>
           <select id="g-carCharger" onchange="calcGW()">
             <option value="none">None</option>
-            <option value="gw7khca">GW7K-HCA — 7kW Single Phase ($1,900 ex GST)</option>
-            <option value="gw11khca">GW11K-HCA — 11kW Three Phase ($2,000 ex GST)</option>
-            <option value="gw22khca">GW22K-HCA — 22kW Three Phase ($2,400 ex GST)</option>
+            <option value="gw7khca">GW7K-HCA — 7kW Single Phase</option>
+            <option value="gw11khca">GW11K-HCA — 11kW Three Phase</option>
+            <option value="gw22khca">GW22K-HCA — 22kW Three Phase</option>
           </select>
         </div>
 
