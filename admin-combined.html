@@ -1071,6 +1071,31 @@
 
 
 <!-- ============================================================ -->
+<!-- ADMIN: SOLAR-ONLY PRICING (applies to both tabs)            -->
+<!-- ============================================================ -->
+<div class="container admin-only" id="solar-pricing-section">
+  <div class="card">
+    <div class="card-header">Solar-Only Pricing</div>
+    <div class="card-body">
+      <p class="margin-tier-hint">
+        When a job has solar panels and <strong>no battery</strong>, the recommended sale price is a flat rate per kW of panels (STC baked in). Extras are still added on top. Applies to both tabs and persists in this browser.
+      </p>
+      <div class="margin-tier-grid">
+        <div class="margin-tier-row">
+          <span class="mt-label">Rate per kW of solar</span>
+          <div class="mt-input-wrap" style="grid-column: 2 / span 2;">
+            <span class="mt-pct">$</span>
+            <input type="number" id="solar-rate" min="0" step="50" oninput="onSolarRateChange()">
+            <span class="mt-pct">/ kW</span>
+          </div>
+        </div>
+      </div>
+      <button class="btn-margin-reset" onclick="resetSolarRate()">Reset to Default</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
 <!-- ADMIN: MARGIN TIER EDITOR (applies to both tabs)             -->
 <!-- ============================================================ -->
 <div class="container admin-only" id="margin-tier-section">
@@ -1171,6 +1196,12 @@ const DEFAULT_BATTERY_ONLY_MARGINS = [0.54, 0.51, 0.48, 0.45, 0.42, 0.39];
 let MODULE_MARGINS        = [...DEFAULT_MODULE_MARGINS];
 let BATTERY_ONLY_MARGINS  = [...DEFAULT_BATTERY_ONLY_MARGINS];
 const MARGIN_STORAGE_KEY  = 'ausave-margin-tiers-v1';
+
+// Solar-only pricing: when a job has panels and no battery, the recommended
+// sale price is a flat rate per kW of panels (STC baked in). Customisable.
+const DEFAULT_SOLAR_RATE_PER_KW = 1000;
+let SOLAR_RATE_PER_KW          = DEFAULT_SOLAR_RATE_PER_KW;
+const SOLAR_RATE_STORAGE_KEY   = 'ausave-solar-rate-v1';
 
 // Tracks the previous job-type per tab so we only auto-set jobs/day on a transition
 let sigPrevIsBatteryOnly = null;
@@ -1394,13 +1425,22 @@ function calcSig() {
   const totalSTCvalue  = solarSTCvalue + batterySTCvalue;
   const netMaterialCost = grossTotal - totalSTCvalue;
 
-  // Tiered margin (by total battery modules — battery-only uses a lower tier)
-  const marginTier   = isBatteryOnly ? BATTERY_ONLY_MARGINS : MODULE_MARGINS;
-  const marginIdx    = batteryModules > 0 ? Math.min(batteryModules - 1, marginTier.length - 1) : 0;
-  const tieredMargin = marginTier[marginIdx];
-  let recommendedPrice = netMaterialCost / (1 - tieredMargin);
-  const jobTypeLabel = isBatteryOnly ? 'battery only' : `${batteryModules} module${batteryModules !== 1 ? 's' : ''}`;
-  const recMarginLabel = `${(tieredMargin * 100).toFixed(0)}% margin, ${jobTypeLabel}`;
+  // Recommended price — solar-only jobs use a flat $/kW rate; everything else
+  // uses the tiered battery-module margin.
+  const isSolarOnly = hasPanels && !hasBattery;
+  let recommendedPrice, recMarginLabel;
+  if (isSolarOnly) {
+    const solarKw = numPanels * PANEL_WATTS[panelType] / 1000;
+    recommendedPrice = solarKw * SOLAR_RATE_PER_KW;
+    recMarginLabel = `$${SOLAR_RATE_PER_KW.toLocaleString('en-AU')}/kW solar, ${solarKw.toFixed(1)} kW`;
+  } else {
+    const marginTier   = isBatteryOnly ? BATTERY_ONLY_MARGINS : MODULE_MARGINS;
+    const marginIdx    = batteryModules > 0 ? Math.min(batteryModules - 1, marginTier.length - 1) : 0;
+    const tieredMargin = marginTier[marginIdx];
+    recommendedPrice = netMaterialCost / (1 - tieredMargin);
+    const jobTypeLabel = isBatteryOnly ? 'battery only' : `${batteryModules} module${batteryModules !== 1 ? 's' : ''}`;
+    recMarginLabel = `${(tieredMargin * 100).toFixed(0)}% margin, ${jobTypeLabel}`;
+  }
 
   // Extras
   let extrasExGst = 0;
@@ -1632,13 +1672,22 @@ function calcGW() {
   const totalSTCvalue   = solarSTCvalue + batterySTCvalue;
   const netMaterialCost = grossTotal - totalSTCvalue;
 
-  // Tiered margin (by battery module count — battery-only uses a lower tier)
-  const marginTier   = isBatteryOnly ? BATTERY_ONLY_MARGINS : MODULE_MARGINS;
-  const marginIdx    = batteryModules > 0 ? Math.min(batteryModules - 1, marginTier.length - 1) : 0;
-  const tieredMargin = marginTier[marginIdx];
-  let recommendedPrice = netMaterialCost / (1 - tieredMargin);
-  const jobTypeLabel = isBatteryOnly ? 'battery only' : `${batteryModules} module${batteryModules !== 1 ? 's' : ''}`;
-  const recMarginLabel = `${(tieredMargin * 100).toFixed(0)}% margin, ${jobTypeLabel}`;
+  // Recommended price — solar-only jobs use a flat $/kW rate; everything else
+  // uses the tiered battery-module margin.
+  const isSolarOnly = hasPanels && !hasBattery;
+  let recommendedPrice, recMarginLabel;
+  if (isSolarOnly) {
+    const solarKw = numPanels * PANEL_WATTS[panelType] / 1000;
+    recommendedPrice = solarKw * SOLAR_RATE_PER_KW;
+    recMarginLabel = `$${SOLAR_RATE_PER_KW.toLocaleString('en-AU')}/kW solar, ${solarKw.toFixed(1)} kW`;
+  } else {
+    const marginTier   = isBatteryOnly ? BATTERY_ONLY_MARGINS : MODULE_MARGINS;
+    const marginIdx    = batteryModules > 0 ? Math.min(batteryModules - 1, marginTier.length - 1) : 0;
+    const tieredMargin = marginTier[marginIdx];
+    recommendedPrice = netMaterialCost / (1 - tieredMargin);
+    const jobTypeLabel = isBatteryOnly ? 'battery only' : `${batteryModules} module${batteryModules !== 1 ? 's' : ''}`;
+    recMarginLabel = `${(tieredMargin * 100).toFixed(0)}% margin, ${jobTypeLabel}`;
+  }
 
   // Extras
   let extrasExGst = 0;
@@ -1788,10 +1837,44 @@ function resetMarginTiers() {
 }
 
 // ================================================================
+// SOLAR-ONLY RATE EDITOR (admin)
+// ================================================================
+function loadSolarRate() {
+  try {
+    const saved = parseFloat(localStorage.getItem(SOLAR_RATE_STORAGE_KEY));
+    if (!isNaN(saved) && saved >= 0) SOLAR_RATE_PER_KW = saved;
+  } catch (e) { /* ignore — fall back to default */ }
+}
+function saveSolarRate() {
+  try { localStorage.setItem(SOLAR_RATE_STORAGE_KEY, String(SOLAR_RATE_PER_KW)); }
+  catch (e) { /* non-fatal */ }
+}
+function syncSolarRateInput() {
+  const el = document.getElementById('solar-rate');
+  if (el) el.value = SOLAR_RATE_PER_KW;
+}
+function onSolarRateChange() {
+  const raw = parseFloat(document.getElementById('solar-rate').value);
+  if (!isNaN(raw) && raw >= 0) SOLAR_RATE_PER_KW = raw;
+  saveSolarRate();
+  calcSig();
+  calcGW();
+}
+function resetSolarRate() {
+  SOLAR_RATE_PER_KW = DEFAULT_SOLAR_RATE_PER_KW;
+  syncSolarRateInput();
+  saveSolarRate();
+  calcSig();
+  calcGW();
+}
+
+// ================================================================
 // INIT
 // ================================================================
 loadMarginTiers();
 syncMarginTierInputs();
+loadSolarRate();
+syncSolarRateInput();
 updateGwBatterySizes(); // populates g-batteryKwh and calls calcGW()
 calcSig();
 </script>
