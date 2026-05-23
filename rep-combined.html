@@ -876,8 +876,8 @@ const BESS2_ACP_FEE   = 0.30;   // ACP admin margin (30% typical)
 // Tiered gross margin by battery module count
 // Solar + battery: index 0 = 0 or 1 module (64%), index 5 = 6+ modules (49%)
 const MODULE_MARGINS = [0.64, 0.61, 0.58, 0.55, 0.52, 0.49];
-// Battery-only: bumped up to 58→43 (revised May 2026)
-const BATTERY_ONLY_MARGINS = [0.58, 0.53, 0.50, 0.48, 0.46, 0.43];
+// Battery-only: revised May 2026 — top tiers bumped further to 60→43
+const BATTERY_ONLY_MARGINS = [0.60, 0.55, 0.53, 0.48, 0.46, 0.43];
 
 // Tracks the previous job-type per tab so we only auto-set jobs/day on a transition
 let sigPrevIsBatteryOnly = null;
