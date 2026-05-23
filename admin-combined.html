@@ -5,39 +5,65 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="theme-color" content="#F2F2F7">
+<meta name="theme-color" content="#FFFFFF">
 <title>Ausave Energy — Admin Combined Pricing Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   /* ================================================================
-     iOS Design Language — SF Pro, system colors, grouped inset cards
+     Ausave Solar brand system — Barlow display, Inter body,
+     white canvas, leaf green accent, solar yellow highlight
+     Source: https://ausavesolar-deploy.vercel.app/
      ================================================================ */
   :root {
-    /* iOS System Backgrounds */
-    --ios-bg:           #F2F2F7;      /* grouped background */
-    --ios-bg-elevated:  #FFFFFF;      /* card surface */
-    --ios-bg-tertiary:  #FFFFFF;
-    --ios-fill:         rgba(120,120,128,0.12);
-    --ios-fill-2:       rgba(120,120,128,0.08);
-    --ios-separator:    rgba(60,60,67,0.10);
-    --ios-separator-opaque: #C6C6C8;
+    /* Ausave brand surfaces */
+    --doc-bg:           #FFFFFF;      /* page background */
+    --doc-elevated:     #FFFFFF;      /* card surface */
+    --doc-subtle:       rgba(0,0,0,0.025);  /* faint zebra / section tint */
+    --doc-fill:         rgba(0,0,0,0.04);
+    --doc-fill-2:       rgba(0,0,0,0.025);
 
-    /* iOS Text */
-    --ios-label:        #000000;
-    --ios-label-2:      rgba(60,60,67,0.60);
-    --ios-label-3:      rgba(60,60,67,0.30);
-    --ios-label-4:      rgba(60,60,67,0.18);
+    /* Ausave hairline borders */
+    --border-xsoft:     rgba(0,0,0,0.05);
+    --border-soft:      rgba(0,0,0,0.06);
+    --border:           rgba(0,0,0,0.10);
+    --border-strong:    rgba(0,0,0,0.15);
 
-    /* iOS Semantic Colors */
-    --ios-blue:    #007AFF;
-    --ios-green:   #34C759;
-    --ios-red:     #FF3B30;
-    --ios-orange:  #FF9500;
-    --ios-yellow:  #FFCC00;
-    --ios-purple:  #AF52DE;
+    /* Ausave text */
+    --doc-text:         #111827;      /* primary text */
+    --doc-text-2:       rgba(17,24,39,0.62);
+    --doc-text-3:       rgba(17,24,39,0.38);
+    --doc-text-4:       rgba(17,24,39,0.20);
+    --doc-contrast:     #0D0D0D;      /* near-black */
 
-    /* Ausave brand accent (used sparingly — header gradient & primary CTA) */
-    --brand-green:  #1F4E2C;
-    --brand-green-2:#2E7D32;
+    /* Ausave brand palette */
+    --brand-green:      #80BC68;      /* primary leaf green */
+    --brand-green-2:    #4CAF78;      /* deeper secondary */
+    --brand-green-tint: rgba(128,188,104,0.12);
+    --brand-yellow:     #FFDD00;      /* solar sun */
+    --brand-yellow-tint:rgba(255,221,0,0.16);
+    --brand-red:        #E8003D;      /* alert / BESS2 */
+    --brand-red-tint:   rgba(232,0,61,0.10);
+
+    /* Legacy iOS-named tokens still referenced in the stylesheet — point them at brand equivalents */
+    --ios-bg:           var(--doc-bg);
+    --ios-bg-elevated:  var(--doc-elevated);
+    --ios-bg-tertiary:  var(--doc-elevated);
+    --ios-fill:         var(--doc-fill);
+    --ios-fill-2:       var(--doc-fill-2);
+    --ios-separator:    var(--border);
+    --ios-separator-opaque: rgba(0,0,0,0.18);
+    --ios-label:        var(--doc-text);
+    --ios-label-2:      var(--doc-text-2);
+    --ios-label-3:      var(--doc-text-3);
+    --ios-label-4:      var(--doc-text-4);
+    --ios-blue:         var(--brand-green-2);
+    --ios-green:        var(--brand-green);
+    --ios-red:          var(--brand-red);
+    --ios-orange:       #E05A44;
+    --ios-yellow:       var(--brand-yellow);
+    --ios-purple:       #AF52DE;
 
     /* Backwards-compat aliases for inline-styled HTML still referencing old vars */
     --dark-green: var(--brand-green);
@@ -60,53 +86,60 @@
 
   html { -webkit-text-size-adjust: 100%; }
   body {
-    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text',
-                 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    background: var(--ios-bg);
-    color: var(--ios-label);
-    line-height: 1.4;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--doc-bg);
+    color: var(--doc-text);
+    line-height: 1.45;
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    font-size: 17px;
-    letter-spacing: -0.01em;
+    font-size: 16px;
+    letter-spacing: 0;
   }
 
-  /* ── Translucent iOS Nav Bar ── */
+  /* Brand headline treatment — Barlow, condensed editorial */
+  h1, h2, h3, h4, .headline, .card-header {
+    font-family: 'Barlow', sans-serif;
+  }
+
+  /* ── Brand Nav Bar (solid white, hairline border) ── */
   header {
-    background: rgba(242,242,247,0.82);
-    -webkit-backdrop-filter: saturate(180%) blur(20px);
-            backdrop-filter: saturate(180%) blur(20px);
-    color: var(--ios-label);
-    padding: 1rem 1.25rem 0.85rem;
+    background: var(--doc-bg);
+    color: var(--doc-text);
+    padding: 1rem 1.5rem 0.95rem;
     display: flex;
     align-items: baseline;
-    gap: 0.6rem;
+    gap: 0.75rem;
     position: sticky;
     top: 0;
     z-index: 100;
     border-bottom: 0.5px solid var(--ios-separator);
   }
   header h1 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    letter-spacing: -0.024em;
-    color: var(--ios-label);
+    font-family: 'Barlow', sans-serif;
+    font-size: 1.65rem;
+    font-weight: 900;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
+    color: var(--doc-contrast);
   }
   header span {
-    font-size: 0.95rem;
-    color: var(--ios-label-2);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    color: var(--doc-text-2);
     font-weight: 400;
-    letter-spacing: -0.01em;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
   }
 
-  /* ── iOS Segmented Control ── */
+  /* ── Brand Segmented Control ── */
   .tab-bar-wrap {
-    max-width: 460px;
-    margin: 0.85rem auto 0;
-    background: var(--ios-fill);
-    border-radius: 9px;
-    padding: 2px;
+    max-width: 480px;
+    margin: 1rem auto 0;
+    background: var(--doc-fill-2);
+    border: 1px solid var(--border-soft);
+    border-radius: 999px;
+    padding: 3px;
     display: flex;
     justify-content: center;
     gap: 0;
@@ -114,24 +147,25 @@
   }
   .tab-btn {
     flex: 1;
-    padding: 0.5rem 1.25rem;
-    font-family: inherit;
-    font-size: 0.92rem;
-    font-weight: 500;
+    padding: 0.55rem 1.5rem;
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 700;
     border: none;
-    border-radius: 7px;
+    border-radius: 999px;
     cursor: pointer;
     transition: all 0.18s ease;
     background: transparent;
-    color: var(--ios-label);
-    letter-spacing: -0.01em;
+    color: var(--doc-text-2);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
   }
   .tab-btn.active {
-    background: #ffffff;
-    color: var(--ios-label);
-    font-weight: 600;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.08), 0 0.5px 1px rgba(0,0,0,0.04);
+    background: var(--doc-contrast);
+    color: #ffffff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
   }
+  .tab-btn:hover:not(.active) { color: var(--doc-contrast); }
   .tab-btn:active { transform: scale(0.97); }
 
   /* ── Container ── */
@@ -144,21 +178,22 @@
     gap: 1.1rem;
   }
 
-  /* ── iOS Grouped Cards ── */
+  /* ── Brand Cards (white on white, hairline border, no heavy shadow) ── */
   .card {
-    background: var(--ios-bg-elevated);
-    border-radius: 14px;
+    background: var(--doc-elevated);
+    border-radius: 12px;
     overflow: hidden;
-    border: none;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 0.5px 0 rgba(60,60,67,0.04);
+    border: 1px solid var(--border-soft);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.025);
   }
   .card-header {
     background: transparent;
-    color: var(--ios-label-2);
-    padding: 0.9rem 1rem 0.4rem;
-    font-weight: 600;
-    font-size: 0.74rem;
-    letter-spacing: 0.06em;
+    color: var(--doc-contrast);
+    padding: 1rem 1.1rem 0.5rem;
+    font-family: 'Barlow', sans-serif;
+    font-weight: 700;
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
   }
   .card-body { padding: 0.25rem 1rem 1rem; }
@@ -306,28 +341,29 @@
   /* ── iOS Primary Button ── */
   .btn-calculate {
     width: 100%;
-    padding: 0.85rem 1.5rem;
-    background: var(--ios-green);
+    padding: 0.95rem 1.5rem;
+    background: var(--doc-contrast);
     color: #ffffff;
     border: none;
-    border-radius: 12px;
-    font-size: 1rem;
-    font-weight: 600;
-    font-family: inherit;
+    border-radius: 999px;
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.92rem;
+    font-weight: 700;
     cursor: pointer;
     transition: all 0.15s ease;
-    letter-spacing: -0.01em;
-    text-transform: none;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
     min-width: 150px;
-    box-shadow: 0 1px 3px rgba(52,199,89,0.25);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
   }
   .btn-calculate:hover {
-    background: #2DB84F;
-    box-shadow: 0 2px 8px rgba(52,199,89,0.35);
+    background: var(--brand-green);
+    color: var(--doc-contrast);
+    box-shadow: 0 4px 12px rgba(128,188,104,0.4);
   }
   .btn-calculate:active {
     transform: scale(0.98);
-    background: #28A547;
+    background: var(--brand-green-2);
   }
 
   /* ── Output Grid ── */
@@ -437,94 +473,116 @@
   /* ── iOS Alert Banner ── */
   .margin-alert {
     margin-top: 0.7rem;
-    padding: 0.65rem 0.9rem;
+    padding: 0.7rem 0.95rem;
     border-radius: 10px;
     font-weight: 500;
     font-size: 0.9rem;
     display: none;
-    letter-spacing: -0.01em;
+    letter-spacing: 0;
   }
   .margin-alert.low {
     display: block;
-    background: rgba(255,59,48,0.12);
-    color: var(--ios-red);
+    background: var(--brand-red-tint);
+    color: var(--brand-red);
+    border: 1px solid rgba(232,0,61,0.20);
   }
   .margin-alert.ok {
     display: block;
-    background: rgba(52,199,89,0.14);
-    color: #1F8A3A;
+    background: var(--brand-green-tint);
+    color: var(--brand-green-2);
+    border: 1px solid rgba(128,188,104,0.30);
   }
 
   /* ── Hero Stat — Recommended Sale Price ── */
+  /* ── Hero stat: Recommended Sale Price (brand-green flat panel) ── */
   .recommended-row {
-    background: linear-gradient(135deg, #34C759 0%, #30B14E 100%);
-    padding: 1rem 1.1rem;
+    background: var(--brand-green);
+    padding: 1.25rem 1.25rem;
     border-radius: 14px;
     margin: 0.85rem 0 0.4rem;
     border: none;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.2rem;
-    box-shadow: 0 4px 14px rgba(52,199,89,0.28);
+    gap: 0.3rem;
+    box-shadow: 0 4px 14px rgba(128,188,104,0.32);
+    position: relative;
+    overflow: hidden;
+  }
+  .recommended-row::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 90% -20%, rgba(255,221,0,0.22), transparent 50%),
+      radial-gradient(circle at 110% 120%, rgba(0,0,0,0.10), transparent 55%);
+    pointer-events: none;
   }
   .recommended-row .label {
-    color: rgba(255,255,255,0.92);
-    font-weight: 500;
-    font-size: 0.82rem;
-    letter-spacing: -0.01em;
+    color: rgba(13,13,13,0.78);
+    font-family: 'Barlow', sans-serif;
+    font-weight: 700;
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    position: relative;
   }
   .recommended-row .value {
-    font-size: 2rem;
-    font-weight: 700;
-    color: #ffffff;
+    font-family: 'Barlow', sans-serif;
+    font-size: 2.25rem;
+    font-weight: 900;
+    color: var(--doc-contrast);
     font-variant-numeric: tabular-nums;
-    letter-spacing: -0.025em;
-    line-height: 1.1;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    position: relative;
   }
   .recommended-margin {
     text-align: right;
     font-size: 0.85rem;
-    color: var(--ios-green);
+    color: var(--brand-green-2);
     font-weight: 600;
     padding: 0.1rem 0 0.5rem 0;
   }
 
-  /* ── BESS2 VPP Rebate (iOS red banner) ── */
+  /* ── BESS2 VPP Rebate (brand red banner) ── */
   .bess2-rebate {
-    background: linear-gradient(135deg, #FF3B30 0%, #E0271D 100%);
-    padding: 0.85rem 1rem;
+    background: var(--brand-red);
+    padding: 1rem 1.1rem;
     border-radius: 12px;
     margin: 0.6rem 0 0.1rem;
     border: none;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.15rem;
-    box-shadow: 0 3px 10px rgba(255,59,48,0.28);
+    gap: 0.25rem;
+    box-shadow: 0 3px 12px rgba(232,0,61,0.30);
   }
   .bess2-rebate .label {
-    color: rgba(255,255,255,0.92);
-    font-weight: 500;
-    font-size: 0.78rem;
-    letter-spacing: -0.01em;
+    color: rgba(255,255,255,0.95);
+    font-family: 'Barlow', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
   }
   .bess2-rebate .value {
-    font-size: 1.5rem;
-    font-weight: 700;
+    font-family: 'Barlow', sans-serif;
+    font-size: 1.65rem;
+    font-weight: 900;
     color: #ffffff;
     font-variant-numeric: tabular-nums;
     letter-spacing: -0.02em;
-    line-height: 1.1;
+    line-height: 1.05;
   }
   .bess2-note {
     font-size: 0.78rem;
-    color: var(--ios-label-2);
+    color: var(--doc-text-2);
     text-align: left;
     font-style: normal;
     padding: 0.4rem 0.1rem 0.2rem;
     margin-top: 0;
-    letter-spacing: -0.01em;
+    letter-spacing: 0;
   }
 
   /* ── Profit Projection (iOS stat cards) ── */
@@ -535,18 +593,19 @@
   }
   @media (max-width: 700px) { .profit-grid { grid-template-columns: 1fr; } }
   .profit-box {
-    padding: 0.9rem 1rem;
-    border-radius: 12px;
-    border: none;
-    background: var(--ios-bg);
+    padding: 0.95rem 1.05rem;
+    border-radius: 10px;
+    border: 1px solid var(--border-soft);
+    background: var(--doc-subtle);
   }
   .profit-box h4 {
-    font-size: 0.74rem;
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.78rem;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--ios-label-2);
-    margin-bottom: 0.55rem;
-    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: var(--doc-contrast);
+    margin-bottom: 0.6rem;
+    font-weight: 700;
   }
   .profit-line {
     display: flex;
@@ -578,6 +637,17 @@
 
   /* ── Smooth scroll on iOS ── */
   body { -webkit-overflow-scrolling: touch; }
+
+  /* Brand accent: solar yellow top-rule on the Solar-Only Pricing card */
+  .brand-card-solar { position: relative; }
+  .brand-card-solar::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: var(--brand-yellow);
+  }
+  .brand-card-solar .card-header { padding-top: 1.15rem; }
 
   /* ── Margin Tier Editor (admin) ── */
   .margin-tier-hint {
@@ -1074,7 +1144,7 @@
 <!-- ADMIN: SOLAR-ONLY PRICING (applies to both tabs)            -->
 <!-- ============================================================ -->
 <div class="container admin-only" id="solar-pricing-section">
-  <div class="card">
+  <div class="card brand-card-solar">
     <div class="card-header">Solar-Only Pricing</div>
     <div class="card-body">
       <p class="margin-tier-hint">
