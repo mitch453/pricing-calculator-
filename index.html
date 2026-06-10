@@ -758,9 +758,6 @@ function calculate() {
       html += `<tr><td>${r.desc}</td><td>${r.qty}</td><td>${r.unit}</td><td>${fmt(r.total)}</td></tr>`;
     }
   }
-  const costUplift = grossTotal * 0.05; /* 5% supplier cost uplift */
-  html += `<tr><td colspan="3" style="font-style:italic;">Supplier Cost Uplift (5%)</td><td style="text-align:right">${fmt(costUplift)}</td></tr>`;
-  grossTotal += costUplift;
   html += `<tr class="total-row"><td colspan="3">Gross Material Total</td><td style="text-align:right">${fmt(grossTotal)}</td></tr>`;
   html += '</tbody>';
   document.getElementById('breakdown').innerHTML = html;
