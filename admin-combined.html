@@ -914,6 +914,14 @@
         </div>
 
         <div class="form-footer">
+          <div class="form-group admin-only">
+            <label>Rep / Commission</label>
+            <select id="s-repType" onchange="calcSig()">
+              <option value="none">None</option>
+              <option value="onbooks">On-the-books ($/panel + battery)</option>
+              <option value="commsonly">Comms-only (flat $/sale)</option>
+            </select>
+          </div>
           <div class="form-group">
             <label>Sale Price (inc GST)</label>
             <input type="number" id="s-salePrice" min="0" step="0.01" placeholder="Leave blank to skip" oninput="calcSig()">
@@ -1090,6 +1098,15 @@
             oninput="calcGW()">
         </div>
 
+        <div class="form-group admin-only" style="margin-top:0.75rem;">
+          <label>Rep / Commission</label>
+          <select id="g-repType" onchange="calcGW()">
+            <option value="none">None</option>
+            <option value="onbooks">On-the-books ($/panel + battery)</option>
+            <option value="commsonly">Comms-only (flat $/sale)</option>
+          </select>
+        </div>
+
         <div class="form-footer">
           <button class="btn-calculate" onclick="calcGW()">Calculate</button>
         </div>
@@ -1159,6 +1176,47 @@
         </div>
       </div>
       <button class="btn-margin-reset" onclick="resetSolarRate()">Reset to Default</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- ADMIN: REP COMMISSION (applies to both tabs)                -->
+<!-- ============================================================ -->
+<div class="container admin-only" id="commission-section">
+  <div class="card">
+    <div class="card-header">Rep Commission</div>
+    <div class="card-body">
+      <p class="margin-tier-hint">
+        Set each rep type's commission. Pick the rep type per job in the calculator; the commission is deducted from that job's margin and the daily/weekly profit. Persists in this browser.
+      </p>
+      <div class="margin-tier-grid">
+        <div class="margin-tier-row">
+          <span class="mt-label">On-the-books &mdash; per panel</span>
+          <div class="mt-input-wrap" style="grid-column: 2 / span 2;">
+            <span class="mt-pct">$</span>
+            <input type="number" id="comm-per-panel" min="0" step="5" oninput="onCommissionChange()">
+            <span class="mt-pct">/ panel</span>
+          </div>
+        </div>
+        <div class="margin-tier-row">
+          <span class="mt-label">On-the-books &mdash; per battery sale</span>
+          <div class="mt-input-wrap" style="grid-column: 2 / span 2;">
+            <span class="mt-pct">$</span>
+            <input type="number" id="comm-per-battery" min="0" step="50" oninput="onCommissionChange()">
+            <span class="mt-pct">/ battery</span>
+          </div>
+        </div>
+        <div class="margin-tier-row">
+          <span class="mt-label">Comms-only &mdash; flat per sale</span>
+          <div class="mt-input-wrap" style="grid-column: 2 / span 2;">
+            <span class="mt-pct">$</span>
+            <input type="number" id="comm-flat" min="0" step="100" oninput="onCommissionChange()">
+            <span class="mt-pct">/ sale</span>
+          </div>
+        </div>
+      </div>
+      <button class="btn-margin-reset" onclick="resetCommission()">Reset to Default</button>
     </div>
   </div>
 </div>
@@ -1270,6 +1328,24 @@ const MARGIN_STORAGE_KEY  = 'ausave-margin-tiers-v1';
 const DEFAULT_SOLAR_RATE_PER_KW = 1000;
 let SOLAR_RATE_PER_KW          = DEFAULT_SOLAR_RATE_PER_KW;
 const SOLAR_RATE_STORAGE_KEY   = 'ausave-solar-rate-v1';
+
+// Rep commission (admin, editable). Two rep types:
+//  - On-the-books: $/panel + flat $/battery sale
+//  - Comms-only:   flat $/sale
+const DEFAULT_COMM = { perPanel: 25, perBattery: 650, flat: 2000 };
+let COMM = { ...DEFAULT_COMM };
+const COMM_STORAGE_KEY = 'ausave-rep-comm-v1';
+
+function calcCommission(repType, numPanels, hasBattery) {
+  if (repType === 'onbooks')   return COMM.perPanel * numPanels + (hasBattery ? COMM.perBattery : 0);
+  if (repType === 'commsonly') return COMM.flat;
+  return 0;
+}
+function commissionLabel(repType, numPanels, hasBattery) {
+  if (repType === 'onbooks')   return `On-the-books (${numPanels} &times; $${COMM.perPanel}${hasBattery ? ' + $' + COMM.perBattery + ' battery' : ''})`;
+  if (repType === 'commsonly') return `Comms-only (flat $${COMM.flat.toLocaleString('en-AU')})`;
+  return '';
+}
 
 // Tracks the previous job-type per tab so we only auto-set jobs/day on a transition
 let sigPrevIsBatteryOnly = null;
@@ -1558,14 +1634,27 @@ function calcSig() {
     sHtml += `<div class="bess2-note">${sigBess2.prcs} PRCs &times; $${BESS2_PRC_PRICE.toFixed(2)} &times; ${((1 - BESS2_ACP_FEE) * 100).toFixed(0)}% (net of ACP fee) &mdash; paid after VPP onboarding</div>`;
   }
 
+  // Rep commission (deducted from margin & profit)
+  const sRepType = document.getElementById('s-repType').value;
+  const sCommission = calcCommission(sRepType, numPanels, hasBattery);
+  if (sCommission > 0) {
+    sHtml += '<div class="admin-only">';
+    sHtml += '<div class="summary-divider"></div>';
+    sHtml += summaryRow('Rep Commission &mdash; ' + commissionLabel(sRepType, numPanels, hasBattery), '&minus; ' + fmt(sCommission), 'danger');
+    const recAfterComm = (recommendedPrice - netMaterialCost - extrasIncGst) - sCommission;
+    sHtml += summaryRow('Margin after commission (at rec. price)', fmt(recAfterComm), 'big');
+    sHtml += '</div>';
+  }
+
   // Sale price margin check
   if (salePrice !== null && salePrice > 0) {
-    const marginDollars = salePrice - netMaterialCost - extrasIncGst;
+    const marginDollars = salePrice - netMaterialCost - extrasIncGst - sCommission;
     const marginPct = (marginDollars / salePrice) * 100;
     sHtml += '<div class="admin-only">';
     sHtml += '<div class="summary-divider"></div>';
     sHtml += summaryRow('Sale Price (inc GST)', fmt(salePrice));
-    sHtml += summaryRow('Gross Margin', fmt(marginDollars), marginPct < 35 ? 'danger' : '');
+    if (sCommission > 0) sHtml += summaryRow('Gross Margin (after commission)', fmt(marginDollars), marginPct < 35 ? 'danger' : '');
+    else sHtml += summaryRow('Gross Margin', fmt(marginDollars), marginPct < 35 ? 'danger' : '');
     sHtml += summaryRow('Margin %', marginPct.toFixed(2) + '%', marginPct < 35 ? 'danger' : '');
     sHtml += '</div>';
     if (marginPct < 35) {
@@ -1589,10 +1678,11 @@ function calcSig() {
   const jobsPerDay = parseInt(document.getElementById('s-jobsPerDay').value);
   const usingSale  = salePrice !== null && salePrice > 0;
   const profitBasis = usingSale ? salePrice : recommendedPrice;
-  const marginPerJob = profitBasis - netMaterialCost - extrasIncGst;
-  const labelExtra = usingSale
+  const marginPerJob = profitBasis - netMaterialCost - extrasIncGst - sCommission;
+  const commLabel = sCommission > 0 ? ` &mdash; Commission: <strong>&minus;${fmt(sCommission)}</strong>` : '';
+  const labelExtra = (usingSale
     ? ` &mdash; Sale Price: <strong>${fmt(salePrice)}</strong>`
-    : ` &mdash; Recommended: <strong>${fmt(recommendedPrice)}</strong>`;
+    : ` &mdash; Recommended: <strong>${fmt(recommendedPrice)}</strong>`) + commLabel;
   document.getElementById('s-profit').innerHTML = buildProfitHtml(isBatteryOnly, jobsPerDay, marginPerJob, labelExtra);
   document.getElementById('s-profit-card').style.display = adminMode ? '' : 'none';
 }
@@ -1805,16 +1895,28 @@ function calcGW() {
     sHtml += `<div class="bess2-note">${gwBess2.prcs} PRCs &times; $${BESS2_PRC_PRICE.toFixed(2)} &times; ${((1 - BESS2_ACP_FEE) * 100).toFixed(0)}% (net of ACP fee) &mdash; paid after VPP onboarding</div>`;
   }
 
+  // Rep commission (deducted from margin & profit)
+  const gRepType = document.getElementById('g-repType').value;
+  const gCommission = calcCommission(gRepType, numPanels, hasBattery);
+  if (gCommission > 0) {
+    sHtml += '<div class="admin-only">';
+    sHtml += '<div class="summary-divider"></div>';
+    sHtml += summaryRow('Rep Commission &mdash; ' + commissionLabel(gRepType, numPanels, hasBattery), '&minus; ' + fmt(gCommission), 'danger');
+    const recAfterComm = (recommendedPrice - netMaterialCost - extrasIncGst) - gCommission;
+    sHtml += summaryRow('Margin after commission (at rec. price)', fmt(recAfterComm), 'big');
+    sHtml += '</div>';
+  }
+
   // Custom price margin checker
   if (customPrice > 0) {
-    const cpMarginDollars = customPrice - netMaterialCost - extrasIncGst;
+    const cpMarginDollars = customPrice - netMaterialCost - extrasIncGst - gCommission;
     const cpBase          = customPrice - extrasIncGst;
     const cpMarginPct     = cpBase > 0 ? (cpMarginDollars / cpBase) * 100 : 0;
     const cpColor         = cpMarginPct < 35 ? '#c0392b' : '#27ae60';
     sHtml += '<div class="summary-divider"></div>';
     sHtml += `<div style="padding:10px;border-radius:8px;background:${cpMarginPct < 35 ? '#ffeaea' : '#eafff0'};border:1px solid ${cpColor};">`;
     sHtml += `<div style="font-weight:700;font-size:0.95em;margin-bottom:4px;">Your Price: ${fmt(customPrice)}</div>`;
-    sHtml += `<span class="admin-only" style="font-weight:700;color:${cpColor};font-size:1.1em;">Margin: ${fmt(cpMarginDollars)} (${cpMarginPct.toFixed(1)}%)</span>`;
+    sHtml += `<span class="admin-only" style="font-weight:700;color:${cpColor};font-size:1.1em;">Margin${gCommission > 0 ? ' (after comm.)' : ''}: ${fmt(cpMarginDollars)} (${cpMarginPct.toFixed(1)}%)</span>`;
     sHtml += cpMarginPct < 35
       ? `<div style="color:#c0392b;font-size:0.85em;margin-top:4px;">Price is below the recommended minimum &mdash; please review<span class="admin-only"> (margin ${cpMarginPct.toFixed(1)}%, below 35%)</span></div>`
       : `<div style="color:#27ae60;font-size:0.85em;margin-top:4px;">Price is acceptable<span class="admin-only"> (margin ${cpMarginPct.toFixed(1)}%, above 35%)</span></div>`;
@@ -1835,10 +1937,11 @@ function calcGW() {
   const jobsPerDay  = parseInt(document.getElementById('g-jobsPerDay').value);
   const usingCustom = customPrice > 0;
   const profitBasis = usingCustom ? customPrice : recommendedPrice;
-  const marginPerJob = profitBasis - netMaterialCost - extrasIncGst;
-  const labelExtra = usingCustom
+  const marginPerJob = profitBasis - netMaterialCost - extrasIncGst - gCommission;
+  const gCommLabel = gCommission > 0 ? ` &mdash; Commission: <strong>&minus;${fmt(gCommission)}</strong>` : '';
+  const labelExtra = (usingCustom
     ? ` &mdash; Your Price: <strong>${fmt(customPrice)}</strong>`
-    : ` &mdash; Recommended: <strong>${fmt(recommendedPrice)}</strong>`;
+    : ` &mdash; Recommended: <strong>${fmt(recommendedPrice)}</strong>`) + gCommLabel;
   document.getElementById('g-profit').innerHTML = buildProfitHtml(isBatteryOnly, jobsPerDay, marginPerJob, labelExtra);
   document.getElementById('g-profit-card').style.display = adminMode ? '' : 'none';
 }
@@ -1937,12 +2040,56 @@ function resetSolarRate() {
 }
 
 // ================================================================
+// REP COMMISSION EDITOR (admin)
+// ================================================================
+function loadCommission() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(COMM_STORAGE_KEY) || '{}');
+    if (typeof saved.perPanel   === 'number') COMM.perPanel   = saved.perPanel;
+    if (typeof saved.perBattery === 'number') COMM.perBattery = saved.perBattery;
+    if (typeof saved.flat       === 'number') COMM.flat       = saved.flat;
+  } catch (e) { /* ignore — fall back to defaults */ }
+}
+function saveCommission() {
+  try { localStorage.setItem(COMM_STORAGE_KEY, JSON.stringify(COMM)); }
+  catch (e) { /* non-fatal */ }
+}
+function syncCommissionInputs() {
+  const p = document.getElementById('comm-per-panel');
+  const b = document.getElementById('comm-per-battery');
+  const f = document.getElementById('comm-flat');
+  if (p) p.value = COMM.perPanel;
+  if (b) b.value = COMM.perBattery;
+  if (f) f.value = COMM.flat;
+}
+function onCommissionChange() {
+  const p = parseFloat(document.getElementById('comm-per-panel').value);
+  const b = parseFloat(document.getElementById('comm-per-battery').value);
+  const f = parseFloat(document.getElementById('comm-flat').value);
+  if (!isNaN(p) && p >= 0) COMM.perPanel   = p;
+  if (!isNaN(b) && b >= 0) COMM.perBattery = b;
+  if (!isNaN(f) && f >= 0) COMM.flat       = f;
+  saveCommission();
+  calcSig();
+  calcGW();
+}
+function resetCommission() {
+  COMM = { ...DEFAULT_COMM };
+  syncCommissionInputs();
+  saveCommission();
+  calcSig();
+  calcGW();
+}
+
+// ================================================================
 // INIT
 // ================================================================
 loadMarginTiers();
 syncMarginTierInputs();
 loadSolarRate();
 syncSolarRateInput();
+loadCommission();
+syncCommissionInputs();
 updateGwBatterySizes(); // populates g-batteryKwh and calls calcGW()
 calcSig();
 </script>
