@@ -1209,6 +1209,7 @@
 // SHARED PRICING DATA
 // ================================================================
 const STC_PRICE = 36.00;
+const FREIGHT_HANDLING = 1000;  // freight & handling
 const PANEL_PRICES = { ja475: 130, jinko475: 150, aiko475: 175 };
 const PANEL_WATTS  = { ja475: 475, jinko475: 475, aiko475: 490 };
 const PANEL_LABELS = { ja475: 'JA 475W', jinko475: 'Jinko 475W (All Black)', aiko475: 'AIKO 490W' };
@@ -1523,6 +1524,7 @@ function calcSig() {
   });
   const extrasIncGst = extrasExGst * 1.1;
   recommendedPrice += extrasIncGst;
+  recommendedPrice += FREIGHT_HANDLING;
 
   // Summary HTML
   let sHtml = '';
@@ -1770,6 +1772,7 @@ function calcGW() {
   });
   const extrasIncGst = extrasExGst * 1.1;
   recommendedPrice += extrasIncGst;
+  recommendedPrice += FREIGHT_HANDLING;
 
   // Summary
   let sHtml = '';
