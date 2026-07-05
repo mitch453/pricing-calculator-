@@ -1604,6 +1604,11 @@ function calcSig() {
   const extrasIncGst = extrasExGst * 1.1;
   recommendedPrice += extrasIncGst;
 
+  // Rep commission — ADDED to the final recommended price (customer covers it; margin preserved)
+  const sRepType = document.getElementById('s-repType').value;
+  const sCommission = calcCommission(sRepType, numPanels, hasBattery);
+  recommendedPrice += sCommission;
+
   // Summary HTML
   let sHtml = '';
   sHtml += '<div class="admin-only">';
@@ -1634,15 +1639,12 @@ function calcSig() {
     sHtml += `<div class="bess2-note">${sigBess2.prcs} PRCs &times; $${BESS2_PRC_PRICE.toFixed(2)} &times; ${((1 - BESS2_ACP_FEE) * 100).toFixed(0)}% (net of ACP fee) &mdash; paid after VPP onboarding</div>`;
   }
 
-  // Rep commission (deducted from margin & profit)
-  const sRepType = document.getElementById('s-repType').value;
-  const sCommission = calcCommission(sRepType, numPanels, hasBattery);
+  // Rep commission is added into the recommended price above — show it as an addition
   if (sCommission > 0) {
     sHtml += '<div class="admin-only">';
     sHtml += '<div class="summary-divider"></div>';
-    sHtml += summaryRow('Rep Commission &mdash; ' + commissionLabel(sRepType, numPanels, hasBattery), '&minus; ' + fmt(sCommission), 'danger');
-    const recAfterComm = (recommendedPrice - netMaterialCost - extrasIncGst) - sCommission;
-    sHtml += summaryRow('Margin after commission (at rec. price)', fmt(recAfterComm), 'big');
+    sHtml += summaryRow('Rep Commission &mdash; ' + commissionLabel(sRepType, numPanels, hasBattery) + ' (added to price)', '+ ' + fmt(sCommission));
+    sHtml += summaryRow('Recommended Price (incl. commission)', fmt(recommendedPrice), 'big');
     sHtml += '</div>';
   }
 
@@ -1679,7 +1681,7 @@ function calcSig() {
   const usingSale  = salePrice !== null && salePrice > 0;
   const profitBasis = usingSale ? salePrice : recommendedPrice;
   const marginPerJob = profitBasis - netMaterialCost - extrasIncGst - sCommission;
-  const commLabel = sCommission > 0 ? ` &mdash; Commission: <strong>&minus;${fmt(sCommission)}</strong>` : '';
+  const commLabel = sCommission > 0 ? ` &mdash; Commission: <strong>${fmt(sCommission)}</strong> (in price, paid to rep)` : '';
   const labelExtra = (usingSale
     ? ` &mdash; Sale Price: <strong>${fmt(salePrice)}</strong>`
     : ` &mdash; Recommended: <strong>${fmt(recommendedPrice)}</strong>`) + commLabel;
@@ -1865,6 +1867,11 @@ function calcGW() {
   const extrasIncGst = extrasExGst * 1.1;
   recommendedPrice += extrasIncGst;
 
+  // Rep commission — ADDED to the final recommended price (customer covers it; margin preserved)
+  const gRepType = document.getElementById('g-repType').value;
+  const gCommission = calcCommission(gRepType, numPanels, hasBattery);
+  recommendedPrice += gCommission;
+
   // Summary
   let sHtml = '';
   sHtml += '<div class="admin-only">';
@@ -1895,15 +1902,12 @@ function calcGW() {
     sHtml += `<div class="bess2-note">${gwBess2.prcs} PRCs &times; $${BESS2_PRC_PRICE.toFixed(2)} &times; ${((1 - BESS2_ACP_FEE) * 100).toFixed(0)}% (net of ACP fee) &mdash; paid after VPP onboarding</div>`;
   }
 
-  // Rep commission (deducted from margin & profit)
-  const gRepType = document.getElementById('g-repType').value;
-  const gCommission = calcCommission(gRepType, numPanels, hasBattery);
+  // Rep commission is added into the recommended price above — show it as an addition
   if (gCommission > 0) {
     sHtml += '<div class="admin-only">';
     sHtml += '<div class="summary-divider"></div>';
-    sHtml += summaryRow('Rep Commission &mdash; ' + commissionLabel(gRepType, numPanels, hasBattery), '&minus; ' + fmt(gCommission), 'danger');
-    const recAfterComm = (recommendedPrice - netMaterialCost - extrasIncGst) - gCommission;
-    sHtml += summaryRow('Margin after commission (at rec. price)', fmt(recAfterComm), 'big');
+    sHtml += summaryRow('Rep Commission &mdash; ' + commissionLabel(gRepType, numPanels, hasBattery) + ' (added to price)', '+ ' + fmt(gCommission));
+    sHtml += summaryRow('Recommended Price (incl. commission)', fmt(recommendedPrice), 'big');
     sHtml += '</div>';
   }
 
@@ -1938,7 +1942,7 @@ function calcGW() {
   const usingCustom = customPrice > 0;
   const profitBasis = usingCustom ? customPrice : recommendedPrice;
   const marginPerJob = profitBasis - netMaterialCost - extrasIncGst - gCommission;
-  const gCommLabel = gCommission > 0 ? ` &mdash; Commission: <strong>&minus;${fmt(gCommission)}</strong>` : '';
+  const gCommLabel = gCommission > 0 ? ` &mdash; Commission: <strong>${fmt(gCommission)}</strong> (in price, paid to rep)` : '';
   const labelExtra = (usingCustom
     ? ` &mdash; Your Price: <strong>${fmt(customPrice)}</strong>`
     : ` &mdash; Recommended: <strong>${fmt(recommendedPrice)}</strong>`) + gCommLabel;
