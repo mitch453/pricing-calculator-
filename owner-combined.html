@@ -1181,6 +1181,38 @@
 </div>
 
 <!-- ============================================================ -->
+<!-- ADMIN: OVERHEADS (applies to both tabs)                      -->
+<!-- ============================================================ -->
+<div class="container admin-only" id="overhead-section">
+  <div class="card">
+    <div class="card-header">Overheads</div>
+    <div class="card-body">
+      <p class="margin-tier-hint">
+        Weekly business overhead used in the daily/weekly profit cards. Daily overhead = weekly &divide; working days (currently <strong id="overhead-daily-display"></strong> / day). Applies to both tabs and persists in this browser.
+      </p>
+      <div class="margin-tier-grid">
+        <div class="margin-tier-row">
+          <span class="mt-label">Weekly overhead</span>
+          <div class="mt-input-wrap" style="grid-column: 2 / span 2;">
+            <span class="mt-pct">$</span>
+            <input type="number" id="overhead-weekly" min="0" step="1000" oninput="onOverheadChange()">
+            <span class="mt-pct">/ week</span>
+          </div>
+        </div>
+        <div class="margin-tier-row">
+          <span class="mt-label">Working days per week</span>
+          <div class="mt-input-wrap" style="grid-column: 2 / span 2;">
+            <input type="number" id="overhead-days" min="1" max="7" step="1" oninput="onOverheadChange()">
+            <span class="mt-pct">days</span>
+          </div>
+        </div>
+      </div>
+      <button class="btn-margin-reset" onclick="resetOverhead()">Reset to Default</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
 <!-- ADMIN: REP COMMISSION (applies to both tabs)                -->
 <!-- ============================================================ -->
 <div class="container admin-only" id="commission-section">
@@ -1299,9 +1331,11 @@ const SIG_BAT8  = { kwh: 9,   price: 2607.00, label: 'Sigenergy BAT 10.0 (9kWh m
 const SIG_BAT5  = { kwh: 5,   price: 3056.90, label: 'Sigenergy BAT 5.0 (5kWh module)' };
 const SIG_GATEWAY_PRICES = { sp: 756.86, tp: 935.45 };
 const SIG_STC_BATTERY_CAP = 50;
-// Overheads
-const DAILY_OVERHEAD  = 20800;
-const WEEKLY_OVERHEAD = 104000;
+// Overheads (admin, editable). Weekly $ + working days; daily = weekly / days.
+const DEFAULT_OVERHEAD = { weekly: 104000, days: 5 };
+let OVERHEAD = { ...DEFAULT_OVERHEAD };
+const OVERHEAD_STORAGE_KEY = 'ausave-overhead-v1';
+function dailyOverhead() { return OVERHEAD.weekly / OVERHEAD.days; }
 
 // BESS2 (NSW PDRS VPP) — eligibility & PRC math
 // All Ausave batteries are assumed CEC-listed, warranty-compliant, VPP-contracted via nominated ACP.
@@ -1407,22 +1441,22 @@ function buildProfitHtml(isBatteryOnly, jobsPerDay, marginPerJob, labelExtra, no
     return `<div style="padding:0.5rem;color:var(--muted);font-size:0.85rem;text-align:center;">${noPriceMsg}</div>`;
   }
   const dailyGrossMargin  = jobsPerDay * marginPerJob;
-  const weeklyGrossMargin = jobsPerDay * 5 * marginPerJob;
-  const dailyNetProfit    = dailyGrossMargin - DAILY_OVERHEAD;
-  const weeklyNetProfit   = weeklyGrossMargin - WEEKLY_OVERHEAD;
+  const weeklyGrossMargin = jobsPerDay * OVERHEAD.days * marginPerJob;
+  const dailyNetProfit    = dailyGrossMargin - dailyOverhead();
+  const weeklyNetProfit   = weeklyGrossMargin - OVERHEAD.weekly;
 
   let h = `<div style="font-size:0.75rem;color:var(--muted);margin-bottom:0.5rem;">Job type: <strong>${isBatteryOnly ? 'Battery Only' : 'Solar + Battery'}</strong> &mdash; Capacity: <strong>${jobsPerDay} jobs/day</strong>${labelExtra} &mdash; Margin/job: <strong>${fmt(marginPerJob)}</strong></div>`;
   h += '<div class="profit-grid">';
 
   h += '<div class="profit-box"><h4>Daily</h4>';
   h += `<div class="profit-line"><span class="label">Gross margin (${jobsPerDay} jobs &times; ${fmt(marginPerJob)})</span><span class="value">${fmt(dailyGrossMargin)}</span></div>`;
-  h += `<div class="profit-line"><span class="label">Overhead</span><span class="value">&minus; ${fmt(DAILY_OVERHEAD)}</span></div>`;
+  h += `<div class="profit-line"><span class="label">Overhead</span><span class="value">&minus; ${fmt(dailyOverhead())}</span></div>`;
   h += `<div class="profit-line net ${dailyNetProfit < 0 ? 'negative' : ''}"><span class="label">Net Profit</span><span class="value">${fmt(dailyNetProfit)}</span></div>`;
   h += '</div>';
 
-  h += '<div class="profit-box"><h4>Weekly (5 days)</h4>';
-  h += `<div class="profit-line"><span class="label">Gross margin (${jobsPerDay * 5} jobs &times; ${fmt(marginPerJob)})</span><span class="value">${fmt(weeklyGrossMargin)}</span></div>`;
-  h += `<div class="profit-line"><span class="label">Overhead</span><span class="value">&minus; ${fmt(WEEKLY_OVERHEAD)}</span></div>`;
+  h += `<div class="profit-box"><h4>Weekly (${OVERHEAD.days} days)</h4>`;
+  h += `<div class="profit-line"><span class="label">Gross margin (${jobsPerDay * OVERHEAD.days} jobs &times; ${fmt(marginPerJob)})</span><span class="value">${fmt(weeklyGrossMargin)}</span></div>`;
+  h += `<div class="profit-line"><span class="label">Overhead</span><span class="value">&minus; ${fmt(OVERHEAD.weekly)}</span></div>`;
   h += `<div class="profit-line net ${weeklyNetProfit < 0 ? 'negative' : ''}"><span class="label">Net Profit</span><span class="value">${fmt(weeklyNetProfit)}</span></div>`;
   h += '</div>';
 
@@ -2044,6 +2078,47 @@ function resetSolarRate() {
 }
 
 // ================================================================
+// OVERHEAD EDITOR (admin)
+// ================================================================
+function loadOverhead() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(OVERHEAD_STORAGE_KEY) || '{}');
+    if (typeof saved.weekly === 'number' && saved.weekly >= 0) OVERHEAD.weekly = saved.weekly;
+    if (typeof saved.days === 'number' && saved.days >= 1 && saved.days <= 7) OVERHEAD.days = saved.days;
+  } catch (e) { /* ignore — fall back to defaults */ }
+}
+function saveOverhead() {
+  try { localStorage.setItem(OVERHEAD_STORAGE_KEY, JSON.stringify(OVERHEAD)); }
+  catch (e) { /* non-fatal */ }
+}
+function syncOverheadInputs() {
+  const w = document.getElementById('overhead-weekly');
+  const d = document.getElementById('overhead-days');
+  if (w) w.value = OVERHEAD.weekly;
+  if (d) d.value = OVERHEAD.days;
+  const disp = document.getElementById('overhead-daily-display');
+  if (disp) disp.textContent = fmt(dailyOverhead());
+}
+function onOverheadChange() {
+  const w = parseFloat(document.getElementById('overhead-weekly').value);
+  const d = parseFloat(document.getElementById('overhead-days').value);
+  if (!isNaN(w) && w >= 0) OVERHEAD.weekly = w;
+  if (!isNaN(d) && d >= 1 && d <= 7) OVERHEAD.days = Math.round(d);
+  const disp = document.getElementById('overhead-daily-display');
+  if (disp) disp.textContent = fmt(dailyOverhead());
+  saveOverhead();
+  calcSig();
+  calcGW();
+}
+function resetOverhead() {
+  OVERHEAD = { ...DEFAULT_OVERHEAD };
+  syncOverheadInputs();
+  saveOverhead();
+  calcSig();
+  calcGW();
+}
+
+// ================================================================
 // REP COMMISSION EDITOR (admin)
 // ================================================================
 function loadCommission() {
@@ -2094,6 +2169,8 @@ loadSolarRate();
 syncSolarRateInput();
 loadCommission();
 syncCommissionInputs();
+loadOverhead();
+syncOverheadInputs();
 updateGwBatterySizes(); // populates g-batteryKwh and calls calcGW()
 calcSig();
 </script>
