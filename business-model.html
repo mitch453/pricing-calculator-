@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#FFFFFF">
+<title>Ausave Energy — Business Model</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ================================================================
+     Ausave Solar brand system — Barlow display, Inter body,
+     white canvas, leaf green accent, solar yellow highlight
+     (theme copied from admin-combined.html so the pages match)
+     ================================================================ */
+  :root {
+    --doc-bg:           #FFFFFF;
+    --doc-elevated:     #FFFFFF;
+    --doc-subtle:       rgba(0,0,0,0.025);
+    --doc-fill:         rgba(0,0,0,0.04);
+    --doc-fill-2:       rgba(0,0,0,0.025);
+
+    --border-xsoft:     rgba(0,0,0,0.05);
+    --border-soft:      rgba(0,0,0,0.06);
+    --border:           rgba(0,0,0,0.10);
+    --border-strong:    rgba(0,0,0,0.15);
+
+    --doc-text:         #111827;
+    --doc-text-2:       rgba(17,24,39,0.62);
+    --doc-text-3:       rgba(17,24,39,0.38);
+    --doc-text-4:       rgba(17,24,39,0.20);
+    --doc-contrast:     #0D0D0D;
+
+    --brand-green:      #80BC68;
+    --brand-green-2:    #4CAF78;
+    --brand-green-tint: rgba(128,188,104,0.12);
+    --brand-yellow:     #FFDD00;
+    --brand-yellow-tint:rgba(255,221,0,0.16);
+    --brand-red:        #E8003D;
+    --brand-red-tint:   rgba(232,0,61,0.10);
+
+    --ios-bg:           var(--doc-bg);
+    --ios-bg-elevated:  var(--doc-elevated);
+    --ios-fill:         var(--doc-fill);
+    --ios-fill-2:       var(--doc-fill-2);
+    --ios-separator:    var(--border);
+    --ios-separator-opaque: rgba(0,0,0,0.18);
+    --ios-label:        var(--doc-text);
+    --ios-label-2:      var(--doc-text-2);
+    --ios-label-3:      var(--doc-text-3);
+    --ios-blue:         var(--brand-green-2);
+    --ios-green:        var(--brand-green);
+    --ios-red:          var(--brand-red);
+
+    --accent:           var(--ios-green);
+    --muted:            var(--ios-label-2);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--doc-bg);
+    color: var(--doc-text);
+    line-height: 1.45;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-size: 16px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  h1, h2, h3, h4, .card-header { font-family: 'Barlow', sans-serif; }
+
+  /* ── Brand Nav Bar ── */
+  header {
+    background: var(--doc-bg);
+    color: var(--doc-text);
+    padding: 1rem 1.5rem 0.95rem;
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 0.5px solid var(--ios-separator);
+  }
+  header h1 {
+    font-family: 'Barlow', sans-serif;
+    font-size: 1.65rem;
+    font-weight: 900;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
+    color: var(--doc-contrast);
+  }
+  header span {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    color: var(--doc-text-2);
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  /* ── Container / Cards ── */
+  .container {
+    max-width: 980px;
+    margin: 1rem auto 2.5rem;
+    padding: 0 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+  }
+  .card {
+    background: var(--doc-elevated);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border-soft);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.025);
+  }
+  .card-header {
+    background: transparent;
+    color: var(--doc-contrast);
+    padding: 1rem 1.1rem 0.5rem;
+    font-family: 'Barlow', sans-serif;
+    font-weight: 700;
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .card-body { padding: 0.25rem 1rem 1rem; }
+
+  /* ── Editable grid (from the calc's margin-tier editor) ── */
+  .margin-tier-hint {
+    font-size: 0.88rem;
+    color: var(--ios-label-2);
+    margin-bottom: 0.85rem;
+    line-height: 1.4;
+    letter-spacing: -0.01em;
+  }
+  .margin-tier-grid {
+    background: var(--ios-bg);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 0.9rem;
+  }
+  .margin-tier-row {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr 1fr;
+    gap: 0.5rem;
+    padding: 0.55rem 0.85rem;
+    align-items: center;
+    background: #ffffff;
+    border-top: 0.5px solid var(--ios-separator);
+  }
+  .margin-tier-row:first-child { border-top: none; }
+  .margin-tier-row.margin-tier-head {
+    background: var(--ios-bg);
+    padding: 0.5rem 0.85rem;
+  }
+  .margin-tier-row.margin-tier-head .mt-label,
+  .margin-tier-row.margin-tier-head .mt-col-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--ios-label-2);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .mt-col-label { text-align: center; }
+  .mt-label {
+    font-size: 0.92rem;
+    color: var(--ios-label);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+  .mt-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    justify-content: flex-end;
+  }
+  .mt-input-wrap input {
+    width: 82px;
+    padding: 0.4rem 0.55rem;
+    border: 0.5px solid var(--ios-separator-opaque);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    background: #ffffff;
+    color: var(--ios-label);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    appearance: textfield;
+    -moz-appearance: textfield;
+    transition: all 0.15s ease;
+  }
+  .mt-input-wrap input::-webkit-inner-spin-button,
+  .mt-input-wrap input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    appearance: none;
+    margin: 0;
+  }
+  .mt-input-wrap input:focus {
+    outline: none;
+    border-color: var(--ios-green);
+    box-shadow: 0 0 0 3px rgba(52,199,89,0.18);
+  }
+  .mt-input-wrap input:disabled {
+    opacity: 0.55;
+    background: var(--doc-fill-2);
+    cursor: not-allowed;
+  }
+  .mt-pct {
+    color: var(--ios-label-2);
+    font-size: 0.9rem;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .btn-margin-reset {
+    background: transparent;
+    color: var(--ios-blue);
+    border: none;
+    font-family: inherit;
+    font-size: 0.98rem;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 0.45rem 0;
+    letter-spacing: -0.01em;
+  }
+  .btn-margin-reset:hover { opacity: 0.65; }
+  .btn-margin-reset:active { opacity: 0.45; }
+
+  /* ── Business-model specifics ── */
+
+  /* Hero */
+  .bm-hero-inner {
+    padding: 1.1rem 1.1rem 1.2rem;
+    border-radius: 10px;
+    text-align: center;
+  }
+  .bm-hero-inner.pos  { background: var(--brand-green-tint); }
+  .bm-hero-inner.neg  { background: var(--brand-red-tint); }
+  .bm-hero-inner.zero { background: var(--doc-subtle); }
+  .bm-hero-label {
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ios-label-2);
+    margin-bottom: 0.3rem;
+  }
+  .bm-hero-value {
+    font-family: 'Barlow', sans-serif;
+    font-size: 2.3rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.1;
+  }
+  .bm-hero-inner.pos .bm-hero-value  { color: var(--brand-green-2); }
+  .bm-hero-inner.neg .bm-hero-value  { color: var(--ios-red); }
+  .bm-hero-inner.zero .bm-hero-value { color: var(--doc-text-3); }
+  .bm-hero-sub {
+    font-size: 0.88rem;
+    color: var(--ios-label-2);
+    margin-top: 0.35rem;
+  }
+
+  /* Controls */
+  .bm-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1.6rem;
+    align-items: center;
+  }
+
+  /* Compare grid */
+  .bm-compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.1rem;
+    align-items: start;
+  }
+  @media (max-width: 760px) { .bm-compare { grid-template-columns: 1fr; } }
+  .bm-col {
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+    min-width: 0;
+  }
+  .bm-col-title {
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--doc-contrast);
+    padding: 0.1rem 0.2rem 0;
+  }
+  .bm-col-title .bm-lock { color: var(--ios-label-3); font-weight: 400; letter-spacing: 0; text-transform: none; font-family: 'Inter', sans-serif; font-size: 0.78rem; }
+
+  /* Scenario cards get the solar-yellow top rule */
+  .bm-card-scenario { position: relative; }
+  .bm-card-scenario::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: var(--brand-yellow);
+  }
+  .bm-card-scenario .card-header { padding-top: 1.15rem; }
+
+  /* Role rows: Role | Salary | Per crew | Office */
+  .bm-role-row { grid-template-columns: 1fr 1.05fr 0.68fr 0.68fr; }
+  .bm-role-row .mt-input-wrap input { width: 100%; max-width: 92px; }
+  .bm-role-row .mt-input-wrap.small input { max-width: 54px; text-align: center; }
+
+  /* Results table */
+  .bm-results-row {
+    display: grid;
+    grid-template-columns: 1.45fr 1fr 1fr 0.95fr;
+    gap: 0.5rem;
+    padding: 0.5rem 0.85rem;
+    align-items: center;
+    background: #ffffff;
+    border-top: 0.5px solid var(--ios-separator);
+    font-size: 0.92rem;
+  }
+  .bm-results-row:first-child { border-top: none; }
+  .bm-results-row.head {
+    background: var(--ios-bg);
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--ios-label-2);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .bm-results-row .r-label { color: var(--ios-label-2); font-weight: 500; }
+  .bm-results-row .r-val {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    font-weight: 500;
+    color: var(--ios-label);
+  }
+  .bm-results-row.head .r-val { color: var(--ios-label-2); font-weight: 600; }
+  .bm-results-row.net-row {
+    border-top: 1.5px solid var(--ios-separator-opaque);
+    background: var(--doc-subtle);
+  }
+  .bm-results-row.net-row .r-label {
+    color: var(--ios-label);
+    font-weight: 700;
+    font-family: 'Barlow', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.85rem;
+  }
+  .bm-results-row.net-row .r-val { font-weight: 700; font-size: 1.02rem; letter-spacing: -0.01em; }
+  .r-val.pos  { color: var(--brand-green-2); }
+  .r-val.neg  { color: var(--ios-red); }
+  .r-val.zero { color: var(--doc-text-3); }
+
+  @media (max-width: 500px) {
+    header { padding: 0.85rem 1rem 0.7rem; }
+    header h1 { font-size: 1.25rem; }
+    header span { font-size: 0.85rem; display: block; width: 100%; padding-top: 0.1rem; }
+    .container { padding: 0 0.85rem; margin: 0.5rem auto 2rem; }
+    .card-body { padding: 0.25rem 0.85rem 0.85rem; }
+    .margin-tier-row { padding: 0.5rem 0.65rem; gap: 0.3rem; }
+    .mt-input-wrap input { width: 68px; padding: 0.35rem 0.4rem; font-size: 0.9rem; }
+    .mt-label { font-size: 0.85rem; }
+    .bm-results-row { padding: 0.45rem 0.6rem; gap: 0.3rem; font-size: 0.8rem; }
+    .bm-results-row.net-row .r-val { font-size: 0.9rem; }
+    .bm-hero-value { font-size: 1.8rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Ausave Energy</h1>
+  <span>Business Model — What-If Annual Margins</span>
+</header>
+
+<div class="container">
+
+  <!-- HERO: the answer first -->
+  <div class="card">
+    <div class="card-header">Annual Net Profit Impact</div>
+    <div class="card-body">
+      <div class="bm-hero-inner zero" id="bm-hero">
+        <div class="bm-hero-label" id="bm-hero-label">Scenario vs today</div>
+        <div class="bm-hero-value" id="bm-hero-value">$0</div>
+        <div class="bm-hero-sub" id="bm-hero-sub">No changes yet — edit the What-If Scenario column below.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTROLS -->
+  <div class="card">
+    <div class="card-body" style="padding-top: 0.9rem;">
+      <div class="bm-controls">
+        <button class="btn-margin-reset" onclick="copyBaselineToScenario()">Copy baseline &rarr; scenario</button>
+        <button class="btn-margin-reset" onclick="promoteScenario()">Set scenario as new baseline</button>
+        <button class="btn-margin-reset" onclick="toggleBaselineLock()" id="bm-lock-btn">Edit baseline</button>
+        <button class="btn-margin-reset" onclick="resetAll()">Reset all to defaults</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMPARE: baseline | scenario -->
+  <div class="bm-compare">
+
+    <div class="bm-col" id="bm-col-baseline">
+      <div class="bm-col-title">Today — Baseline <span class="bm-lock" id="bm-lock-hint">&#128274; locked</span></div>
+
+      <div class="card">
+        <div class="card-header">Capacity &amp; Revenue</div>
+        <div class="card-body">
+          <div class="margin-tier-grid" id="mount-baseline-capacity"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">Team — Roles &amp; Salaries</div>
+        <div class="card-body">
+          <div class="margin-tier-grid" id="mount-baseline-team"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">Vehicles &amp; Fixed Overhead</div>
+        <div class="card-body">
+          <div class="margin-tier-grid" id="mount-baseline-costs"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bm-col" id="bm-col-scenario">
+      <div class="bm-col-title">What-If Scenario</div>
+
+      <div class="card bm-card-scenario">
+        <div class="card-header">Capacity &amp; Revenue</div>
+        <div class="card-body">
+          <p class="margin-tier-hint">Revenue is capacity-driven &mdash; assumes sales keep pace with install capacity. Commission prefill &asymp; $25 &times; 20 panels + $650 battery = $1,150/job.</p>
+          <div class="margin-tier-grid" id="mount-scenario-capacity"></div>
+        </div>
+      </div>
+
+      <div class="card bm-card-scenario">
+        <div class="card-header">Team — Roles &amp; Salaries</div>
+        <div class="card-body">
+          <p class="margin-tier-hint">Salaries are placeholders &mdash; edit to your real numbers. <strong>Per crew</strong> staffing scales automatically with crew count; <strong>Office</strong> headcount is independent of crews. On-costs (super, workers comp, leave loading) are applied to all wages.</p>
+          <div class="margin-tier-grid" id="mount-scenario-team"></div>
+        </div>
+      </div>
+
+      <div class="card bm-card-scenario">
+        <div class="card-header">Vehicles &amp; Fixed Overhead</div>
+        <div class="card-body">
+          <p class="margin-tier-hint"><strong>Fixed overhead is non-wage only</strong>: rent, marketing, insurance, fuel, software &mdash; everything NOT listed in the team table. Don't re-enter wages here &mdash; your ~$125k/week total overhead already includes wages; this field is the remainder. The prefill is a placeholder split &mdash; edit it.</p>
+          <div class="margin-tier-grid" id="mount-scenario-costs"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RESULTS -->
+  <div class="card">
+    <div class="card-header">Annual Comparison</div>
+    <div class="card-body">
+      <div class="margin-tier-grid" id="bm-results" style="margin-bottom: 0.2rem;"></div>
+    </div>
+  </div>
+
+  <!-- ASSUMPTIONS -->
+  <div class="card">
+    <div class="card-header">Assumptions</div>
+    <div class="card-body">
+      <p class="margin-tier-hint" style="margin-bottom: 0.3rem;">
+        &bull; Annual = weekly &times; working weeks, so weekly figures (overhead, vehicles) are only counted for working weeks &mdash; bump them up if they run 52 weeks.<br>
+        &bull; Salaries are annual and are NOT scaled by working weeks.<br>
+        &bull; Sales are assumed to keep up with install capacity (capacity-driven revenue).<br>
+        &bull; Gross profit per install is component-only GP (after materials &amp; STCs, before commissions/wages/overhead) &mdash; same basis as the weekly reports.<br>
+        &bull; Net margin % is net profit as a share of gross profit (sale revenue isn't modelled here).<br>
+        &bull; Everything saves in this browser only.
+      </p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ================================================================
+// BUSINESS MODEL — baseline vs scenario annual margins
+// ================================================================
+
+// Prefills from the real numbers in the 13-19 Jul weekly report:
+// 3 crews at ~5 installs/crew/week (=15/wk), avg GP/job ~$12,300,
+// blended commission ~$1,150/job (25 x 20 panels + 650 battery).
+// fixedOverheadWeekly is NON-WAGE overhead. Derivation: ~$125k/wk real
+// total overhead - ~$18.3k/wk wages+on-costs (below) - $2.4k/wk vehicles
+// ~= $104k/wk remainder. A placeholder split - edit to the real one.
+const DEFAULT_MODEL = {
+  crews: 3,
+  jobsPerCrewWeek: 5,
+  gpPerJob: 12300,
+  commissionPerJob: 1150,
+  weeksPerYear: 48,
+  onCostPct: 17,               // ~12% super + ~5% workers comp / leave loading
+  roles: [
+    { key: 'electrician', label: 'Electrician', salary: 110000, perCrew: 1, officeCount: 0 },
+    { key: 'installer',   label: 'Installer',   salary: 75000,  perCrew: 1, officeCount: 0 },
+    { key: 'sales',       label: 'Sales Rep',   salary: 65000,  perCrew: 0, officeCount: 2 },
+    { key: 'admin',       label: 'Admin',       salary: 65000,  perCrew: 0, officeCount: 1 },
+    { key: 'other',       label: 'Other',       salary: 0,      perCrew: 0, officeCount: 0 },
+  ],
+  vehiclePerCrewWeek: 800,
+  fixedOverheadWeekly: 104000,
+};
+
+const BM_STORAGE_KEY = 'ausave-business-model-v1';
+const clone = (o) => JSON.parse(JSON.stringify(o));
+
+let state = { baseline: clone(DEFAULT_MODEL), scenario: clone(DEFAULT_MODEL) };
+let baselineUnlocked = false;   // relocks every visit
+
+// ── Formatting ──────────────────────────────────────────────────
+function fmt0(n) {
+  const v = Math.round(Math.abs(n));
+  return (n < 0 ? '−$' : '$') + v.toLocaleString('en-AU');
+}
+function fmtDelta(n) {
+  if (Math.round(n) === 0) return '$0';
+  return (n > 0 ? '+' : '−') + '$' + Math.round(Math.abs(n)).toLocaleString('en-AU');
+}
+function fmtInt(n) { return Math.round(n).toLocaleString('en-AU'); }
+function fmtPct(n) { return n === null ? '—' : n.toFixed(1) + '%'; }
+
+// ── Model math ──────────────────────────────────────────────────
+// Sanity anchors (defaults): GP $8,856,000; commissions $828,000;
+// wages+on-costs $877,500; vehicles $115,200; fixed $4,992,000;
+// net $2,043,300 (~23.1% of GP). Crews 3->4: net delta +$2,421,150.
+function computeModel(m) {
+  const installsYear = m.crews * m.jobsPerCrewWeek * m.weeksPerYear;
+  const grossProfit  = installsYear * m.gpPerJob;
+  const commissions  = installsYear * m.commissionPerJob;
+  const crewWages    = m.roles.reduce((s, r) => s + r.salary * r.perCrew, 0) * m.crews;
+  const officeWages  = m.roles.reduce((s, r) => s + r.salary * r.officeCount, 0);
+  const wagesOncost  = (crewWages + officeWages) * (1 + m.onCostPct / 100); // annual salaries — not week-scaled
+  const vehicles     = m.crews * m.vehiclePerCrewWeek * m.weeksPerYear;
+  const fixedOH      = m.fixedOverheadWeekly * m.weeksPerYear;
+  const netProfit    = grossProfit - commissions - wagesOncost - vehicles - fixedOH;
+  return {
+    installsYear, grossProfit, commissions, wagesOncost, vehicles, fixedOH, netProfit,
+    netMarginPct:  grossProfit > 0 ? (netProfit / grossProfit) * 100 : null,
+    gpPerInstall:  m.gpPerJob,
+    netPerInstall: installsYear > 0 ? netProfit / installsYear : null,
+  };
+}
+
+// ── Persistence ─────────────────────────────────────────────────
+function numOr(v, fallback, min, max) {
+  if (typeof v !== 'number' || isNaN(v)) return fallback;
+  return Math.min(max, Math.max(min, v));
+}
+function sanitizeModel(raw) {
+  const m = clone(DEFAULT_MODEL);
+  if (!raw || typeof raw !== 'object') return m;
+  m.crews               = numOr(raw.crews,               m.crews,               0, 50);
+  m.jobsPerCrewWeek     = numOr(raw.jobsPerCrewWeek,     m.jobsPerCrewWeek,     0, 100);
+  m.gpPerJob            = numOr(raw.gpPerJob,            m.gpPerJob,            0, 1e6);
+  m.commissionPerJob    = numOr(raw.commissionPerJob,    m.commissionPerJob,    0, 1e6);
+  m.weeksPerYear        = numOr(raw.weeksPerYear,        m.weeksPerYear,        1, 52);
+  m.onCostPct           = numOr(raw.onCostPct,           m.onCostPct,           0, 100);
+  m.vehiclePerCrewWeek  = numOr(raw.vehiclePerCrewWeek,  m.vehiclePerCrewWeek,  0, 1e6);
+  m.fixedOverheadWeekly = numOr(raw.fixedOverheadWeekly, m.fixedOverheadWeekly, 0, 1e7);
+  if (Array.isArray(raw.roles)) {
+    m.roles.forEach(role => {
+      const saved = raw.roles.find(r => r && r.key === role.key);
+      if (saved) {
+        role.salary      = numOr(saved.salary,      role.salary,      0, 1e7);
+        role.perCrew     = Math.round(numOr(saved.perCrew,     role.perCrew,     0, 20));
+        role.officeCount = Math.round(numOr(saved.officeCount, role.officeCount, 0, 100));
+      }
+    });
+  }
+  return m;
+}
+function loadState() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(BM_STORAGE_KEY) || '{}');
+    state.baseline = sanitizeModel(raw.baseline);
+    state.scenario = sanitizeModel(raw.scenario);
+  } catch (e) { /* ignore — fall back to defaults */ }
+}
+function saveState() {
+  try { localStorage.setItem(BM_STORAGE_KEY, JSON.stringify({ version: 1, ...state })); }
+  catch (e) { /* non-fatal */ }
+}
+
+// ── Input rendering ─────────────────────────────────────────────
+// Every input carries data-side + data-path (e.g. "roles.2.salary").
+// Row builders return HTML strings; a single delegated listener
+// handles all edits so the two sides can never drift.
+
+function inputEl(side, path, value, opts) {
+  const dis = (side === 'baseline' && !baselineUnlocked) ? ' disabled' : '';
+  const step = opts.step || 1;
+  const intAttr = opts.int ? ' data-int="1"' : '';
+  const minAttr = opts.min !== undefined ? opts.min : 0;
+  const maxAttr = opts.max !== undefined ? ` max="${opts.max}"` : '';
+  return `<input type="number" inputmode="decimal" value="${value}" min="${minAttr}"${maxAttr} step="${step}" data-side="${side}" data-path="${path}"${intAttr}${dis}>`;
+}
+function simpleRow(side, label, path, value, opts) {
+  const pre  = opts.prefix ? `<span class="mt-pct">${opts.prefix}</span>` : '';
+  const post = opts.suffix ? `<span class="mt-pct">${opts.suffix}</span>` : '';
+  return `<div class="margin-tier-row">
+    <span class="mt-label">${label}</span>
+    <div class="mt-input-wrap" style="grid-column: 2 / span 2;">${pre}${inputEl(side, path, value, opts)}${post}</div>
+  </div>`;
+}
+
+function renderSideInputs(side) {
+  const m = state[side];
+
+  // Card A — capacity & revenue
+  let cap = '';
+  cap += simpleRow(side, 'Crews', 'crews', m.crews, { int: true, max: 50 });
+  cap += simpleRow(side, 'Jobs per crew / week', 'jobsPerCrewWeek', m.jobsPerCrewWeek, { step: 0.5, max: 100 });
+  cap += simpleRow(side, 'Gross profit per install', 'gpPerJob', m.gpPerJob, { prefix: '$', step: 100, max: 1000000 });
+  cap += simpleRow(side, 'Commission per install', 'commissionPerJob', m.commissionPerJob, { prefix: '$', step: 50, max: 1000000 });
+  cap += simpleRow(side, 'Working weeks / year', 'weeksPerYear', m.weeksPerYear, { int: true, min: 1, max: 52 });
+  document.getElementById(`mount-${side}-capacity`).innerHTML = cap;
+
+  // Card B — team
+  let team = `<div class="margin-tier-row margin-tier-head bm-role-row">
+    <span class="mt-label">Role</span>
+    <span class="mt-col-label">Salary / yr</span>
+    <span class="mt-col-label">Per crew</span>
+    <span class="mt-col-label">Office</span>
+  </div>`;
+  m.roles.forEach((r, i) => {
+    team += `<div class="margin-tier-row bm-role-row">
+      <span class="mt-label">${r.label}</span>
+      <div class="mt-input-wrap"><span class="mt-pct">$</span>${inputEl(side, `roles.${i}.salary`, r.salary, { step: 1000, max: 10000000 })}</div>
+      <div class="mt-input-wrap small">${inputEl(side, `roles.${i}.perCrew`, r.perCrew, { int: true, max: 20 })}</div>
+      <div class="mt-input-wrap small">${inputEl(side, `roles.${i}.officeCount`, r.officeCount, { int: true, max: 100 })}</div>
+    </div>`;
+  });
+  team += simpleRow(side, 'On-costs (super, workers comp)', 'onCostPct', m.onCostPct, { suffix: '%', step: 0.5, max: 100 });
+  document.getElementById(`mount-${side}-team`).innerHTML = team;
+
+  // Card C — vehicles & fixed overhead
+  let costs = '';
+  costs += simpleRow(side, 'Vehicle &amp; equipment per crew', 'vehiclePerCrewWeek', m.vehiclePerCrewWeek, { prefix: '$', suffix: '/ wk', step: 50, max: 1000000 });
+  costs += simpleRow(side, 'Fixed overhead (non-wage)', 'fixedOverheadWeekly', m.fixedOverheadWeekly, { prefix: '$', suffix: '/ wk', step: 1000, max: 10000000 });
+  document.getElementById(`mount-${side}-costs`).innerHTML = costs;
+}
+
+// One delegated listener for every input on both sides
+document.addEventListener('input', function (e) {
+  const t = e.target;
+  if (!t.dataset || !t.dataset.side || !t.dataset.path) return;
+  let v = parseFloat(t.value);
+  if (isNaN(v)) return;                          // keep last valid value in state
+  const min = t.min !== '' ? parseFloat(t.min) : 0;
+  const max = t.max !== '' ? parseFloat(t.max) : Infinity;
+  v = Math.min(max, Math.max(min, v));
+  if (t.dataset.int) v = Math.round(v);
+  // walk the path (e.g. "roles.2.salary") into the side's model
+  const parts = t.dataset.path.split('.');
+  let obj = state[t.dataset.side];
+  for (let i = 0; i < parts.length - 1; i++) obj = obj[parts[i]];
+  obj[parts[parts.length - 1]] = v;
+  saveState();
+  renderResults();                               // never re-render inputs mid-typing
+});
+
+// ── Results rendering ───────────────────────────────────────────
+const RESULT_ROWS = [
+  { label: 'Installs / year',         kind: 'int',   get: r => r.installsYear },
+  { label: 'Gross profit',            kind: 'money', get: r => r.grossProfit },
+  { label: 'Commissions',             kind: 'money', get: r => r.commissions,  cost: true },
+  { label: 'Wages + on-costs',        kind: 'money', get: r => r.wagesOncost,  cost: true },
+  { label: 'Vehicles &amp; equipment',kind: 'money', get: r => r.vehicles,     cost: true },
+  { label: 'Fixed overhead',          kind: 'money', get: r => r.fixedOH,      cost: true },
+  { label: 'Net profit',              kind: 'money', get: r => r.netProfit,    net: true },
+  { label: 'Net margin (% of GP)',    kind: 'pct',   get: r => r.netMarginPct },
+  { label: 'GP per install',          kind: 'money', get: r => r.gpPerInstall },
+  { label: 'Net per install',         kind: 'money', get: r => r.netPerInstall },
+];
+
+function deltaClass(d, isCost) {
+  if (d === null || Math.abs(d) < 0.5) return 'zero';
+  const good = isCost ? d < 0 : d > 0;
+  return good ? 'pos' : 'neg';
+}
+
+function renderResults() {
+  const b = computeModel(state.baseline);
+  const s = computeModel(state.scenario);
+
+  let h = `<div class="bm-results-row head">
+    <span class="r-label">Metric</span>
+    <span class="r-val">Baseline</span>
+    <span class="r-val">Scenario</span>
+    <span class="r-val">&Delta;</span>
+  </div>`;
+
+  RESULT_ROWS.forEach(row => {
+    const bv = row.get(b), sv = row.get(s);
+    let bTxt, sTxt, dTxt, dCls;
+    if (row.kind === 'pct') {
+      bTxt = fmtPct(bv); sTxt = fmtPct(sv);
+      if (bv === null || sv === null) { dTxt = '—'; dCls = 'zero'; }
+      else {
+        const d = sv - bv;
+        dTxt = (Math.abs(d) < 0.05 ? '0.0' : (d > 0 ? '+' : '−') + Math.abs(d).toFixed(1)) + ' pts';
+        dCls = deltaClass(Math.abs(d) < 0.05 ? 0 : d, row.cost);
+      }
+    } else if (row.kind === 'int') {
+      bTxt = fmtInt(bv); sTxt = fmtInt(sv);
+      const d = sv - bv;
+      dTxt = Math.round(d) === 0 ? '0' : (d > 0 ? '+' : '−') + fmtInt(Math.abs(d));
+      dCls = deltaClass(d, row.cost);
+    } else {
+      bTxt = bv === null ? '—' : fmt0(bv);
+      sTxt = sv === null ? '—' : fmt0(sv);
+      if (bv === null || sv === null) { dTxt = '—'; dCls = 'zero'; }
+      else { const d = sv - bv; dTxt = fmtDelta(d); dCls = deltaClass(d, row.cost); }
+    }
+    const rowCls = row.net ? 'bm-results-row net-row' : 'bm-results-row';
+    const sCls = row.net ? (sv < 0 ? 'neg' : 'pos') : '';
+    const bCls = row.net ? (bv < 0 ? 'neg' : 'pos') : '';
+    h += `<div class="${rowCls}">
+      <span class="r-label">${row.label}</span>
+      <span class="r-val ${bCls}">${bTxt}</span>
+      <span class="r-val ${sCls}">${sTxt}</span>
+      <span class="r-val ${dCls}">${dTxt}</span>
+    </div>`;
+  });
+
+  document.getElementById('bm-results').innerHTML = h;
+
+  // Hero
+  const hero = document.getElementById('bm-hero');
+  const heroVal = document.getElementById('bm-hero-value');
+  const heroSub = document.getElementById('bm-hero-sub');
+  const unchanged = JSON.stringify(state.baseline) === JSON.stringify(state.scenario);
+  const d = s.netProfit - b.netProfit;
+  if (unchanged) {
+    hero.className = 'bm-hero-inner zero';
+    heroVal.textContent = '$0';
+    heroSub.innerHTML = 'No changes yet &mdash; edit the What-If Scenario column below. Baseline: ' +
+      fmt0(b.netProfit) + ' net / year' + (b.netMarginPct !== null ? ' (' + fmtPct(b.netMarginPct) + ' of GP)' : '') + '.';
+  } else {
+    hero.className = 'bm-hero-inner ' + (Math.round(d) === 0 ? 'zero' : d > 0 ? 'pos' : 'neg');
+    heroVal.textContent = fmtDelta(d) + ' / year';
+    const pctTxt = Math.abs(b.netProfit) > 0.5
+      ? ' (' + (d >= 0 ? '+' : '−') + Math.abs(d / Math.abs(b.netProfit) * 100).toFixed(1) + '%)' : '';
+    heroSub.innerHTML = 'Scenario net ' + fmt0(s.netProfit) + ' vs baseline ' + fmt0(b.netProfit) + pctTxt +
+      ' &mdash; net margin ' + fmtPct(b.netMarginPct) + ' &rarr; ' + fmtPct(s.netMarginPct) + '.';
+  }
+}
+
+// ── Buttons ─────────────────────────────────────────────────────
+function copyBaselineToScenario() {
+  state.scenario = clone(state.baseline);
+  saveState();
+  renderSideInputs('scenario');
+  renderResults();
+}
+function promoteScenario() {
+  if (!confirm('Replace the baseline with the current scenario? Your old baseline will be overwritten.')) return;
+  state.baseline = clone(state.scenario);
+  saveState();
+  renderSideInputs('baseline');
+  renderResults();
+}
+function resetAll() {
+  if (!confirm('Reset baseline AND scenario to the built-in defaults?')) return;
+  state = { baseline: clone(DEFAULT_MODEL), scenario: clone(DEFAULT_MODEL) };
+  saveState();
+  renderSideInputs('baseline');
+  renderSideInputs('scenario');
+  renderResults();
+}
+function toggleBaselineLock() {
+  baselineUnlocked = !baselineUnlocked;
+  document.getElementById('bm-lock-btn').textContent = baselineUnlocked ? 'Lock baseline' : 'Edit baseline';
+  document.getElementById('bm-lock-hint').innerHTML = baselineUnlocked ? 'editing' : '&#128274; locked';
+  renderSideInputs('baseline');
+}
+
+// ── Init ────────────────────────────────────────────────────────
+loadState();
+renderSideInputs('baseline');
+renderSideInputs('scenario');
+renderResults();
+</script>
+</body>
+</html>
