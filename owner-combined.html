@@ -1156,17 +1156,17 @@
 </div><!-- end #section-gw -->
 
 <!-- ============================================================ -->
-<!-- SIGENERGY C&I (SIGENSTACK) SECTION — ALL PRICES EX GST       -->
+<!-- SIGENERGY C&I (SIGENSTACK) SECTION — ALL PRICES INC GST      -->
 <!-- ============================================================ -->
 <div id="section-ci" style="display:none;">
 <div class="container">
   <div class="card brand-card-solar">
-    <div class="card-header">Sigen C&amp;I — Commercial Job Configuration (all prices EX GST)</div>
+    <div class="card-header">Sigen C&amp;I — Commercial Job Configuration (all prices INC GST)</div>
     <div class="card-body">
       <p class="margin-tier-hint" style="margin-top:0.5rem;">
         SigenStack commercial systems: 4&ndash;21 &times; BAT 12.0 modules (12.06kWh nominal each) under ONE battery controller,
         DC-coupled to a Sigen C&amp;I <strong>hybrid</strong> inverter. PV-only inverters add extra solar on the AC side and cannot connect the battery.
-        Bases, covers, cables and fixation kits are derived automatically. Unlike the residential tabs, everything here is <strong>ex GST</strong>.
+        Bases, covers, cables and fixation kits are derived automatically. Everything on this tab is <strong>inc GST</strong> (supplier list prices grossed up 10%); certificates are also shown at inc-GST equivalents.
       </p>
       <div class="form-grid">
         <div class="form-group">
@@ -1176,9 +1176,9 @@
         <div class="form-group">
           <label>Panel Type</label>
           <select id="ci-panelType" onchange="calcCI()">
-            <option value="jinko475">Jinko 475W — $122.73 ex</option>
-            <option value="ja475">JA 475W — $118.18 ex</option>
-            <option value="aiko475">AIKO 490W — $159.09 ex</option>
+            <option value="jinko475">Jinko 475W — $135</option>
+            <option value="ja475">JA 475W — $130</option>
+            <option value="aiko475">AIKO 490W — $175</option>
           </select>
         </div>
         <div class="form-group">
@@ -1192,24 +1192,24 @@
           <label>Hybrid Inverter (battery port)</label>
           <select id="ci-hybrid" onchange="calcCI()">
             <option value="none">— none (solar only) —</option>
-            <option value="hya50">50kW HYA no backup — $4,888</option>
-            <option value="hya100" selected>99.9kW HYA no backup — $7,475</option>
-            <option value="hya110">110kW HYA no backup — $7,648</option>
-            <option value="hya125">125kW HYA no backup — $8,050</option>
-            <option value="hyb50">50kW HYB backup — $7,993</option>
-            <option value="hyb100">99.9kW HYB backup — $10,580</option>
-            <option value="hyb110">110kW HYB backup — $10,753</option>
-            <option value="hyb125">125kW HYB backup — $11,155</option>
+            <option value="hya50">50kW HYA no backup — $5,377</option>
+            <option value="hya100" selected>99.9kW HYA no backup — $8,223</option>
+            <option value="hya110">110kW HYA no backup — $8,413</option>
+            <option value="hya125">125kW HYA no backup — $8,855</option>
+            <option value="hyb50">50kW HYB backup — $8,792</option>
+            <option value="hyb100">99.9kW HYB backup — $11,638</option>
+            <option value="hyb110">110kW HYB backup — $11,828</option>
+            <option value="hyb125">125kW HYB backup — $12,271</option>
           </select>
         </div>
         <div class="form-group">
           <label>Additional PV-only Inverter</label>
           <select id="ci-pvinv" onchange="calcCI()">
             <option value="none">— none —</option>
-            <option value="pv50">PV 50kW — $4,025</option>
-            <option value="pv100">PV 99.9kW — $6,555</option>
-            <option value="pv110">PV 110kW — $6,728</option>
-            <option value="pv125">PV 125kW — $7,130</option>
+            <option value="pv50">PV 50kW — $4,428</option>
+            <option value="pv100">PV 99.9kW — $7,211</option>
+            <option value="pv110">PV 110kW — $7,401</option>
+            <option value="pv125">PV 125kW — $7,843</option>
           </select>
         </div>
         <div class="form-group">
@@ -1224,9 +1224,9 @@
           <label>Battery Controller</label>
           <select id="ci-bc" onchange="calcCI()">
             <option value="auto" selected>Auto-select</option>
-            <option value="bc05">M2-0.5C — $4,025</option>
-            <option value="bc05bst">M2-0.5C-BST — $5,175</option>
-            <option value="bc1bst">M2-1C-BST — $8,050</option>
+            <option value="bc05">M2-0.5C — $4,428</option>
+            <option value="bc05bst">M2-0.5C-BST — $5,693</option>
+            <option value="bc1bst">M2-1C-BST — $8,855</option>
           </select>
         </div>
         <div class="form-group">
@@ -1238,7 +1238,7 @@
           </select>
         </div>
         <div class="form-group">
-          <label>Site Works / Labour Allowance ($ ex GST)</label>
+          <label>Site Works / Labour Allowance ($ inc GST)</label>
           <input type="number" id="ci-siteworks" min="0" step="500" value="0" oninput="calcCI()">
         </div>
         <div class="form-group">
@@ -1246,7 +1246,7 @@
           <input type="number" id="ci-margin" min="0" max="90" step="1" value="35" oninput="calcCI()">
         </div>
         <div class="form-group">
-          <label>Sale Price ($ ex GST, optional)</label>
+          <label>Sale Price ($ inc GST, optional)</label>
           <input type="number" id="ci-salePrice" min="0" step="500" placeholder="Enter quoted price" oninput="calcCI()">
         </div>
       </div>
@@ -1259,7 +1259,7 @@
       <p class="margin-tier-hint">
         Commercial battery PRCs (BESS3/4/5) commence <strong>1 September 2026</strong> &mdash; installs before that date earn none.
         BESS4/BESS5 require <strong>new solar &ge; 25% of usable battery capacity</strong> at the site (hard eligibility rule).
-        Usable capacity = 90% of nominal per the PDRS Rule. Counted capacity is capped at 4h &times; battery-inverter kW.
+        Usable capacity = 90% of nominal per the PDRS Rule. Counted capacity is capped at 4h &times; battery-inverter kW. Certificates trade EX GST (PRC ~$3.05, STC ~$38) — the defaults here are their inc-GST equivalents ($3.36 / $41.80).
       </p>
       <div class="form-grid">
         <div class="form-group">
@@ -1284,16 +1284,16 @@
           </select>
         </div>
         <div class="form-group">
-          <label>PRC Price ($ ex GST)</label>
-          <input type="number" id="ci-prcPrice" min="0" step="0.05" value="3.05" oninput="calcCI()">
+          <label>PRC Price ($ inc GST)</label>
+          <input type="number" id="ci-prcPrice" min="0" step="0.05" value="3.36" oninput="calcCI()">
         </div>
         <div class="form-group">
           <label>ACP Fee (%)</label>
           <input type="number" id="ci-acpFee" min="0" max="60" step="1" value="30" oninput="calcCI()">
         </div>
         <div class="form-group">
-          <label>Solar STC Price ($)</label>
-          <input type="number" id="ci-stcPrice" min="0" step="0.5" value="38" oninput="calcCI()">
+          <label>Solar STC Price ($ inc GST)</label>
+          <input type="number" id="ci-stcPrice" min="0" step="0.5" value="41.8" oninput="calcCI()">
         </div>
         <div class="form-group">
           <label>Claim Federal Battery STCs</label>
@@ -1307,7 +1307,7 @@
   </div>
 
   <div class="card" id="ci-results-card">
-    <div class="card-header">Bill of Materials &amp; Costing (ex GST)</div>
+    <div class="card-header">Bill of Materials &amp; Costing (inc GST)</div>
     <div class="card-body">
       <div id="ci-warnings"></div>
       <table class="breakdown-table" id="ci-bom" style="width:100%;font-size:0.85rem;border-collapse:collapse;"></table>
@@ -1628,7 +1628,7 @@ function buildProfitHtml(isBatteryOnly, jobsPerDay, marginPerJob, labelExtra, no
 }
 
 // ================================================================
-// SIGENERGY C&I (SIGENSTACK) — ALL EX GST
+// SIGENERGY C&I (SIGENSTACK) — ALL INC GST (supplier list ex GST x 1.1)
 // Composition per Sigenergy C&I install docs (Sept 2025): ONE battery
 // controller per system, 4-21 BAT 12.0 modules across 1 MAIN + up to
 // 3 SUB towers (<=6 per tower; a 7th in one tower needs the fixation
@@ -1665,7 +1665,7 @@ const CI_PVINV = {
 const CI_P = { bat: 3732, batKwh: 12.06, bc05: 4025, bc05bst: 5175, bc1bst: 8050,
   cover: 316, baseMain05: 948, baseSub05: 948, baseMain1: 1137, baseSub1: 1137,
   base4s: 3792, cables: 316, fixKit: 23 };
-const CI_GST = 1.1;   // resi BoS constants are inc GST; this tab is ex GST
+const CI_GST = 1.1;   // supplier C&I list prices are ex GST; this tab shows inc GST
 
 function ciFmt(n) { return '$' + Math.round(n).toLocaleString('en-AU'); }
 
@@ -1701,9 +1701,9 @@ function calcCI() {
   const hasBat = mods > 0;
 
   // ── panels + PV inverters ──
-  if (numPanels > 0) add(PANEL_LABELS[panelType] + ' (ex GST)', numPanels, PANEL_PRICES[panelType] / CI_GST);
-  if (hyb.price > 0) add(hyb.label, 1, hyb.price);
-  if (pvQty > 0 && pvinv.price > 0) add(pvinv.label, pvQty, pvinv.price);
+  if (numPanels > 0) add(PANEL_LABELS[panelType], numPanels, PANEL_PRICES[panelType]);
+  if (hyb.price > 0) add(hyb.label, 1, hyb.price * CI_GST);
+  if (pvQty > 0 && pvinv.price > 0) add(pvinv.label, pvQty, pvinv.price * CI_GST);
 
   // ── SigenStack battery bank ──
   let bcKey = null;
@@ -1719,29 +1719,29 @@ function calcCI() {
     const bcPrice = { bc05: CI_P.bc05, bc05bst: CI_P.bc05bst, bc1bst: CI_P.bc1bst }[bcKey];
     const bcLabel = { bc05: 'Battery Controller M2-0.5C', bc05bst: 'Battery Controller M2-0.5C-BST', bc1bst: 'Battery Controller M2-1C-BST' }[bcKey];
 
-    add('SigenStack BAT 12.0 (12.06kWh)', mods, CI_P.bat);
-    add(bcLabel, 1, bcPrice);
+    add('SigenStack BAT 12.0 (12.06kWh)', mods, CI_P.bat * CI_GST);
+    add(bcLabel, 1, bcPrice * CI_GST);
 
     const towers = mods <= 7 ? 1 : mods <= 12 ? 2 : mods <= 18 ? 3 : 4;
     const oneC = bcKey === 'bc1bst';
     if (towers === 4) {
-      add('Base 4S-0.5C (pre-cabled 4-tower)', 1, CI_P.base4s);
+      add('Base 4S-0.5C (pre-cabled 4-tower)', 1, CI_P.base4s * CI_GST);
     } else {
-      add(oneC ? 'Base MAIN-1C' : 'Base MAIN-0.5C', 1, oneC ? CI_P.baseMain1 : CI_P.baseMain05);
-      if (towers > 1) add(oneC ? 'Base SUB-1C' : 'Base SUB-0.5C', towers - 1, oneC ? CI_P.baseSub1 : CI_P.baseSub05);
+      add(oneC ? 'Base MAIN-1C' : 'Base MAIN-0.5C', 1, (oneC ? CI_P.baseMain1 : CI_P.baseMain05) * CI_GST);
+      if (towers > 1) add(oneC ? 'Base SUB-1C' : 'Base SUB-0.5C', towers - 1, (oneC ? CI_P.baseSub1 : CI_P.baseSub05) * CI_GST);
     }
-    if (towers > 1) add('SigenStack Cover (per SUB tower)', towers - 1, CI_P.cover);
-    add('BC Cables 4m set', 1, CI_P.cables);
-    if (mods === 7) add('Fixation kit (7th module in tower)', 1, CI_P.fixKit);
+    if (towers > 1) add('SigenStack Cover (per SUB tower)', towers - 1, CI_P.cover * CI_GST);
+    add('BC Cables 4m set', 1, CI_P.cables * CI_GST);
+    if (mods === 7) add('Fixation kit (7th module in tower)', 1, CI_P.fixKit * CI_GST);
   }
 
   // ── BoS (residential-rate placeholder, ex GST) ──
   let bos = 0;
   if (numPanels > 0) {
-    bos += numPanels * (MOUNTING[roofType] + RAIL_PER_PANEL + DC_CABLE_PER_PANEL) / CI_GST;
-    bos += (650 + 30 + 75 + 100) / CI_GST;
+    bos += numPanels * (MOUNTING[roofType] + RAIL_PER_PANEL + DC_CABLE_PER_PANEL);
+    bos += (650 + 30 + 75 + 100);
   }
-  bos += (192 + 90) / CI_GST;
+  bos += (192 + 90);
 
   const gross = equip + bos + siteworks;
 
@@ -1818,12 +1818,12 @@ function calcCI() {
   const recommended = marginPct < 1 ? netCost / (1 - marginPct) : 0;
 
   // ── render ──
-  let h = '<thead><tr><th style="text-align:left;">Item</th><th>Qty</th><th style="text-align:right;">Unit ex GST</th><th style="text-align:right;">Total</th></tr></thead><tbody>';
+  let h = '<thead><tr><th style="text-align:left;">Item</th><th>Qty</th><th style="text-align:right;">Unit inc GST</th><th style="text-align:right;">Total</th></tr></thead><tbody>';
   for (const [desc, qty, unit, tot] of rows)
     h += '<tr><td>' + desc + '</td><td style="text-align:center;">' + qty + '</td><td style="text-align:right;">' + ciFmt(unit) + '</td><td style="text-align:right;">' + ciFmt(tot) + '</td></tr>';
-  h += '<tr><td>BoS allowance (mounting/rail/DC/electrical at resi rates ex GST)</td><td style="text-align:center;">1</td><td></td><td style="text-align:right;">' + ciFmt(bos) + '</td></tr>';
+  h += '<tr><td>BoS allowance (mounting/rail/DC/electrical at resi rates)</td><td style="text-align:center;">1</td><td></td><td style="text-align:right;">' + ciFmt(bos) + '</td></tr>';
   if (siteworks > 0) h += '<tr><td>Site works / labour allowance</td><td style="text-align:center;">1</td><td></td><td style="text-align:right;">' + ciFmt(siteworks) + '</td></tr>';
-  h += '<tr class="total-row"><td colspan="3"><strong>Gross Cost (ex GST)</strong></td><td style="text-align:right;"><strong>' + ciFmt(gross) + '</strong></td></tr></tbody>';
+  h += '<tr class="total-row"><td colspan="3"><strong>Gross Cost (inc GST)</strong></td><td style="text-align:right;"><strong>' + ciFmt(gross) + '</strong></td></tr></tbody>';
   document.getElementById('ci-bom').innerHTML = h;
 
   let s = '';
@@ -1833,8 +1833,8 @@ function calcCI() {
     s += summaryRow('PRCs — ' + activity.toUpperCase() + ' (' + prcs.toLocaleString('en-AU') + ' &times; $' + prcPrice.toFixed(2) + ')', ciFmt(prcGross) + ' gross');
     s += summaryRow('PRC net of ' + Math.round(acpFee * 100) + '% ACP fee — ' + prcNote, '&minus; ' + ciFmt(prcNet));
   }
-  s += '<div class="recommended-row"><span class="label">Net Cost after rebates (ex GST)</span><span class="value">' + ciFmt(netCost) + '</span></div>';
-  s += '<div class="recommended-row"><span class="label">Recommended Sale (' + Math.round(marginPct * 100) + '% margin, ex GST)</span><span class="value">' + ciFmt(recommended) + '</span></div>';
+  s += '<div class="recommended-row"><span class="label">Net Cost after rebates (inc GST)</span><span class="value">' + ciFmt(netCost) + '</span></div>';
+  s += '<div class="recommended-row"><span class="label">Recommended Sale (' + Math.round(marginPct * 100) + '% margin, inc GST)</span><span class="value">' + ciFmt(recommended) + '</span></div>';
   if (salePrice !== null && !isNaN(salePrice)) {
     const gp = salePrice - netCost;
     const pct = salePrice > 0 ? (100 * gp / salePrice) : 0;
