@@ -790,9 +790,9 @@
           <div class="form-group">
             <label>Panel Type</label>
             <select id="s-panelType" onchange="calcSig()">
-              <option value="jinko475">Jinko 475W (All Black) — $139.05</option>
-              <option value="ja475">JA 475W — $133.90</option>
-              <option value="aiko475">AIKO 490W — $180.25</option>
+              <option value="jinko475">Jinko 475W (All Black)</option>
+              <option value="ja475">JA 475W</option>
+              <option value="aiko475">AIKO 490W</option>
             </select>
           </div>
           <div class="form-group">
@@ -991,9 +991,9 @@
           <div class="form-group">
             <label>Panel Type</label>
             <select id="g-panelType" onchange="calcGW()">
-              <option value="jinko475">Jinko 475W (All Black) — $139.05</option>
-              <option value="ja475">JA 475W — $133.90</option>
-              <option value="aiko475">AIKO 490W — $180.25</option>
+              <option value="jinko475">Jinko 475W (All Black)</option>
+              <option value="ja475">JA 475W</option>
+              <option value="aiko475">AIKO 490W</option>
             </select>
           </div>
           <div class="form-group">
@@ -1385,7 +1385,7 @@ function commissionLabel(repType, numPanels, hasBattery) {
 let sigPrevIsBatteryOnly = null;
 let gwPrevIsBatteryOnly  = null;
 
-let adminMode = true;
+let adminMode = false;   // prices/margins/overheads permanently hidden on this calc
 
 // ================================================================
 // GOODWE PRICING DATA
@@ -1649,9 +1649,9 @@ function calcSig() {
   sHtml += summaryRow('Gross Material Total', fmt(grossTotal));
   sHtml += '</div>';
   sHtml += '<div class="summary-divider"></div>';
-  if (hasPanels)  sHtml += summaryRow(`Solar STCs (${solarSTCs} &times; $${STC_PRICE})`, '&minus; ' + fmt(solarSTCvalue));
-  if (hasBattery) sHtml += summaryRow(`Battery STCs (${batterySTCs} &times; $${STC_PRICE})`, '&minus; ' + fmt(batterySTCvalue));
-  sHtml += summaryRow('Total STC Rebate', '&minus; ' + fmt(totalSTCvalue), 'big');
+  if (hasPanels)  sHtml += summaryRow(`Solar STCs (${solarSTCs} &times; $${STC_PRICE})`, '&minus; ' + fmt(solarSTCvalue), 'admin-only');
+  if (hasBattery) sHtml += summaryRow(`Battery STCs (${batterySTCs} &times; $${STC_PRICE})`, '&minus; ' + fmt(batterySTCvalue), 'admin-only');
+  sHtml += summaryRow('Total STC Rebate', '&minus; ' + fmt(totalSTCvalue), 'big admin-only');
   sHtml += '<div class="admin-only">';
   sHtml += '<div class="summary-divider"></div>';
   sHtml += summaryRow('Net Material Cost', fmt(netMaterialCost), 'big');
@@ -1669,8 +1669,8 @@ function calcSig() {
   // BESS2 NSW VPP rebate (only when usable capacity is strictly between 2 and 28 kWh)
   const sigBess2 = calcBess2(batteryKwh);
   if (sigBess2) {
-    sHtml += `<div class="bess2-rebate"><span class="label">NSW VPP Rebate (BESS2) &mdash; ${sigBess2.prcs} PRCs</span><span class="value">&minus; ${fmt(sigBess2.net)}</span></div>`;
-    sHtml += `<div class="bess2-note">${sigBess2.prcs} PRCs &times; $${BESS2_PRC_PRICE.toFixed(2)} &times; ${((1 - BESS2_ACP_FEE) * 100).toFixed(0)}% (net of ACP fee) &mdash; paid after VPP onboarding</div>`;
+    sHtml += `<div class="bess2-rebate admin-only"><span class="label">NSW VPP Rebate (BESS2) &mdash; ${sigBess2.prcs} PRCs</span><span class="value">&minus; ${fmt(sigBess2.net)}</span></div>`;
+    sHtml += `<div class="bess2-note admin-only">${sigBess2.prcs} PRCs &times; $${BESS2_PRC_PRICE.toFixed(2)} &times; ${((1 - BESS2_ACP_FEE) * 100).toFixed(0)}% (net of ACP fee) &mdash; paid after VPP onboarding</div>`;
   }
 
   // Rep commission is added into the recommended price above — show it as an addition
@@ -1912,9 +1912,9 @@ function calcGW() {
   sHtml += summaryRow('Gross Material Total', fmt(grossTotal));
   sHtml += '</div>';
   sHtml += '<div class="summary-divider"></div>';
-  if (hasPanels)  sHtml += summaryRow(`Solar STCs (${solarSTCs} &times; $${STC_PRICE})`, '&minus; ' + fmt(solarSTCvalue));
-  if (hasBattery) sHtml += summaryRow(`Battery STCs (${batterySTCs} &times; $${STC_PRICE})`, '&minus; ' + fmt(batterySTCvalue));
-  sHtml += summaryRow('Total STC Rebate', '&minus; ' + fmt(totalSTCvalue), 'big');
+  if (hasPanels)  sHtml += summaryRow(`Solar STCs (${solarSTCs} &times; $${STC_PRICE})`, '&minus; ' + fmt(solarSTCvalue), 'admin-only');
+  if (hasBattery) sHtml += summaryRow(`Battery STCs (${batterySTCs} &times; $${STC_PRICE})`, '&minus; ' + fmt(batterySTCvalue), 'admin-only');
+  sHtml += summaryRow('Total STC Rebate', '&minus; ' + fmt(totalSTCvalue), 'big admin-only');
   sHtml += '<div class="admin-only">';
   sHtml += '<div class="summary-divider"></div>';
   sHtml += summaryRow('Net Material Cost', fmt(netMaterialCost), 'big');
@@ -1932,8 +1932,8 @@ function calcGW() {
   // BESS2 NSW VPP rebate (only when usable capacity is strictly between 2 and 28 kWh)
   const gwBess2 = calcBess2(batteryKwh);
   if (gwBess2) {
-    sHtml += `<div class="bess2-rebate"><span class="label">NSW VPP Rebate (BESS2) &mdash; ${gwBess2.prcs} PRCs</span><span class="value">&minus; ${fmt(gwBess2.net)}</span></div>`;
-    sHtml += `<div class="bess2-note">${gwBess2.prcs} PRCs &times; $${BESS2_PRC_PRICE.toFixed(2)} &times; ${((1 - BESS2_ACP_FEE) * 100).toFixed(0)}% (net of ACP fee) &mdash; paid after VPP onboarding</div>`;
+    sHtml += `<div class="bess2-rebate admin-only"><span class="label">NSW VPP Rebate (BESS2) &mdash; ${gwBess2.prcs} PRCs</span><span class="value">&minus; ${fmt(gwBess2.net)}</span></div>`;
+    sHtml += `<div class="bess2-note admin-only">${gwBess2.prcs} PRCs &times; $${BESS2_PRC_PRICE.toFixed(2)} &times; ${((1 - BESS2_ACP_FEE) * 100).toFixed(0)}% (net of ACP fee) &mdash; paid after VPP onboarding</div>`;
   }
 
   // Rep commission is added into the recommended price above — show it as an addition
@@ -1987,17 +1987,10 @@ function calcGW() {
 // ================================================================
 // VIEW MODE
 // ================================================================
-document.addEventListener('keydown', function(e) {
-  if (e.ctrlKey && e.shiftKey && (e.key === 'P' || e.key === 'p')) {
-    adminMode = !adminMode;
-    document.body.classList.toggle('admin-on', adminMode);
-    document.querySelectorAll('.admin-only').forEach(el => {
-      el.style.display = adminMode ? '' : 'none';
-    });
-    calcSig();
-    calcGW();
-  }
-});
+// Admin reveal shortcut removed — cost prices, margins and overheads
+// are not shown on this calc (the owner calc retains the full view).
+document.body.classList.remove('admin-on');
+document.querySelectorAll('.admin-only').forEach(el => { el.style.display = 'none'; });
 
 // ================================================================
 // MARGIN TIER EDITOR (admin)
