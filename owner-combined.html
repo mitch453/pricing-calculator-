@@ -1874,12 +1874,13 @@ function calcCI() {
   // solar STCs (<=100kW small generation unit; 2026 = 5yr deeming)
   let solarStcs = 0, solarStcValue = 0;
   if (numPanels > 0) {
-    if (pvKw <= 100) {
-      solarStcs = Math.floor(numPanels * watts * 0.006875);
-      solarStcValue = solarStcs * stcPrice;
-    } else {
-      warnings.push('Solar over 100kW at the NMI: NO upfront STCs — this is LGC (power station) territory. Deduct nothing.');
-    }
+    const stcKw = Math.min(pvKw, 100);
+    solarStcs = Math.floor(stcKw * 1000 * 0.006875);
+    solarStcValue = solarStcs * stcPrice;
+    if (pvKw > 100)
+      warnings.push('Solar ' + pvKw.toFixed(1) + 'kW: STCs claimed on the FIRST 100kW only (per owner policy); LGCs on the rest ignored. ' +
+        'NOTE: SRES only allows STCs if the eligible system is <=100kW (e.g. array capped at 100kW or split across separate systems/NMIs) — a single ' +
+        'oversized system earns zero STCs, so structure the install accordingly.');
   }
 
   // federal battery STCs (Cheaper Home Batteries) — optional, default off
@@ -2029,12 +2030,13 @@ function calcDeye() {
   // solar STCs (<=100kW small generation unit)
   let solarStcs = 0, solarStcValue = 0;
   if (numPanels > 0) {
-    if (pvKw <= 100) {
-      solarStcs = Math.floor(numPanels * watts * 0.006875);
-      solarStcValue = solarStcs * stcPrice;
-    } else {
-      warnings.push('Solar over 100kW at the NMI: NO upfront STCs — LGC (power station) territory. Deduct nothing.');
-    }
+    const stcKw = Math.min(pvKw, 100);
+    solarStcs = Math.floor(stcKw * 1000 * 0.006875);
+    solarStcValue = solarStcs * stcPrice;
+    if (pvKw > 100)
+      warnings.push('Solar ' + pvKw.toFixed(1) + 'kW: STCs claimed on the FIRST 100kW only (per owner policy); LGCs on the rest ignored. ' +
+        'NOTE: SRES only allows STCs if the eligible system is <=100kW (e.g. array capped at 100kW or split across separate systems/NMIs) — a single ' +
+        'oversized system earns zero STCs, so structure the install accordingly.');
   }
 
   // PDRS PRCs — BESS4/5 per consolidated Rule (1 Jul 2026)
