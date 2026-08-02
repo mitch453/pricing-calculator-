@@ -771,6 +771,7 @@
   <button class="tab-btn active" id="tab-sig" onclick="switchTab('sig')">Sigenergy</button>
   <button class="tab-btn" id="tab-gw" onclick="switchTab('gw')">GoodWe ESA</button>
   <button class="tab-btn" id="tab-ci" onclick="switchTab('ci')">Sigen C&amp;I</button>
+  <button class="tab-btn" id="tab-deye" onclick="switchTab('deye')">Deye C&amp;I</button>
 </div>
 
 <!-- ============================================================ -->
@@ -1317,6 +1318,126 @@
 </div>
 </div><!-- end #section-ci -->
 
+<!-- ============================================================ -->
+<!-- DEYE C&I (GE-F120) SECTION — ALL PRICES INC GST              -->
+<!-- ============================================================ -->
+<div id="section-deye" style="display:none;">
+<div class="container">
+  <div class="card brand-card-solar">
+    <div class="card-header">Deye C&amp;I — GE-F120 Commercial BESS (all prices INC GST)</div>
+    <div class="card-body">
+      <p class="margin-tier-hint" style="margin-top:0.5rem;">
+        Deye GE-F120-2H2: outdoor all-in-one cabinet — <strong>122.8kWh nominal LiFePO4</strong> + integrated
+        <strong>50kW three-phase hybrid PCS</strong>, aircon, aerosol fire suppression, off-grid/black start. Up to
+        <strong>65kW of PV input</strong> per cabinet (4 MPPTs); up to 10 cabinets in parallel. IP55, 10-year warranty.
+        PDRS usable capacity = 90% &times; nominal = <strong>110.5kWh per cabinet</strong> — over the 100kWh BESS4 threshold,
+        so the FULL 90 PRC/kWh rate applies to every kWh.
+      </p>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Cabinets (1&ndash;10)</label>
+          <input type="number" id="dy-qty" min="1" max="10" step="1" value="1" oninput="calcDeye()">
+        </div>
+        <div class="form-group">
+          <label>Cabinet Unit Cost ($ inc GST)</label>
+          <input type="number" id="dy-cost" min="0" step="500" value="57200" oninput="calcDeye()">
+        </div>
+        <div class="form-group">
+          <label>Number of Panels</label>
+          <input type="number" id="dy-numPanels" min="0" step="1" value="0" oninput="calcDeye()">
+        </div>
+        <div class="form-group">
+          <label>Panel Type</label>
+          <select id="dy-panelType" onchange="calcDeye()">
+            <option value="jinko475">Jinko 475W — $135</option>
+            <option value="ja475">JA 475W — $130</option>
+            <option value="aiko475">AIKO 490W — $175</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Roof Type</label>
+          <select id="dy-roofType" onchange="calcDeye()">
+            <option value="tin">Tin / Metal Deck</option>
+            <option value="tile">Tile / Concrete</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Network (NLF)</label>
+          <select id="dy-network" onchange="calcDeye()">
+            <option value="1.04" selected>Ausgrid (1.04)</option>
+            <option value="1.05">Endeavour (1.05)</option>
+            <option value="1.05e">Essential (1.05)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Site Works / Labour ($ inc GST)</label>
+          <input type="number" id="dy-siteworks" min="0" step="500" value="0" oninput="calcDeye()">
+        </div>
+        <div class="form-group">
+          <label>Target Margin (% of sale)</label>
+          <input type="number" id="dy-margin" min="0" max="90" step="1" value="35" oninput="calcDeye()">
+        </div>
+        <div class="form-group">
+          <label>Sale Price ($ inc GST, optional)</label>
+          <input type="number" id="dy-salePrice" min="0" step="500" placeholder="Enter quoted price" oninput="calcDeye()">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">Rebates — NSW PDRS PRCs + Solar STCs</div>
+    <div class="card-body">
+      <p class="margin-tier-hint">
+        Commercial battery PRCs (BESS4/5) commence <strong>1 September 2026</strong>. BESS4/5 require
+        <strong>new solar &ge; 25% of usable battery capacity</strong> (27.6kW per cabinet). At 122.8kWh nominal this unit is
+        <strong>never eligible for federal battery STCs</strong> (100kWh nominal cap) — PRCs are the whole battery rebate.
+        Certificates trade EX GST (PRC ~$3.05); defaults below are inc-GST equivalents.
+      </p>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>PRC Activity</label>
+          <select id="dy-activity" onchange="calcDeye()">
+            <option value="auto" selected>Auto (by usable kWh)</option>
+            <option value="bess4">BESS4 — &le;200kWh usable</option>
+            <option value="bess5">BESS5 — &gt;200kWh usable</option>
+            <option value="none">None</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Battery within 90 days of new solar</label>
+          <select id="dy-solar90" onchange="calcDeye()">
+            <option value="yes" selected>Yes — high coefficient</option>
+            <option value="no">No — low coefficient</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>PRC Price ($ inc GST)</label>
+          <input type="number" id="dy-prcPrice" min="0" step="0.05" value="3.36" oninput="calcDeye()">
+        </div>
+        <div class="form-group">
+          <label>ACP Fee (%)</label>
+          <input type="number" id="dy-acpFee" min="0" max="60" step="1" value="30" oninput="calcDeye()">
+        </div>
+        <div class="form-group">
+          <label>Solar STC Price ($ inc GST)</label>
+          <input type="number" id="dy-stcPrice" min="0" step="0.5" value="41.8" oninput="calcDeye()">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="dy-results-card">
+    <div class="card-header">Bill of Materials &amp; Costing (inc GST)</div>
+    <div class="card-body">
+      <div id="dy-warnings"></div>
+      <table class="breakdown-table" id="dy-bom" style="width:100%;font-size:0.85rem;border-collapse:collapse;"></table>
+      <div id="dy-summary" style="margin-top:0.9rem;"></div>
+    </div>
+  </div>
+</div>
+</div><!-- end #section-deye -->
+
 
 <!-- ============================================================ -->
 <!-- ADMIN: SOLAR-ONLY PRICING (applies to both tabs)            -->
@@ -1850,15 +1971,153 @@ function calcCI() {
 }
 
 // ================================================================
+// DEYE C&I (GE-F120-2H2) — ALL INC GST
+// Specs per Deye manual (Issue 03, Oct 2025): 122.8kWh nominal LiFePO4,
+// 50kW 3-phase PCS, 65kW max PV input (4 MPPTs), 10 parallel max,
+// IP55, 10-yr warranty, aerosol fire suppression + aircon integrated.
+// PDRS: usable = 90% x nominal = 110.52kWh/cabinet; counted capped at
+// 4h x inverter kW; BESS4 tiers give FULL rate above 100 counted kWh.
+// Federal battery STC: nominal 122.8 > 100kWh cap — never eligible.
+// ================================================================
+const DEYE_KWH_NOMINAL = 122.8;   // per cabinet
+const DEYE_INV_KW = 50;           // per cabinet
+const DEYE_PV_MAX_KW = 65;        // per cabinet
+
+function calcDeye() {
+  const v = id => document.getElementById(id);
+  const qty       = Math.max(1, Math.min(10, parseInt(v('dy-qty').value) || 1));
+  const unitCost  = parseFloat(v('dy-cost').value) || 0;
+  const numPanels = parseInt(v('dy-numPanels').value) || 0;
+  const panelType = v('dy-panelType').value;
+  const roofType  = v('dy-roofType').value;
+  const nlf       = parseFloat(v('dy-network').value) || 1.04;
+  const siteworks = parseFloat(v('dy-siteworks').value) || 0;
+  const marginPct = (parseFloat(v('dy-margin').value) || 0) / 100;
+  const salePrice = v('dy-salePrice').value ? parseFloat(v('dy-salePrice').value) : null;
+  const activitySel = v('dy-activity').value;
+  const solar90   = v('dy-solar90').value === 'yes';
+  const prcPrice  = parseFloat(v('dy-prcPrice').value) || 0;
+  const acpFee    = (parseFloat(v('dy-acpFee').value) || 0) / 100;
+  const stcPrice  = parseFloat(v('dy-stcPrice').value) || 0;
+
+  const warnings = [];
+  const rows = [];
+  let equip = 0;
+  function add(desc, q, unit) { const t = q * unit; rows.push([desc, q, unit, t]); equip += t; }
+
+  const watts = PANEL_WATTS[panelType] || 475;
+  const pvKw = numPanels * watts / 1000;
+  const nominal = qty * DEYE_KWH_NOMINAL;
+  const usable = 0.9 * nominal;                 // PDRS Rule clause 10
+  const invKw = qty * DEYE_INV_KW;
+
+  add('Deye GE-F120-2H2 cabinet (122.8kWh + 50kW PCS, aircon, fire suppression)', qty, unitCost);
+  if (numPanels > 0) add(PANEL_LABELS[panelType], numPanels, PANEL_PRICES[panelType]);
+
+  let bos = 0;
+  if (numPanels > 0) {
+    bos += numPanels * (MOUNTING[roofType] + RAIL_PER_PANEL + DC_CABLE_PER_PANEL);
+    bos += (650 + 30 + 75 + 100);
+  }
+  bos += (192 + 90);                            // 3-phase electrical allowance
+  const gross = equip + bos + siteworks;
+
+  if (pvKw > DEYE_PV_MAX_KW * qty)
+    warnings.push('PV exceeds the cabinets\' input limit: ' + pvKw.toFixed(1) + 'kW vs ' + (DEYE_PV_MAX_KW * qty) +
+      'kW max (65kW x ' + qty + '). Extra PV needs separate string inverters (not costed here).');
+
+  // solar STCs (<=100kW small generation unit)
+  let solarStcs = 0, solarStcValue = 0;
+  if (numPanels > 0) {
+    if (pvKw <= 100) {
+      solarStcs = Math.floor(numPanels * watts * 0.006875);
+      solarStcValue = solarStcs * stcPrice;
+    } else {
+      warnings.push('Solar over 100kW at the NMI: NO upfront STCs — LGC (power station) territory. Deduct nothing.');
+    }
+  }
+
+  // PDRS PRCs — BESS4/5 per consolidated Rule (1 Jul 2026)
+  let activity = activitySel;
+  if (activity === 'auto') activity = usable > 200 ? 'bess5' : 'bess4';
+  let prcs = 0, prcGross = 0, prcNet = 0, prcNote = '';
+  if (activity !== 'none') {
+    let eligible = true;
+    if (usable > 6 * invKw) { eligible = false; warnings.push('PDRS: usable exceeds 6 x inverter kW — ineligible.'); }
+    if (pvKw < 0.25 * usable) {
+      eligible = false;
+      warnings.push('BESS4/5 HARD REQUIREMENT: new solar >= 25% of usable capacity. Need ' + (0.25 * usable).toFixed(1) +
+        'kW of new solar, currently ' + pvKw.toFixed(1) + 'kW — NO PRCs without it.');
+    }
+    if (eligible) {
+      let counted = Math.min(usable, 4 * invKw);
+      let base = 0;
+      if (activity === 'bess4') {
+        const t1 = solar90 ? 45 : 30.15, t2 = solar90 ? 63 : 42.21, full = solar90 ? 90 : 60.3;
+        base = counted <= 50 ? counted * t1
+             : counted <= 100 ? 50 * t1 + (counted - 50) * t2
+             : counted * full;
+        warnings.push('BESS4: min $5,000 net customer payment ex GST; one BESS4/5 per site EVER; approved-product-list ' +
+          'requirement applies — confirm the GE-F120 is listed with the NSW Scheme Administrator.');
+      } else {
+        counted = Math.min(counted, 10000);
+        base = counted * (solar90 ? 90 : 60.3);
+        warnings.push('BESS5 (>200kWh usable): UL9540A large-scale fire test certification required; no minimum customer payment.');
+      }
+      prcs = Math.floor(base * nlf);
+      prcGross = prcs * prcPrice;
+      prcNet = prcGross * (1 - acpFee);
+      prcNote = counted.toFixed(1) + ' counted kWh (usable ' + usable.toFixed(1) + ' of ' + nominal.toFixed(1) + ' nominal)';
+      warnings.push('PRCs are payable only for installs ON/AFTER 1 SEPTEMBER 2026 — earlier installs earn none.');
+    }
+  }
+  warnings.push('Federal battery STCs: not applicable — 122.8kWh nominal exceeds the 100kWh program cap.');
+
+  const netCost = gross - solarStcValue - prcNet;
+  const recommended = marginPct < 1 ? netCost / (1 - marginPct) : 0;
+
+  let h = '<thead><tr><th style="text-align:left;">Item</th><th>Qty</th><th style="text-align:right;">Unit inc GST</th><th style="text-align:right;">Total</th></tr></thead><tbody>';
+  for (const [desc, q, unit, tot] of rows)
+    h += '<tr><td>' + desc + '</td><td style="text-align:center;">' + q + '</td><td style="text-align:right;">' + ciFmt(unit) + '</td><td style="text-align:right;">' + ciFmt(tot) + '</td></tr>';
+  h += '<tr><td>BoS allowance (mounting/rail/DC/electrical at resi rates)</td><td style="text-align:center;">1</td><td></td><td style="text-align:right;">' + ciFmt(bos) + '</td></tr>';
+  if (siteworks > 0) h += '<tr><td>Site works / labour allowance</td><td style="text-align:center;">1</td><td></td><td style="text-align:right;">' + ciFmt(siteworks) + '</td></tr>';
+  h += '<tr class="total-row"><td colspan="3"><strong>Gross Cost (inc GST)</strong></td><td style="text-align:right;"><strong>' + ciFmt(gross) + '</strong></td></tr></tbody>';
+  document.getElementById('dy-bom').innerHTML = h;
+
+  let s = '';
+  if (solarStcValue > 0) s += summaryRow('Solar STCs (' + solarStcs + ' &times; $' + stcPrice + ')', '&minus; ' + ciFmt(solarStcValue));
+  if (prcs > 0) {
+    s += summaryRow('PRCs — ' + activity.toUpperCase() + ' (' + prcs.toLocaleString('en-AU') + ' &times; $' + prcPrice.toFixed(2) + ')', ciFmt(prcGross) + ' gross');
+    s += summaryRow('PRC net of ' + Math.round(acpFee * 100) + '% ACP fee — ' + prcNote, '&minus; ' + ciFmt(prcNet));
+  }
+  s += '<div class="recommended-row"><span class="label">Net Cost after rebates (inc GST)</span><span class="value">' + ciFmt(netCost) + '</span></div>';
+  s += '<div class="recommended-row"><span class="label">Recommended Sale (' + Math.round(marginPct * 100) + '% margin, inc GST)</span><span class="value">' + ciFmt(recommended) + '</span></div>';
+  if (salePrice !== null && !isNaN(salePrice)) {
+    const gp = salePrice - netCost;
+    const pct = salePrice > 0 ? (100 * gp / salePrice) : 0;
+    s += summaryRow('Gross Profit at ' + ciFmt(salePrice), ciFmt(gp) + ' (' + pct.toFixed(1) + '%)');
+    if (pct < 20) s += '<div class="margin-alert low">Margin below 20% — review before quoting</div>';
+  }
+  document.getElementById('dy-summary').innerHTML = s;
+
+  document.getElementById('dy-warnings').innerHTML = warnings.length
+    ? '<div style="background:var(--brand-yellow-tint);border-radius:8px;padding:0.6rem 0.8rem;margin-bottom:0.7rem;font-size:0.82rem;line-height:1.45;">' +
+      warnings.map(w => '&#9888; ' + w).join('<br>') + '</div>'
+    : '';
+}
+
+// ================================================================
 // TAB SWITCHER
 // ================================================================
 function switchTab(tab) {
-  document.getElementById('section-sig').style.display = (tab === 'sig') ? '' : 'none';
-  document.getElementById('section-gw').style.display  = (tab === 'gw')  ? '' : 'none';
-  document.getElementById('section-ci').style.display  = (tab === 'ci')  ? '' : 'none';
-  document.getElementById('tab-sig').classList.toggle('active', tab === 'sig');
-  document.getElementById('tab-gw').classList.toggle('active',  tab === 'gw');
-  document.getElementById('tab-ci').classList.toggle('active',  tab === 'ci');
+  document.getElementById('section-sig').style.display  = (tab === 'sig')  ? '' : 'none';
+  document.getElementById('section-gw').style.display   = (tab === 'gw')   ? '' : 'none';
+  document.getElementById('section-ci').style.display   = (tab === 'ci')   ? '' : 'none';
+  document.getElementById('section-deye').style.display = (tab === 'deye') ? '' : 'none';
+  document.getElementById('tab-sig').classList.toggle('active',  tab === 'sig');
+  document.getElementById('tab-gw').classList.toggle('active',   tab === 'gw');
+  document.getElementById('tab-ci').classList.toggle('active',   tab === 'ci');
+  document.getElementById('tab-deye').classList.toggle('active', tab === 'deye');
 }
 
 // ================================================================
@@ -2561,6 +2820,7 @@ syncOverheadInputs();
 updateGwBatterySizes(); // populates g-batteryKwh and calls calcGW()
 calcSig();
 calcCI();
+calcDeye();
 </script>
 </body>
 </html>
