@@ -6,38 +6,37 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#FFFFFF">
-<title>Ausave Energy — Owner Combined Pricing Calculator</title>
+<title>Owner Combined Pricing Calculator</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   /* ================================================================
-     Ausave Solar brand system — Barlow display, Inter body,
+     Site theme — Barlow display, Inter body,
      white canvas, leaf green accent, solar yellow highlight
-     Source: https://ausavesolar-deploy.vercel.app/
      ================================================================ */
   :root {
-    /* Ausave brand surfaces */
+    /* surfaces */
     --doc-bg:           #FFFFFF;      /* page background */
     --doc-elevated:     #FFFFFF;      /* card surface */
     --doc-subtle:       rgba(0,0,0,0.025);  /* faint zebra / section tint */
     --doc-fill:         rgba(0,0,0,0.04);
     --doc-fill-2:       rgba(0,0,0,0.025);
 
-    /* Ausave hairline borders */
+    /* hairline borders */
     --border-xsoft:     rgba(0,0,0,0.05);
     --border-soft:      rgba(0,0,0,0.06);
     --border:           rgba(0,0,0,0.10);
     --border-strong:    rgba(0,0,0,0.15);
 
-    /* Ausave text */
+    /* text */
     --doc-text:         #111827;      /* primary text */
     --doc-text-2:       rgba(17,24,39,0.62);
     --doc-text-3:       rgba(17,24,39,0.38);
     --doc-text-4:       rgba(17,24,39,0.20);
     --doc-contrast:     #0D0D0D;      /* near-black */
 
-    /* Ausave brand palette */
+    /* palette */
     --brand-green:      #80BC68;      /* primary leaf green */
     --brand-green-2:    #4CAF78;      /* deeper secondary */
     --brand-green-tint: rgba(128,188,104,0.12);
@@ -763,7 +762,7 @@
 <body>
 
 <header>
-  <h1>Ausave Energy</h1>
+  <h1>Pricing Calculator</h1>
   <span>Owner — Combined Pricing Calculator</span>
 </header>
 
@@ -1600,7 +1599,7 @@ const OVERHEAD_STORAGE_KEY = 'ausave-overhead-v1';
 function dailyOverhead() { return OVERHEAD.weekly / OVERHEAD.days; }
 
 // BESS2 (NSW PDRS VPP) — eligibility & PRC math
-// All Ausave batteries are assumed CEC-listed, warranty-compliant, VPP-contracted via nominated ACP.
+// All batteries are assumed CEC-listed, warranty-compliant, VPP-contracted via nominated ACP.
 // The ONLY cliff that drops eligibility is usable capacity: must be > 2 kWh AND < 28 kWh.
 const BESS2_MIN_KWH   = 2;
 const BESS2_MAX_KWH   = 28;
