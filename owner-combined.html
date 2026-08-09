@@ -1701,27 +1701,31 @@ function buildProfitHtml(isBatteryOnly, jobsPerDay, marginPerJob, labelExtra, no
   if (noPriceMsg) {
     return `<div style="padding:0.5rem;color:var(--muted);font-size:0.85rem;text-align:center;">${noPriceMsg}</div>`;
   }
-  const dailyGrossMargin  = jobsPerDay * marginPerJob;
-  const weeklyGrossMargin = jobsPerDay * OVERHEAD.days * marginPerJob;
+  // Management basis (owner instruction 9 Aug 2026): profit ex GST; sale prices stay inc GST.
+  // Overheads are total weekly cash incl rep commissions, so net = ex-GST margin - cash overhead.
+  const mEx = marginPerJob / 1.1;
+  const dailyGrossMargin  = jobsPerDay * mEx;
+  const weeklyGrossMargin = jobsPerDay * OVERHEAD.days * mEx;
   const dailyNetProfit    = dailyGrossMargin - dailyOverhead();
   const weeklyNetProfit   = weeklyGrossMargin - OVERHEAD.weekly;
 
-  let h = `<div style="font-size:0.75rem;color:var(--muted);margin-bottom:0.5rem;">Job type: <strong>${isBatteryOnly ? 'Battery Only' : 'Solar + Battery'}</strong> &mdash; Capacity: <strong>${Math.round(jobsPerDay * OVERHEAD.days * 10) / 10} jobs/week (${Math.round(jobsPerDay * 10) / 10}/day)</strong>${labelExtra} &mdash; Margin/job: <strong>${fmt(marginPerJob)}</strong></div>`;
+  let h = `<div style="font-size:0.75rem;color:var(--muted);margin-bottom:0.5rem;">Job type: <strong>${isBatteryOnly ? 'Battery Only' : 'Solar + Battery'}</strong> &mdash; Capacity: <strong>${Math.round(jobsPerDay * OVERHEAD.days * 10) / 10} jobs/week (${Math.round(jobsPerDay * 10) / 10}/day)</strong>${labelExtra} &mdash; Margin/job (ex GST): <strong>${fmt(mEx)}</strong></div>`;
   h += '<div class="profit-grid">';
 
   h += '<div class="profit-box"><h4>Daily</h4>';
-  h += `<div class="profit-line"><span class="label">Gross margin (${Math.round(jobsPerDay * 10) / 10} jobs &times; ${fmt(marginPerJob)})</span><span class="value">${fmt(dailyGrossMargin)}</span></div>`;
+  h += `<div class="profit-line"><span class="label">Gross margin ex GST (${Math.round(jobsPerDay * 10) / 10} jobs &times; ${fmt(mEx)})</span><span class="value">${fmt(dailyGrossMargin)}</span></div>`;
   h += `<div class="profit-line"><span class="label">Overhead</span><span class="value">&minus; ${fmt(dailyOverhead())}</span></div>`;
-  h += `<div class="profit-line net ${dailyNetProfit < 0 ? 'negative' : ''}"><span class="label">Net Profit</span><span class="value">${fmt(dailyNetProfit)}</span></div>`;
+  h += `<div class="profit-line net ${dailyNetProfit < 0 ? 'negative' : ''}"><span class="label">Net Profit (ex GST)</span><span class="value">${fmt(dailyNetProfit)}</span></div>`;
   h += '</div>';
 
   h += `<div class="profit-box"><h4>Weekly (${OVERHEAD.days} days)</h4>`;
-  h += `<div class="profit-line"><span class="label">Gross margin (${Math.round(jobsPerDay * OVERHEAD.days * 10) / 10} jobs &times; ${fmt(marginPerJob)})</span><span class="value">${fmt(weeklyGrossMargin)}</span></div>`;
+  h += `<div class="profit-line"><span class="label">Gross margin ex GST (${Math.round(jobsPerDay * OVERHEAD.days * 10) / 10} jobs &times; ${fmt(mEx)})</span><span class="value">${fmt(weeklyGrossMargin)}</span></div>`;
   h += `<div class="profit-line"><span class="label">Overhead</span><span class="value">&minus; ${fmt(OVERHEAD.weekly)}</span></div>`;
-  h += `<div class="profit-line net ${weeklyNetProfit < 0 ? 'negative' : ''}"><span class="label">Net Profit</span><span class="value">${fmt(weeklyNetProfit)}</span></div>`;
+  h += `<div class="profit-line net ${weeklyNetProfit < 0 ? 'negative' : ''}"><span class="label">Net Profit (ex GST)</span><span class="value">${fmt(weeklyNetProfit)}</span></div>`;
   h += '</div>';
 
   h += '</div>';
+  h += `<div style="font-size:0.7rem;color:var(--muted);margin-top:0.4rem;">Profit figures ex GST (GST collected on sales is the ATO's, not margin). Sale prices inc GST. Overheads = total weekly cash incl rep commissions.</div>`;
   return h;
 }
 
@@ -1938,7 +1942,8 @@ function calcCI() {
   if (salePrice !== null && !isNaN(salePrice)) {
     const gp = salePrice - netCost;
     const pct = salePrice > 0 ? (100 * gp / salePrice) : 0;
-    s += summaryRow('Gross Profit at ' + ciFmt(salePrice), ciFmt(gp) + ' (' + pct.toFixed(1) + '%)');
+    s += summaryRow('Gross Profit at ' + ciFmt(salePrice) + ' (inc GST)', ciFmt(gp) + ' (' + pct.toFixed(1) + '%)');
+    s += summaryRow('Gross Profit (ex GST)', ciFmt(gp / 1.1));
     if (pct < 20) s += '<div class="margin-alert low">Margin below 20% — review before quoting</div>';
   }
   document.getElementById('ci-summary').innerHTML = s;
@@ -2076,7 +2081,8 @@ function calcDeye() {
   if (salePrice !== null && !isNaN(salePrice)) {
     const gp = salePrice - netCost;
     const pct = salePrice > 0 ? (100 * gp / salePrice) : 0;
-    s += summaryRow('Gross Profit at ' + ciFmt(salePrice), ciFmt(gp) + ' (' + pct.toFixed(1) + '%)');
+    s += summaryRow('Gross Profit at ' + ciFmt(salePrice) + ' (inc GST)', ciFmt(gp) + ' (' + pct.toFixed(1) + '%)');
+    s += summaryRow('Gross Profit (ex GST)', ciFmt(gp / 1.1));
     if (pct < 20) s += '<div class="margin-alert low">Margin below 20% — review before quoting</div>';
   }
   document.getElementById('dy-summary').innerHTML = s;
@@ -2316,8 +2322,9 @@ function calcSig() {
     sHtml += '<div class="admin-only">';
     sHtml += '<div class="summary-divider"></div>';
     sHtml += summaryRow('Sale Price (inc GST)', fmt(salePrice));
-    if (sCommission > 0) sHtml += summaryRow('Gross Margin (after commission)', fmt(marginDollars), marginPct < 35 ? 'danger' : '');
-    else sHtml += summaryRow('Gross Margin', fmt(marginDollars), marginPct < 35 ? 'danger' : '');
+    if (sCommission > 0) sHtml += summaryRow('Gross Margin (after commission, inc GST)', fmt(marginDollars), marginPct < 35 ? 'danger' : '');
+    else sHtml += summaryRow('Gross Margin (inc GST)', fmt(marginDollars), marginPct < 35 ? 'danger' : '');
+    sHtml += summaryRow('Gross Margin (ex GST)', fmt(marginDollars / 1.1), marginPct < 35 ? 'danger' : 'big');
     sHtml += summaryRow('Margin %', marginPct.toFixed(2) + '%', marginPct < 35 ? 'danger' : '');
     sHtml += '</div>';
     if (marginPct < 35) {
@@ -2582,7 +2589,7 @@ function calcGW() {
     sHtml += '<div class="summary-divider"></div>';
     sHtml += `<div style="padding:10px;border-radius:8px;background:${cpMarginPct < 35 ? '#ffeaea' : '#eafff0'};border:1px solid ${cpColor};">`;
     sHtml += `<div style="font-weight:700;font-size:0.95em;margin-bottom:4px;">Your Price: ${fmt(customPrice)}</div>`;
-    sHtml += `<span class="admin-only" style="font-weight:700;color:${cpColor};font-size:1.1em;">Margin${gCommission > 0 ? ' (after comm.)' : ''}: ${fmt(cpMarginDollars)} (${cpMarginPct.toFixed(1)}%)</span>`;
+    sHtml += `<span class="admin-only" style="font-weight:700;color:${cpColor};font-size:1.1em;">Margin${gCommission > 0 ? ' (after comm.)' : ''}: ${fmt(cpMarginDollars)} inc GST &middot; ${fmt(cpMarginDollars / 1.1)} ex GST (${cpMarginPct.toFixed(1)}%)</span>`;
     sHtml += cpMarginPct < 35
       ? `<div style="color:#c0392b;font-size:0.85em;margin-top:4px;">Price is below the recommended minimum &mdash; please review<span class="admin-only"> (margin ${cpMarginPct.toFixed(1)}%, below 35%)</span></div>`
       : `<div style="color:#27ae60;font-size:0.85em;margin-top:4px;">Price is acceptable<span class="admin-only"> (margin ${cpMarginPct.toFixed(1)}%, above 35%)</span></div>`;
