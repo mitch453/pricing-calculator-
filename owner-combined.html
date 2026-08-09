@@ -1600,7 +1600,7 @@ const SIG_BAT5  = { kwh: 5,   price: 3056.90, label: 'Sigenergy BAT 5.0 (5kWh mo
 const SIG_GATEWAY_PRICES = { sp: 756.86, tp: 935.45 };
 const SIG_STC_BATTERY_CAP = 50;
 // Overheads (admin, editable). Weekly $ + working days; daily = weekly / days.
-const DEFAULT_OVERHEAD = { weekly: 104000, days: 5, targetNet: 15 };
+const DEFAULT_OVERHEAD = { weekly: 145000, days: 5, targetNet: 15 };
 let OVERHEAD = { ...DEFAULT_OVERHEAD };
 const OVERHEAD_STORAGE_KEY = 'ausave-overhead-v1';
 function dailyOverhead() { return OVERHEAD.weekly / OVERHEAD.days; }
@@ -2790,7 +2790,8 @@ function resetSolarRate() {
 function loadOverhead() {
   try {
     const saved = JSON.parse(localStorage.getItem(OVERHEAD_STORAGE_KEY) || '{}');
-    if (typeof saved.weekly === 'number' && saved.weekly >= 0) OVERHEAD.weekly = saved.weekly;
+    // saved 104000 was the stale pre-Aug-2026 default — migrate those browsers to $145k
+    if (typeof saved.weekly === 'number' && saved.weekly >= 0 && saved.weekly !== 104000) OVERHEAD.weekly = saved.weekly;
     if (typeof saved.days === 'number' && saved.days >= 1 && saved.days <= 7) OVERHEAD.days = saved.days;
     if (typeof saved.targetNet === 'number' && saved.targetNet >= 0 && saved.targetNet <= 50) OVERHEAD.targetNet = saved.targetNet;
   } catch (e) { /* ignore — fall back to defaults */ }
