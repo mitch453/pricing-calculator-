@@ -1556,15 +1556,16 @@ function calcSig() {
   if (hasPanels) { addRow('Earth cable & lugs', 1, fmt(100), 100); }
 
   // Build breakdown table
-  let html = '<thead><tr><th>Item</th><th>Qty</th><th>Unit Price</th><th>Total</th></tr></thead><tbody>';
+  let html = '<thead><tr><th>Item</th><th>Qty</th><th>Unit (ex GST)</th><th>Total (ex GST)</th></tr></thead><tbody>';
   for (const r of rows) {
     if (r.section) {
       html += `<tr class="section-header"><td colspan="4">${r.title}</td></tr>`;
     } else {
-      html += `<tr><td>${r.desc}</td><td>${r.qty}</td><td>${r.unit}</td><td>${fmt(r.total)}</td></tr>`;
+      html += `<tr><td>${r.desc}</td><td>${r.qty}</td><td>${fmt(r.total / (r.qty || 1) / 1.1)}</td><td>${fmt(r.total / 1.1)}</td></tr>`;
     }
   }
-  html += `<tr class="total-row"><td colspan="3">Gross Material Total</td><td style="text-align:right">${fmt(grossTotal)}</td></tr>`;
+  html += `<tr class="total-row"><td colspan="3">Gross Material Total (ex GST)</td><td style="text-align:right">${fmt(grossTotal / 1.1)}</td></tr>`;
+  html += `<tr><td colspan="3" style="color:var(--muted);">Gross Material Total (inc GST)</td><td style="text-align:right;color:var(--muted);">${fmt(grossTotal)}</td></tr>`;
   html += '</tbody>';
   document.getElementById('s-breakdown').innerHTML = html;
   document.getElementById('s-results-card').style.display = adminMode ? '' : 'none';
@@ -1626,7 +1627,8 @@ function calcSig() {
   // Summary HTML
   let sHtml = '';
   sHtml += '<div class="admin-only">';
-  sHtml += summaryRow('Gross Material Total', fmt(grossTotal));
+  sHtml += summaryRow('Gross Material Total (ex GST)', fmt(grossTotal / 1.1), 'big');
+  sHtml += summaryRow('Gross Material Total (inc GST)', fmt(grossTotal));
   sHtml += '</div>';
   sHtml += '<div class="summary-divider"></div>';
   if (hasPanels)  sHtml += summaryRow(`Solar STCs (${solarSTCs} &times; $${STC_PRICE})`, '&minus; ' + fmt(solarSTCvalue));
@@ -1634,7 +1636,8 @@ function calcSig() {
   sHtml += summaryRow('Total STC Rebate', '&minus; ' + fmt(totalSTCvalue), 'big');
   sHtml += '<div class="admin-only">';
   sHtml += '<div class="summary-divider"></div>';
-  sHtml += summaryRow('Net Material Cost', fmt(netMaterialCost), 'big');
+  sHtml += summaryRow('Net Material Cost (ex GST)', fmt(netMaterialCost / 1.1), 'big');
+  sHtml += summaryRow('Net Material Cost (inc GST)', fmt(netMaterialCost));
   sHtml += '</div>';
 
   if (extrasIncGst > 0) {
@@ -1644,7 +1647,7 @@ function calcSig() {
     sHtml += summaryRow('Extras Total (inc GST)', fmt(extrasIncGst));
   }
 
-  sHtml += `<div class="recommended-row"><span class="label">Recommended Sale Price${extrasIncGst > 0 ? ' (+ extras)' : ''}<span class="admin-only"> (${recMarginLabel})</span></span><span class="value">${fmt(recommendedPrice)}</span></div>`;
+  sHtml += `<div class="recommended-row"><span class="label">Recommended Sale Price (inc GST)${extrasIncGst > 0 ? ' (+ extras)' : ''}<span class="admin-only"> (${recMarginLabel})</span></span><span class="value">${fmt(recommendedPrice)}</span></div>`;
 
   // BESS2 NSW VPP rebate (only when usable capacity is strictly between 2 and 28 kWh)
   const sigBess2 = calcBess2(batteryKwh);
@@ -1821,15 +1824,16 @@ function calcGW() {
   if (hasPanels) { addRow('Earth cable & lugs', 1, fmt(100), 100); }
 
   // Build breakdown table
-  let html = '<thead><tr><th>Item</th><th>Qty</th><th>Unit Price</th><th>Total</th></tr></thead><tbody>';
+  let html = '<thead><tr><th>Item</th><th>Qty</th><th>Unit (ex GST)</th><th>Total (ex GST)</th></tr></thead><tbody>';
   for (const r of rows) {
     if (r.section) {
       html += `<tr class="section-header"><td colspan="4">${r.title}</td></tr>`;
     } else {
-      html += `<tr><td>${r.desc}</td><td>${r.qty}</td><td>${r.unit}</td><td>${fmt(r.total)}</td></tr>`;
+      html += `<tr><td>${r.desc}</td><td>${r.qty}</td><td>${fmt(r.total / (r.qty || 1) / 1.1)}</td><td>${fmt(r.total / 1.1)}</td></tr>`;
     }
   }
-  html += `<tr class="total-row"><td colspan="3">Gross Material Total</td><td style="text-align:right">${fmt(grossTotal)}</td></tr>`;
+  html += `<tr class="total-row"><td colspan="3">Gross Material Total (ex GST)</td><td style="text-align:right">${fmt(grossTotal / 1.1)}</td></tr>`;
+  html += `<tr><td colspan="3" style="color:var(--muted);">Gross Material Total (inc GST)</td><td style="text-align:right;color:var(--muted);">${fmt(grossTotal)}</td></tr>`;
   html += '</tbody>';
   document.getElementById('g-breakdown').innerHTML = html;
   document.getElementById('g-results-card').style.display = adminMode ? '' : 'none';
@@ -1891,7 +1895,8 @@ function calcGW() {
   // Summary
   let sHtml = '';
   sHtml += '<div class="admin-only">';
-  sHtml += summaryRow('Gross Material Total', fmt(grossTotal));
+  sHtml += summaryRow('Gross Material Total (ex GST)', fmt(grossTotal / 1.1), 'big');
+  sHtml += summaryRow('Gross Material Total (inc GST)', fmt(grossTotal));
   sHtml += '</div>';
   sHtml += '<div class="summary-divider"></div>';
   if (hasPanels)  sHtml += summaryRow(`Solar STCs (${solarSTCs} &times; $${STC_PRICE})`, '&minus; ' + fmt(solarSTCvalue));
@@ -1899,7 +1904,8 @@ function calcGW() {
   sHtml += summaryRow('Total STC Rebate', '&minus; ' + fmt(totalSTCvalue), 'big');
   sHtml += '<div class="admin-only">';
   sHtml += '<div class="summary-divider"></div>';
-  sHtml += summaryRow('Net Material Cost', fmt(netMaterialCost), 'big');
+  sHtml += summaryRow('Net Material Cost (ex GST)', fmt(netMaterialCost / 1.1), 'big');
+  sHtml += summaryRow('Net Material Cost (inc GST)', fmt(netMaterialCost));
   sHtml += '</div>';
 
   if (extrasIncGst > 0) {
@@ -1909,7 +1915,7 @@ function calcGW() {
     sHtml += summaryRow('Extras Total (inc GST)', fmt(extrasIncGst));
   }
 
-  sHtml += `<div class="recommended-row"><span class="label">Recommended Sale Price${extrasIncGst > 0 ? ' (+ extras)' : ''}<span class="admin-only"> (${recMarginLabel})</span></span><span class="value">${fmt(recommendedPrice)}</span></div>`;
+  sHtml += `<div class="recommended-row"><span class="label">Recommended Sale Price (inc GST)${extrasIncGst > 0 ? ' (+ extras)' : ''}<span class="admin-only"> (${recMarginLabel})</span></span><span class="value">${fmt(recommendedPrice)}</span></div>`;
 
   // BESS2 NSW VPP rebate (only when usable capacity is strictly between 2 and 28 kWh)
   const gwBess2 = calcBess2(batteryKwh);

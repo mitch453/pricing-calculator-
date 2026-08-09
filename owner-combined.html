@@ -1922,12 +1922,13 @@ function calcCI() {
   const recommended = marginPct < 1 ? netCost / (1 - marginPct) : 0;
 
   // ── render ──
-  let h = '<thead><tr><th style="text-align:left;">Item</th><th>Qty</th><th style="text-align:right;">Unit inc GST</th><th style="text-align:right;">Total</th></tr></thead><tbody>';
+  let h = '<thead><tr><th style="text-align:left;">Item</th><th>Qty</th><th style="text-align:right;">Unit ex GST</th><th style="text-align:right;">Total ex GST</th></tr></thead><tbody>';
   for (const [desc, qty, unit, tot] of rows)
-    h += '<tr><td>' + desc + '</td><td style="text-align:center;">' + qty + '</td><td style="text-align:right;">' + ciFmt(unit) + '</td><td style="text-align:right;">' + ciFmt(tot) + '</td></tr>';
-  h += '<tr><td>BoS allowance (mounting/rail/DC/electrical at resi rates)</td><td style="text-align:center;">1</td><td></td><td style="text-align:right;">' + ciFmt(bos) + '</td></tr>';
-  if (siteworks > 0) h += '<tr><td>Site works / labour allowance</td><td style="text-align:center;">1</td><td></td><td style="text-align:right;">' + ciFmt(siteworks) + '</td></tr>';
-  h += '<tr class="total-row"><td colspan="3"><strong>Gross Cost (inc GST)</strong></td><td style="text-align:right;"><strong>' + ciFmt(gross) + '</strong></td></tr></tbody>';
+    h += '<tr><td>' + desc + '</td><td style="text-align:center;">' + qty + '</td><td style="text-align:right;">' + ciFmt(unit / 1.1) + '</td><td style="text-align:right;">' + ciFmt(tot / 1.1) + '</td></tr>';
+  h += '<tr><td>BoS allowance (mounting/rail/DC/electrical at resi rates)</td><td style="text-align:center;">1</td><td></td><td style="text-align:right;">' + ciFmt(bos / 1.1) + '</td></tr>';
+  if (siteworks > 0) h += '<tr><td>Site works / labour allowance</td><td style="text-align:center;">1</td><td></td><td style="text-align:right;">' + ciFmt(siteworks / 1.1) + '</td></tr>';
+  h += '<tr class="total-row"><td colspan="3"><strong>Gross Cost (ex GST)</strong></td><td style="text-align:right;"><strong>' + ciFmt(gross / 1.1) + '</strong></td></tr>'
+    + '<tr><td colspan="3" style="color:var(--muted);">Gross Cost (inc GST)</td><td style="text-align:right;color:var(--muted);">' + ciFmt(gross) + '</td></tr></tbody>';
   document.getElementById('ci-bom').innerHTML = h;
 
   let s = '';
@@ -1937,6 +1938,7 @@ function calcCI() {
     s += summaryRow('PRCs — ' + activity.toUpperCase() + ' (' + prcs.toLocaleString('en-AU') + ' &times; $' + prcPrice.toFixed(2) + ')', ciFmt(prcGross) + ' gross');
     s += summaryRow('PRC net of ' + Math.round(acpFee * 100) + '% ACP fee — ' + prcNote, '&minus; ' + ciFmt(prcNet));
   }
+  s += '<div class="recommended-row"><span class="label">Net Cost after rebates (ex GST)</span><span class="value">' + ciFmt(netCost / 1.1) + '</span></div>';
   s += '<div class="recommended-row"><span class="label">Net Cost after rebates (inc GST)</span><span class="value">' + ciFmt(netCost) + '</span></div>';
   s += '<div class="recommended-row"><span class="label">Recommended Sale (' + Math.round(marginPct * 100) + '% margin, inc GST)</span><span class="value">' + ciFmt(recommended) + '</span></div>';
   if (salePrice !== null && !isNaN(salePrice)) {
@@ -2062,12 +2064,13 @@ function calcDeye() {
   const netCost = gross - solarStcValue - prcNet;
   const recommended = marginPct < 1 ? netCost / (1 - marginPct) : 0;
 
-  let h = '<thead><tr><th style="text-align:left;">Item</th><th>Qty</th><th style="text-align:right;">Unit inc GST</th><th style="text-align:right;">Total</th></tr></thead><tbody>';
+  let h = '<thead><tr><th style="text-align:left;">Item</th><th>Qty</th><th style="text-align:right;">Unit ex GST</th><th style="text-align:right;">Total ex GST</th></tr></thead><tbody>';
   for (const [desc, q, unit, tot] of rows)
-    h += '<tr><td>' + desc + '</td><td style="text-align:center;">' + q + '</td><td style="text-align:right;">' + ciFmt(unit) + '</td><td style="text-align:right;">' + ciFmt(tot) + '</td></tr>';
-  h += '<tr><td>BoS allowance (mounting/rail/DC/electrical at resi rates)</td><td style="text-align:center;">1</td><td></td><td style="text-align:right;">' + ciFmt(bos) + '</td></tr>';
-  if (siteworks > 0) h += '<tr><td>Site works / labour allowance</td><td style="text-align:center;">1</td><td></td><td style="text-align:right;">' + ciFmt(siteworks) + '</td></tr>';
-  h += '<tr class="total-row"><td colspan="3"><strong>Gross Cost (inc GST)</strong></td><td style="text-align:right;"><strong>' + ciFmt(gross) + '</strong></td></tr></tbody>';
+    h += '<tr><td>' + desc + '</td><td style="text-align:center;">' + q + '</td><td style="text-align:right;">' + ciFmt(unit / 1.1) + '</td><td style="text-align:right;">' + ciFmt(tot / 1.1) + '</td></tr>';
+  h += '<tr><td>BoS allowance (mounting/rail/DC/electrical at resi rates)</td><td style="text-align:center;">1</td><td></td><td style="text-align:right;">' + ciFmt(bos / 1.1) + '</td></tr>';
+  if (siteworks > 0) h += '<tr><td>Site works / labour allowance</td><td style="text-align:center;">1</td><td></td><td style="text-align:right;">' + ciFmt(siteworks / 1.1) + '</td></tr>';
+  h += '<tr class="total-row"><td colspan="3"><strong>Gross Cost (ex GST)</strong></td><td style="text-align:right;"><strong>' + ciFmt(gross / 1.1) + '</strong></td></tr>'
+    + '<tr><td colspan="3" style="color:var(--muted);">Gross Cost (inc GST)</td><td style="text-align:right;color:var(--muted);">' + ciFmt(gross) + '</td></tr></tbody>';
   document.getElementById('dy-bom').innerHTML = h;
 
   let s = '';
@@ -2076,6 +2079,7 @@ function calcDeye() {
     s += summaryRow('PRCs — ' + activity.toUpperCase() + ' (' + prcs.toLocaleString('en-AU') + ' &times; $' + prcPrice.toFixed(2) + ')', ciFmt(prcGross) + ' gross');
     s += summaryRow('PRC net of ' + Math.round(acpFee * 100) + '% ACP fee — ' + prcNote, '&minus; ' + ciFmt(prcNet));
   }
+  s += '<div class="recommended-row"><span class="label">Net Cost after rebates (ex GST)</span><span class="value">' + ciFmt(netCost / 1.1) + '</span></div>';
   s += '<div class="recommended-row"><span class="label">Net Cost after rebates (inc GST)</span><span class="value">' + ciFmt(netCost) + '</span></div>';
   s += '<div class="recommended-row"><span class="label">Recommended Sale (' + Math.round(marginPct * 100) + '% margin, inc GST)</span><span class="value">' + ciFmt(recommended) + '</span></div>';
   if (salePrice !== null && !isNaN(salePrice)) {
@@ -2209,15 +2213,16 @@ function calcSig() {
   if (hasPanels) { addRow('Earth cable & lugs', 1, fmt(100), 100); }
 
   // Build breakdown table
-  let html = '<thead><tr><th>Item</th><th>Qty</th><th>Unit Price</th><th>Total</th></tr></thead><tbody>';
+  let html = '<thead><tr><th>Item</th><th>Qty</th><th>Unit (ex GST)</th><th>Total (ex GST)</th></tr></thead><tbody>';
   for (const r of rows) {
     if (r.section) {
       html += `<tr class="section-header"><td colspan="4">${r.title}</td></tr>`;
     } else {
-      html += `<tr><td>${r.desc}</td><td>${r.qty}</td><td>${r.unit}</td><td>${fmt(r.total)}</td></tr>`;
+      html += `<tr><td>${r.desc}</td><td>${r.qty}</td><td>${fmt(r.total / (r.qty || 1) / 1.1)}</td><td>${fmt(r.total / 1.1)}</td></tr>`;
     }
   }
-  html += `<tr class="total-row"><td colspan="3">Gross Material Total</td><td style="text-align:right">${fmt(grossTotal)}</td></tr>`;
+  html += `<tr class="total-row"><td colspan="3">Gross Material Total (ex GST)</td><td style="text-align:right">${fmt(grossTotal / 1.1)}</td></tr>`;
+  html += `<tr><td colspan="3" style="color:var(--muted);">Gross Material Total (inc GST)</td><td style="text-align:right;color:var(--muted);">${fmt(grossTotal)}</td></tr>`;
   html += '</tbody>';
   document.getElementById('s-breakdown').innerHTML = html;
   document.getElementById('s-results-card').style.display = adminMode ? '' : 'none';
@@ -2279,7 +2284,8 @@ function calcSig() {
   // Summary HTML
   let sHtml = '';
   sHtml += '<div class="admin-only">';
-  sHtml += summaryRow('Gross Material Total', fmt(grossTotal));
+  sHtml += summaryRow('Gross Material Total (ex GST)', fmt(grossTotal / 1.1), 'big');
+  sHtml += summaryRow('Gross Material Total (inc GST)', fmt(grossTotal));
   sHtml += '</div>';
   sHtml += '<div class="summary-divider"></div>';
   if (hasPanels)  sHtml += summaryRow(`Solar STCs (${solarSTCs} &times; $${STC_PRICE})`, '&minus; ' + fmt(solarSTCvalue));
@@ -2287,7 +2293,8 @@ function calcSig() {
   sHtml += summaryRow('Total STC Rebate', '&minus; ' + fmt(totalSTCvalue), 'big');
   sHtml += '<div class="admin-only">';
   sHtml += '<div class="summary-divider"></div>';
-  sHtml += summaryRow('Net Material Cost', fmt(netMaterialCost), 'big');
+  sHtml += summaryRow('Net Material Cost (ex GST)', fmt(netMaterialCost / 1.1), 'big');
+  sHtml += summaryRow('Net Material Cost (inc GST)', fmt(netMaterialCost));
   sHtml += '</div>';
 
   if (extrasIncGst > 0) {
@@ -2297,7 +2304,7 @@ function calcSig() {
     sHtml += summaryRow('Extras Total (inc GST)', fmt(extrasIncGst));
   }
 
-  sHtml += `<div class="recommended-row"><span class="label">Recommended Sale Price${extrasIncGst > 0 ? ' (+ extras)' : ''}<span class="admin-only"> (${recMarginLabel})</span></span><span class="value">${fmt(recommendedPrice)}</span></div>`;
+  sHtml += `<div class="recommended-row"><span class="label">Recommended Sale Price (inc GST)${extrasIncGst > 0 ? ' (+ extras)' : ''}<span class="admin-only"> (${recMarginLabel})</span></span><span class="value">${fmt(recommendedPrice)}</span></div>`;
 
   // BESS2 NSW VPP rebate (only when usable capacity is strictly between 2 and 28 kWh)
   const sigBess2 = calcBess2(batteryKwh);
@@ -2474,15 +2481,16 @@ function calcGW() {
   if (hasPanels) { addRow('Earth cable & lugs', 1, fmt(100), 100); }
 
   // Build breakdown table
-  let html = '<thead><tr><th>Item</th><th>Qty</th><th>Unit Price</th><th>Total</th></tr></thead><tbody>';
+  let html = '<thead><tr><th>Item</th><th>Qty</th><th>Unit (ex GST)</th><th>Total (ex GST)</th></tr></thead><tbody>';
   for (const r of rows) {
     if (r.section) {
       html += `<tr class="section-header"><td colspan="4">${r.title}</td></tr>`;
     } else {
-      html += `<tr><td>${r.desc}</td><td>${r.qty}</td><td>${r.unit}</td><td>${fmt(r.total)}</td></tr>`;
+      html += `<tr><td>${r.desc}</td><td>${r.qty}</td><td>${fmt(r.total / (r.qty || 1) / 1.1)}</td><td>${fmt(r.total / 1.1)}</td></tr>`;
     }
   }
-  html += `<tr class="total-row"><td colspan="3">Gross Material Total</td><td style="text-align:right">${fmt(grossTotal)}</td></tr>`;
+  html += `<tr class="total-row"><td colspan="3">Gross Material Total (ex GST)</td><td style="text-align:right">${fmt(grossTotal / 1.1)}</td></tr>`;
+  html += `<tr><td colspan="3" style="color:var(--muted);">Gross Material Total (inc GST)</td><td style="text-align:right;color:var(--muted);">${fmt(grossTotal)}</td></tr>`;
   html += '</tbody>';
   document.getElementById('g-breakdown').innerHTML = html;
   document.getElementById('g-results-card').style.display = adminMode ? '' : 'none';
@@ -2544,7 +2552,8 @@ function calcGW() {
   // Summary
   let sHtml = '';
   sHtml += '<div class="admin-only">';
-  sHtml += summaryRow('Gross Material Total', fmt(grossTotal));
+  sHtml += summaryRow('Gross Material Total (ex GST)', fmt(grossTotal / 1.1), 'big');
+  sHtml += summaryRow('Gross Material Total (inc GST)', fmt(grossTotal));
   sHtml += '</div>';
   sHtml += '<div class="summary-divider"></div>';
   if (hasPanels)  sHtml += summaryRow(`Solar STCs (${solarSTCs} &times; $${STC_PRICE})`, '&minus; ' + fmt(solarSTCvalue));
@@ -2552,7 +2561,8 @@ function calcGW() {
   sHtml += summaryRow('Total STC Rebate', '&minus; ' + fmt(totalSTCvalue), 'big');
   sHtml += '<div class="admin-only">';
   sHtml += '<div class="summary-divider"></div>';
-  sHtml += summaryRow('Net Material Cost', fmt(netMaterialCost), 'big');
+  sHtml += summaryRow('Net Material Cost (ex GST)', fmt(netMaterialCost / 1.1), 'big');
+  sHtml += summaryRow('Net Material Cost (inc GST)', fmt(netMaterialCost));
   sHtml += '</div>';
 
   if (extrasIncGst > 0) {
@@ -2562,7 +2572,7 @@ function calcGW() {
     sHtml += summaryRow('Extras Total (inc GST)', fmt(extrasIncGst));
   }
 
-  sHtml += `<div class="recommended-row"><span class="label">Recommended Sale Price${extrasIncGst > 0 ? ' (+ extras)' : ''}<span class="admin-only"> (${recMarginLabel})</span></span><span class="value">${fmt(recommendedPrice)}</span></div>`;
+  sHtml += `<div class="recommended-row"><span class="label">Recommended Sale Price (inc GST)${extrasIncGst > 0 ? ' (+ extras)' : ''}<span class="admin-only"> (${recMarginLabel})</span></span><span class="value">${fmt(recommendedPrice)}</span></div>`;
 
   // BESS2 NSW VPP rebate (only when usable capacity is strictly between 2 and 28 kWh)
   const gwBess2 = calcBess2(batteryKwh);
