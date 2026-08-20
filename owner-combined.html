@@ -771,6 +771,7 @@
   <button class="tab-btn" id="tab-gw" onclick="switchTab('gw')">GoodWe ESA</button>
   <button class="tab-btn" id="tab-ci" onclick="switchTab('ci')">Sigen C&amp;I</button>
   <button class="tab-btn" id="tab-deye" onclick="switchTab('deye')">Deye C&amp;I</button>
+  <button class="tab-btn" id="tab-gwci" onclick="switchTab('gwci')">GoodWe C&amp;I</button>
 </div>
 
 <!-- ============================================================ -->
@@ -1414,6 +1415,154 @@
   </div>
 </div>
 </div><!-- end #section-deye -->
+
+<!-- ============================================================ -->
+<!-- GOODWE C&I (ESA SERIES) SECTION                              -->
+<!-- ============================================================ -->
+<div id="section-gwci" style="display:none;">
+<div class="container">
+  <div class="card brand-card-solar">
+    <div class="card-header">GoodWe C&amp;I — ESA Series Commercial BESS (all prices INC GST)</div>
+    <div class="card-body">
+      <p class="margin-tier-hint" style="margin-top:0.5rem;">
+        <strong>ESA 261</strong> (GW125/261-ESA-LCN-G11): outdoor all-in-one cabinet — <strong>261.25kWh LFP</strong> (liquid-cooled)
+        + integrated <strong>125kW PCS</strong>, aerosol + water fire suppression, off-grid capable, IP54, 2,580kg, up to 20 in
+        parallel. <strong>AC-COUPLED — no PV input:</strong> panels need separate GoodWe PV inverters (warranty requires GoodWe
+        pairing). Warranty 5yr product / 10yr performance (70% or 6,000 cycles, cells only; liquid-cooling &amp; fire kit 2yr).
+        <strong>ESA 60</strong> (GW29.9/60-ESA-ACPN-G10): outdoor IP55 <strong>60kWh usable</strong> cabinet; the
+        <strong>ET 29.9kW HYBRID inverter is purchased separately</strong> (takes PV directly, ~60kW max).
+        <strong style="color:#c0392b;">No public AU trade price for either — the defaults are overseas import-parity estimates
+        (261: ~$73&ndash;80k ex GST verified overseas). Replace with your OSW trade price.</strong>
+      </p>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Unit</label>
+          <select id="gc-unit" onchange="onGwciUnitChange()">
+            <option value="esa261" selected>ESA 261 — 261.25kWh + 125kW PCS (AC-coupled)</option>
+            <option value="esa60">ESA 60 — 60kWh usable + ET 29.9kW hybrid</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Cabinets</label>
+          <input type="number" id="gc-qty" min="1" max="20" step="1" value="1" oninput="calcGwci()">
+        </div>
+        <div class="form-group">
+          <label>Cabinet Unit Cost ($ inc GST)</label>
+          <input type="number" id="gc-cost" min="0" step="500" value="88000" oninput="calcGwci()">
+        </div>
+        <div class="form-group" id="gc-invCost-group" style="display:none;">
+          <label>ET 29.9kW Hybrid Inverter ($ inc GST, each)</label>
+          <input type="number" id="gc-invCost" min="0" step="100" value="3300" oninput="calcGwci()">
+        </div>
+        <div class="form-group" id="gc-pvInv-group">
+          <label>PV Inverter Allowance ($ inc GST, AC-coupled PV)</label>
+          <input type="number" id="gc-pvInv" min="0" step="500" value="0" oninput="calcGwci()">
+        </div>
+        <div class="form-group">
+          <label>Number of Panels</label>
+          <input type="number" id="gc-numPanels" min="0" step="1" value="0" oninput="calcGwci()">
+        </div>
+        <div class="form-group">
+          <label>Panel Type</label>
+          <select id="gc-panelType" onchange="calcGwci()">
+            <option value="jinko475">Jinko 475W — $135</option>
+            <option value="ja475">JA 475W — $130</option>
+            <option value="aiko475">AIKO 490W — $175</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Roof Type</label>
+          <select id="gc-roofType" onchange="calcGwci()">
+            <option value="tin">Tin / Metal Deck</option>
+            <option value="tile">Tile / Concrete</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Network (NLF)</label>
+          <select id="gc-network" onchange="calcGwci()">
+            <option value="1.04" selected>Ausgrid (1.04)</option>
+            <option value="1.05">Endeavour (1.05)</option>
+            <option value="1.05e">Essential (1.05)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Site Works / Labour ($ inc GST)</label>
+          <input type="number" id="gc-siteworks" min="0" step="500" value="0" oninput="calcGwci()">
+        </div>
+        <div class="form-group">
+          <label>Target Margin (% of sale)</label>
+          <input type="number" id="gc-margin" min="0" max="90" step="1" value="35" oninput="calcGwci()">
+        </div>
+        <div class="form-group">
+          <label>Sale Price ($ inc GST, optional)</label>
+          <input type="number" id="gc-salePrice" min="0" step="500" placeholder="Enter quoted price" oninput="calcGwci()">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">Rebates — NSW PDRS PRCs + STCs</div>
+    <div class="card-body">
+      <p class="margin-tier-hint">
+        Commercial battery PRCs (BESS4/5) commence <strong>1 September 2026</strong> and require
+        <strong>new solar &ge; 25% of usable battery capacity</strong>. The ESA 261 lands in <strong>BESS5</strong>
+        (235.1kWh PDRS-usable per cabinet — UL9540A required; GoodWe claims tested-to-methodology, report not publicly
+        sighted). The ESA 60 lands in <strong>BESS4</strong> (57kWh usable — approved-product list + $5,000 min customer
+        payment apply; battery not yet CEC-listed: &ldquo;Waiting&rdquo;). Federal battery STCs: ESA 261 never (over
+        100kWh nominal); ESA 60 eligible at qty 1 only. Certificates trade EX GST; defaults are inc-GST equivalents.
+      </p>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>PRC Activity</label>
+          <select id="gc-activity" onchange="calcGwci()">
+            <option value="auto" selected>Auto (by usable kWh)</option>
+            <option value="bess4">BESS4 — &le;200kWh usable</option>
+            <option value="bess5">BESS5 — &gt;200kWh usable</option>
+            <option value="none">None</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Battery within 90 days of new solar</label>
+          <select id="gc-solar90" onchange="calcGwci()">
+            <option value="yes" selected>Yes — high coefficient</option>
+            <option value="no">No — low coefficient</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Federal battery STCs (ESA 60 only)</label>
+          <select id="gc-fedBat" onchange="calcGwci()">
+            <option value="yes" selected>Claim if eligible</option>
+            <option value="no">Don't claim</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>PRC Price ($ inc GST)</label>
+          <input type="number" id="gc-prcPrice" min="0" step="0.05" value="3.36" oninput="calcGwci()">
+        </div>
+        <div class="form-group">
+          <label>ACP Fee (%)</label>
+          <input type="number" id="gc-acpFee" min="0" max="60" step="1" value="30" oninput="calcGwci()">
+        </div>
+        <div class="form-group">
+          <label>STC Price ($ inc GST)</label>
+          <input type="number" id="gc-stcPrice" min="0" step="0.5" value="41.8" oninput="calcGwci()">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="gc-results-card">
+    <div class="card-header">Bill of Materials &amp; Costing</div>
+    <div class="card-body">
+      <div id="gc-warnings"></div>
+      <table class="breakdown-table" id="gc-bom" style="width:100%;font-size:0.85rem;border-collapse:collapse;"></table>
+      <div id="gc-summary" style="margin-top:0.9rem;"></div>
+    </div>
+  </div>
+</div>
+</div><!-- end #section-gwci -->
+
 
 
 <!-- ============================================================ -->
@@ -2151,15 +2300,210 @@ function calcDeye() {
 // ================================================================
 // TAB SWITCHER
 // ================================================================
+// ================================================================
+// GOODWE C&I (ESA SERIES) — researched + adversarially verified 20 Aug 2026
+// GW125/261-ESA-LCN-G11: 261.25kWh LFP (nominal = usable per datasheet;
+//   PDRS usable = 90% x nominal = 235.1kWh per Rule clause 10) + integrated
+//   125kW PCS (max 137.5kW). AC-COUPLED, no PV input. IP54, liquid-cooled
+//   packs, aerosol+water fire suppression, 2,580kg, <=20 parallel.
+//   PCS on CEC inverter list (GW125K-PCS-N-G11, approved 30/04/2026);
+//   battery CEC listing "Waiting"; UL9540A tested-to-methodology per
+//   GoodWe press only. NO public AU price — default $88,000 inc GST is
+//   overseas import parity (Senetic UK GBP38.3k ex / EU EUR48.4k
+//   ~= A$73-80k ex GST), replace with the OSW trade price.
+// GW29.9/60-ESA-ACPN-G10: 63.36kWh nominal / 60kWh usable outdoor IP55
+//   cabinet; ET 29.9kW HYBRID inverter purchased separately (PV direct,
+//   ~60kW max); +2x 60kWh extension cabinets per inverter (not modelled).
+//   Defaults for the 60 are placeholders — no verified pricing at all.
+// ================================================================
+const GWCI_UNITS = {
+  esa261: { label: 'GoodWe ESA 261 cabinet (GW125/261-ESA-LCN-G11, 261.25kWh + 125kW PCS)',
+            nominal: 261.25, invKw: 125, hybrid: false, pvMaxKw: 0, defCost: 88000, maxQty: 20 },
+  esa60:  { label: 'GoodWe ESA 60 cabinet (GW29.9/60-ESA-ACPN-G10, 63.36kWh)',
+            nominal: 63.36, invKw: 29.9, hybrid: true, pvMaxKw: 60, defCost: 22000, defInv: 3300, maxQty: 4 },
+};
+
+function onGwciUnitChange() {
+  const u = GWCI_UNITS[document.getElementById('gc-unit').value];
+  document.getElementById('gc-cost').value = u.defCost;
+  if (u.hybrid) document.getElementById('gc-invCost').value = u.defInv;
+  document.getElementById('gc-invCost-group').style.display = u.hybrid ? '' : 'none';
+  document.getElementById('gc-pvInv-group').style.display = u.hybrid ? 'none' : '';
+  const q = document.getElementById('gc-qty');
+  q.max = u.maxQty;
+  if (parseInt(q.value) > u.maxQty) q.value = u.maxQty;
+  calcGwci();
+}
+
+function calcGwci() {
+  const v = id => document.getElementById(id);
+  const unitKey  = v('gc-unit').value;
+  const unit     = GWCI_UNITS[unitKey];
+  const qty      = Math.max(1, Math.min(unit.maxQty, parseInt(v('gc-qty').value) || 1));
+  const unitCost = parseFloat(v('gc-cost').value) || 0;
+  const invCost  = unit.hybrid ? (parseFloat(v('gc-invCost').value) || 0) : 0;
+  const pvInvAll = !unit.hybrid ? (parseFloat(v('gc-pvInv').value) || 0) : 0;
+  const numPanels = parseInt(v('gc-numPanels').value) || 0;
+  const panelType = v('gc-panelType').value;
+  const roofType  = v('gc-roofType').value;
+  const nlf       = parseFloat(v('gc-network').value) || 1.04;
+  const siteworks = parseFloat(v('gc-siteworks').value) || 0;
+  const marginPct = (parseFloat(v('gc-margin').value) || 0) / 100;
+  const salePrice = v('gc-salePrice').value ? parseFloat(v('gc-salePrice').value) : null;
+  const activitySel = v('gc-activity').value;
+  const solar90   = v('gc-solar90').value === 'yes';
+  const fedBat    = v('gc-fedBat').value === 'yes';
+  const prcPrice  = parseFloat(v('gc-prcPrice').value) || 0;
+  const acpFee    = (parseFloat(v('gc-acpFee').value) || 0) / 100;
+  const stcPrice  = parseFloat(v('gc-stcPrice').value) || 0;
+
+  const warnings = [];
+  const rows = [];
+  let equip = 0;
+  function add(desc, q, unit_) { const t = q * unit_; rows.push([desc, q, unit_, t]); equip += t; }
+
+  const watts = PANEL_WATTS[panelType] || 475;
+  const pvKw = numPanels * watts / 1000;
+  const nominal = qty * unit.nominal;
+  const usable = 0.9 * nominal;                 // PDRS Rule clause 10
+  const invKw = qty * unit.invKw;
+
+  add(unit.label, qty, unitCost);
+  if (unit.hybrid) add('GoodWe ET 29.9kW hybrid inverter (sold separately)', qty, invCost);
+  if (numPanels > 0) add(PANEL_LABELS[panelType], numPanels, PANEL_PRICES[panelType]);
+  if (!unit.hybrid && pvInvAll > 0) add('PV inverter allowance (AC-coupled PV)', 1, pvInvAll);
+
+  if (unitCost === unit.defCost)
+    warnings.push('INDICATIVE PRICE: no public AU trade price exists for this unit — the default is an overseas ' +
+      'import-parity estimate' + (unitKey === 'esa261' ? ' (verified ~A$73-80k ex GST in UK/EU)' : ' (unverified placeholder)') +
+      '. Replace with your OSW trade price before quoting.');
+  if (!unit.hybrid && numPanels > 0 && pvInvAll === 0)
+    warnings.push('AC-COUPLED: the ESA 261 has NO PV input — the ' + pvKw.toFixed(1) + 'kW of panels need separate GoodWe ' +
+      'PV inverters (none costed; use the PV Inverter Allowance field). GoodWe warranty requires pairing with GoodWe inverters.');
+  if (unit.hybrid && pvKw > unit.pvMaxKw * qty)
+    warnings.push('PV exceeds the hybrid inverters\' input limit: ' + pvKw.toFixed(1) + 'kW vs ~' + (unit.pvMaxKw * qty) +
+      'kW max. Extra PV needs separate inverters (not costed).');
+
+  let bos = 0;
+  if (numPanels > 0) {
+    bos += numPanels * (MOUNTING[roofType] + RAIL_PER_PANEL + DC_CABLE_PER_PANEL);
+    bos += (650 + 30 + 75 + 100);
+  }
+  bos += (192 + 90);                            // 3-phase electrical allowance
+  const gross = equip + bos + siteworks;
+
+  // solar STCs
+  let solarStcs = 0, solarStcValue = 0;
+  if (numPanels > 0) {
+    const stcKw = Math.min(pvKw, 1000);              // SRES cap raised to 1MW per announced change
+    solarStcs = Math.floor(stcKw * 1000 * 0.006875);
+    solarStcValue = solarStcs * stcPrice;
+    if (pvKw > 100)
+      warnings.push('Solar ' + pvKw.toFixed(1) + 'kW: STCs calculated under the ANNOUNCED 1MW SRES cap (previously 100kW). ' +
+        'Confirm the change has commenced with the CER/your STC agent before quoting.');
+    if (pvKw > 1000)
+      warnings.push('Solar over 1MW (1,000kW): STCs claimed on the first 1,000kW only; the remainder is ignored.');
+  }
+
+  // federal battery STCs — nominal <= 100kWh systems only (ESA 60 at qty 1)
+  let fedStcs = 0, fedStcValue = 0;
+  if (fedBat) {
+    if (nominal > 100) {
+      warnings.push('Federal battery STCs: ' + nominal.toFixed(1) + 'kWh nominal exceeds the 100kWh program cap — none claimed.');
+    } else {
+      const u = Math.min(usable, 50);
+      fedStcs = Math.floor(6.8 * (Math.min(u, 14) + 0.6 * Math.max(0, Math.min(u, 28) - 14) + 0.15 * Math.max(0, Math.min(u, 50) - 28)));
+      fedStcValue = fedStcs * stcPrice;
+      warnings.push('Federal battery STCs claimed (' + fedStcs + '): needs SRES-eligible solar at the site; stacking with ' +
+        'BESS4 PRCs appears permitted by the rule text but is NOT admin-confirmed — verify with the ACP.');
+    }
+  }
+
+  // PDRS PRCs — BESS4/5 per consolidated Rule (1 Jul 2026)
+  let activity = activitySel;
+  if (activity === 'auto') activity = usable > 200 ? 'bess5' : 'bess4';
+  let prcs = 0, prcGross = 0, prcNet = 0, prcNote = '';
+  if (activity !== 'none') {
+    let eligible = true;
+    if (usable > 6 * invKw) { eligible = false; warnings.push('PDRS: usable exceeds 6 x inverter kW — ineligible.'); }
+    if (pvKw < 0.25 * usable) {
+      eligible = false;
+      warnings.push('BESS4/5 HARD REQUIREMENT: new solar >= 25% of usable capacity. Need ' + (0.25 * usable).toFixed(1) +
+        'kW of new solar, currently ' + pvKw.toFixed(1) + 'kW — NO PRCs without it.');
+    }
+    if (eligible) {
+      let counted = Math.min(usable, 4 * invKw);
+      let base = 0;
+      if (activity === 'bess4') {
+        const t1 = solar90 ? 45 : 30.15, t2 = solar90 ? 63 : 42.21, full = solar90 ? 90 : 60.3;
+        base = counted <= 50 ? counted * t1
+             : counted <= 100 ? 50 * t1 + (counted - 50) * t2
+             : counted * full;
+        warnings.push('BESS4: min $5,000 net customer payment ex GST; one BESS4/5 per site EVER; approved-product-list ' +
+          'requirement applies — the ESA battery is NOT yet CEC-listed ("Waiting") — confirm with the NSW Scheme Administrator.');
+      } else {
+        counted = Math.min(counted, 10000);
+        base = counted * (solar90 ? 90 : 60.3);
+        warnings.push('BESS5 (>200kWh usable): UL9540A large-scale fire test certification required — GoodWe claims ' +
+          '"tested using UL 9540A methodology" (press only, report not publicly sighted). Obtain the test report before ' +
+          'committing PRCs to a quote. No minimum customer payment for BESS5.');
+      }
+      prcs = Math.floor(base * nlf);
+      prcGross = prcs * prcPrice;
+      prcNet = prcGross * (1 - acpFee);
+      prcNote = counted.toFixed(1) + ' counted kWh (usable ' + usable.toFixed(1) + ' of ' + nominal.toFixed(1) + ' nominal)';
+      warnings.push('PRCs are payable only for installs ON/AFTER 1 SEPTEMBER 2026 — earlier installs earn none.');
+    }
+  }
+
+  const netCost = gross - solarStcValue - fedStcValue - prcNet;
+  const recommended = marginPct < 1 ? netCost / (1 - marginPct) : 0;
+
+  let h = '<thead><tr><th style="text-align:left;">Item</th><th>Qty</th><th style="text-align:right;">Unit ex GST</th><th style="text-align:right;">Total ex GST</th></tr></thead><tbody>';
+  for (const [desc, q, unit_, tot] of rows)
+    h += '<tr><td>' + desc + '</td><td style="text-align:center;">' + q + '</td><td style="text-align:right;">' + ciFmt(unit_ / 1.1) + '</td><td style="text-align:right;">' + ciFmt(tot / 1.1) + '</td></tr>';
+  h += '<tr><td>BoS allowance (mounting/rail/DC/electrical at resi rates)</td><td style="text-align:center;">1</td><td></td><td style="text-align:right;">' + ciFmt(bos / 1.1) + '</td></tr>';
+  if (siteworks > 0) h += '<tr><td>Site works / labour allowance</td><td style="text-align:center;">1</td><td></td><td style="text-align:right;">' + ciFmt(siteworks / 1.1) + '</td></tr>';
+  h += '<tr class="total-row"><td colspan="3"><strong>Gross Cost (ex GST)</strong></td><td style="text-align:right;"><strong>' + ciFmt(gross / 1.1) + '</strong></td></tr>'
+    + '<tr><td colspan="3" style="color:var(--muted);">Gross Cost (inc GST)</td><td style="text-align:right;color:var(--muted);">' + ciFmt(gross) + '</td></tr></tbody>';
+  document.getElementById('gc-bom').innerHTML = h;
+
+  let s = '';
+  if (solarStcValue > 0) s += summaryRow('Solar STCs (' + solarStcs + ' &times; $' + stcPrice + ')', '&minus; ' + ciFmt(solarStcValue));
+  if (fedStcValue > 0) s += summaryRow('Federal battery STCs (' + fedStcs + ')', '&minus; ' + ciFmt(fedStcValue));
+  if (prcs > 0) {
+    s += summaryRow('PRCs — ' + activity.toUpperCase() + ' (' + prcs.toLocaleString('en-AU') + ' &times; $' + prcPrice.toFixed(2) + ')', ciFmt(prcGross) + ' gross');
+    s += summaryRow('PRC net of ' + Math.round(acpFee * 100) + '% ACP fee — ' + prcNote, '&minus; ' + ciFmt(prcNet));
+  }
+  s += '<div class="recommended-row"><span class="label">Net Cost after rebates (ex GST)</span><span class="value">' + ciFmt(netCost / 1.1) + '</span></div>';
+  s += '<div class="recommended-row"><span class="label">Net Cost after rebates (inc GST)</span><span class="value">' + ciFmt(netCost) + '</span></div>';
+  s += '<div class="recommended-row"><span class="label">Recommended Sale (' + Math.round(marginPct * 100) + '% margin, inc GST)</span><span class="value">' + ciFmt(recommended) + '</span></div>';
+  if (salePrice !== null && !isNaN(salePrice)) {
+    const gp = salePrice - netCost;
+    const pct = salePrice > 0 ? (100 * gp / salePrice) : 0;
+    s += summaryRow('Gross Profit at ' + ciFmt(salePrice) + ' (inc GST)', ciFmt(gp) + ' (' + pct.toFixed(1) + '%)');
+    s += summaryRow('Gross Profit (ex GST)', ciFmt(gp / 1.1));
+    if (pct < 20) s += '<div class="margin-alert low">Margin below 20% — review before quoting</div>';
+  }
+  document.getElementById('gc-summary').innerHTML = s;
+
+  document.getElementById('gc-warnings').innerHTML = warnings.length
+    ? '<div style="background:var(--brand-yellow-tint);border-radius:8px;padding:0.6rem 0.8rem;margin-bottom:0.7rem;font-size:0.82rem;line-height:1.45;">' +
+      warnings.map(w => '&#9888; ' + w).join('<br>') + '</div>'
+    : '';
+}
+
 function switchTab(tab) {
   document.getElementById('section-sig').style.display  = (tab === 'sig')  ? '' : 'none';
   document.getElementById('section-gw').style.display   = (tab === 'gw')   ? '' : 'none';
   document.getElementById('section-ci').style.display   = (tab === 'ci')   ? '' : 'none';
   document.getElementById('section-deye').style.display = (tab === 'deye') ? '' : 'none';
+  document.getElementById('section-gwci').style.display = (tab === 'gwci') ? '' : 'none';
   document.getElementById('tab-sig').classList.toggle('active',  tab === 'sig');
   document.getElementById('tab-gw').classList.toggle('active',   tab === 'gw');
   document.getElementById('tab-ci').classList.toggle('active',   tab === 'ci');
   document.getElementById('tab-deye').classList.toggle('active', tab === 'deye');
+  document.getElementById('tab-gwci').classList.toggle('active', tab === 'gwci');
 }
 
 // ================================================================
@@ -2888,6 +3232,7 @@ updateGwBatterySizes(); // populates g-batteryKwh and calls calcGW()
 calcSig();
 calcCI();
 calcDeye();
+calcGwci();
 </script>
 </body>
 </html>
