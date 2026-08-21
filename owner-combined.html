@@ -925,6 +925,26 @@
               <option value="commsonly">Comms-only (flat $/sale)</option>
             </select>
           </div>
+          <div class="form-group admin-only">
+            <label>NSW PDRS Activity</label>
+            <select id="s-pdrsActivity" onchange="calcSig()">
+              <option value="auto" selected>Auto (BESS2 if 2&ndash;28kWh usable)</option>
+              <option value="bess3">BESS3 &mdash; strata (from 1 Sep 2026)</option>
+              <option value="bess4">BESS4 &mdash; commercial &le;200kWh (from 1 Sep 2026)</option>
+              <option value="bess5">BESS5 &mdash; &gt;200kWh (from 1 Sep 2026)</option>
+              <option value="none">None</option>
+            </select>
+          </div>
+          <div class="form-group admin-only">
+            <label>PDRS: solar &le;90 days &middot; dwellings (BESS3)</label>
+            <div style="display:flex;gap:6px;">
+              <select id="s-pdrsSolar90" onchange="calcSig()" style="flex:1;">
+                <option value="yes" selected>Solar &le;90 days: Yes</option>
+                <option value="no">No</option>
+              </select>
+              <input type="number" id="s-pdrsDwellings" min="0" max="200" step="1" value="4" oninput="calcSig()" style="width:90px;" title="Dwellings (BESS3)">
+            </div>
+          </div>
           <div class="form-group">
             <label>Sale Price (inc GST)</label>
             <input type="number" id="s-salePrice" min="0" step="0.01" placeholder="Leave blank to skip" oninput="calcSig()">
@@ -1098,6 +1118,27 @@
             <option value="onbooks">On-the-books ($/panel + battery)</option>
             <option value="commsonly">Comms-only (flat $/sale)</option>
           </select>
+        </div>
+
+        <div class="form-group admin-only" style="margin-top:0.75rem;">
+          <label>NSW PDRS Activity</label>
+          <select id="g-pdrsActivity" onchange="calcGW()">
+            <option value="auto" selected>Auto (BESS2 if 2&ndash;28kWh usable)</option>
+            <option value="bess3">BESS3 &mdash; strata (from 1 Sep 2026)</option>
+            <option value="bess4">BESS4 &mdash; commercial &le;200kWh (from 1 Sep 2026)</option>
+            <option value="bess5">BESS5 &mdash; &gt;200kWh (from 1 Sep 2026)</option>
+            <option value="none">None</option>
+          </select>
+        </div>
+        <div class="form-group admin-only" style="margin-top:0.75rem;">
+          <label>PDRS: solar &le;90 days &middot; dwellings (BESS3)</label>
+          <div style="display:flex;gap:6px;">
+            <select id="g-pdrsSolar90" onchange="calcGW()" style="flex:1;">
+              <option value="yes" selected>Solar &le;90 days: Yes</option>
+              <option value="no">No</option>
+            </select>
+            <input type="number" id="g-pdrsDwellings" min="0" max="200" step="1" value="4" oninput="calcGW()" style="width:90px;" title="Dwellings (BESS3)">
+          </div>
         </div>
 
         <div class="form-footer">
@@ -1892,6 +1933,40 @@ function calcBess2(usableKwh) {
   const gross = prcs * BESS2_PRC_PRICE;
   const net   = gross * (1 - BESS2_ACP_FEE);
   return { prcs, gross, net };
+}
+
+// BESS3/4/5 — PDRS commercial/strata activities (from 1 Sep 2026), mirrors the C&I tabs.
+// usable = 0.9 x nominal per PDRS Rule clause 10. PRC $3.36 inc GST x 70% net of ACP fee.
+function calcBessCommercial(activity, usable, invKw, pvKw, solar90, dwellings, nlf) {
+  const notes = [];
+  if (!(usable > 0)) return null;
+  if (!(invKw > 0)) { notes.push('PDRS: no inverter capacity in this configuration — no PRCs.'); return { prcs: 0, gross: 0, net: 0, notes }; }
+  if (usable > 6 * invKw) { notes.push('PDRS ineligible: usable exceeds 6 &times; inverter kW.'); return { prcs: 0, gross: 0, net: 0, notes }; }
+  if (pvKw < 0.25 * usable) {
+    notes.push('PDRS ineligible: BESS3/4/5 need NEW solar &ge; 25% of usable — need ' + (0.25 * usable).toFixed(1) + 'kW of new solar, currently ' + pvKw.toFixed(1) + 'kW.');
+    return { prcs: 0, gross: 0, net: 0, notes };
+  }
+  let counted = Math.min(usable, 4 * invKw);
+  let base = 0;
+  if (activity === 'bess3') {
+    counted = Math.min(counted, 5 * (dwellings || 0));
+    base = counted * (solar90 ? 108 : 76.77);
+    notes.push('BESS3: strata building with &ge;4 dwellings, battery OUTDOORS, no existing BESS at the NMI, min $1,000 net customer payment.');
+  } else if (activity === 'bess4') {
+    if (usable <= 20 || usable > 200) notes.push('BESS4 band is &gt;20&ndash;200kWh usable — check ' + usable.toFixed(1) + 'kWh qualifies.');
+    const t1 = solar90 ? 45 : 30.15, t2 = solar90 ? 63 : 42.21, full = solar90 ? 90 : 60.3;
+    base = counted <= 50 ? counted * t1 : counted <= 100 ? 50 * t1 + (counted - 50) * t2 : counted * full;
+    notes.push('BESS4: COMMERCIAL sites only (not residential premises); min $5,000 net customer payment ex GST; one BESS4/5 per site EVER; approved-product list applies.');
+  } else {
+    counted = Math.min(counted, 10000);
+    base = counted * (solar90 ? 90 : 60.3);
+    notes.push('BESS5 (&gt;200kWh usable): UL9540A fire test certification required; no minimum customer payment.');
+  }
+  const prcs = Math.floor(base * nlf);
+  const gross = prcs * 3.36;
+  const net = gross * 0.70;
+  notes.push('Installs ON/AFTER 1 SEP 2026 only &middot; ' + counted.toFixed(1) + ' counted kWh &middot; ' + prcs.toLocaleString('en-AU') + ' PRCs &times; $3.36 inc GST &times; 70% net of ACP fee.');
+  return { prcs, gross, net, notes };
 }
 
 function calcBatterySTCs(batteryKwh, cap) {
@@ -2794,11 +2869,24 @@ function calcSig() {
 
   sHtml += `<div class="recommended-row"><span class="label">Recommended Sale Price (inc GST)${extrasIncGst > 0 ? ' (+ extras)' : ''}<span class="admin-only"> (${recMarginLabel})</span></span><span class="value">${fmt(recommendedPrice)}</span></div>`;
 
-  // BESS2 NSW VPP rebate (only when usable capacity is strictly between 2 and 28 kWh)
-  const sigBess2 = calcBess2(batteryKwh);
-  if (sigBess2) {
-    sHtml += `<div class="bess2-rebate"><span class="label">NSW VPP Rebate (BESS2) &mdash; ${sigBess2.prcs} PRCs</span><span class="value">&minus; ${fmt(sigBess2.net)}</span></div>`;
-    sHtml += `<div class="bess2-note">${sigBess2.prcs} PRCs &times; $${BESS2_PRC_PRICE.toFixed(2)} &times; ${((1 - BESS2_ACP_FEE) * 100).toFixed(0)}% (net of ACP fee) &mdash; paid after VPP onboarding</div>`;
+  // NSW PDRS — auto BESS2 (2-28kWh usable), or toggled BESS3/4/5 commercial activities
+  const sPdrsAct = (document.getElementById('s-pdrsActivity') || { value: 'auto' }).value;
+  if (sPdrsAct === 'auto') {
+    const sigBess2 = calcBess2(batteryKwh);
+    if (sigBess2) {
+      sHtml += `<div class="bess2-rebate"><span class="label">NSW VPP Rebate (BESS2) &mdash; ${sigBess2.prcs} PRCs</span><span class="value">&minus; ${fmt(sigBess2.net)}</span></div>`;
+      sHtml += `<div class="bess2-note">${sigBess2.prcs} PRCs &times; $${BESS2_PRC_PRICE.toFixed(2)} &times; ${((1 - BESS2_ACP_FEE) * 100).toFixed(0)}% (net of ACP fee) &mdash; paid after VPP onboarding</div>`;
+    }
+  } else if (sPdrsAct !== 'none' && hasBattery) {
+    const sInvKw = parseFloat((inverterType.match(/\d+(?:\.\d+)?/) || [0])[0]) * (numInverters || 1);
+    const sPvKw = numPanels * (PANEL_WATTS[panelType] || 475) / 1000;
+    const s90 = (document.getElementById('s-pdrsSolar90') || { value: 'yes' }).value === 'yes';
+    const sDw = parseInt((document.getElementById('s-pdrsDwellings') || { value: 4 }).value) || 0;
+    const sRes = calcBessCommercial(sPdrsAct, 0.9 * batteryKwh, sInvKw, sPvKw, s90, sDw, BESS2_NLF);
+    if (sRes) {
+      if (sRes.prcs > 0) sHtml += `<div class="bess2-rebate"><span class="label">NSW PDRS ${sPdrsAct.toUpperCase()} &mdash; ${sRes.prcs.toLocaleString('en-AU')} PRCs</span><span class="value">&minus; ${fmt(sRes.net)}</span></div>`;
+      for (const n of sRes.notes) sHtml += `<div class="bess2-note">&#9888; ${n}</div>`;
+    }
   }
 
   // Rep commission is added into the recommended price above — show it as an addition
@@ -3068,11 +3156,24 @@ function calcGW() {
 
   sHtml += `<div class="recommended-row"><span class="label">Recommended Sale Price (inc GST)${extrasIncGst > 0 ? ' (+ extras)' : ''}<span class="admin-only"> (${recMarginLabel})</span></span><span class="value">${fmt(recommendedPrice)}</span></div>`;
 
-  // BESS2 NSW VPP rebate (only when usable capacity is strictly between 2 and 28 kWh)
-  const gwBess2 = calcBess2(batteryKwh);
-  if (gwBess2) {
-    sHtml += `<div class="bess2-rebate"><span class="label">NSW VPP Rebate (BESS2) &mdash; ${gwBess2.prcs} PRCs</span><span class="value">&minus; ${fmt(gwBess2.net)}</span></div>`;
-    sHtml += `<div class="bess2-note">${gwBess2.prcs} PRCs &times; $${BESS2_PRC_PRICE.toFixed(2)} &times; ${((1 - BESS2_ACP_FEE) * 100).toFixed(0)}% (net of ACP fee) &mdash; paid after VPP onboarding</div>`;
+  // NSW PDRS — auto BESS2 (2-28kWh usable), or toggled BESS3/4/5 commercial activities
+  const gPdrsAct = (document.getElementById('g-pdrsActivity') || { value: 'auto' }).value;
+  if (gPdrsAct === 'auto') {
+    const gwBess2 = calcBess2(batteryKwh);
+    if (gwBess2) {
+      sHtml += `<div class="bess2-rebate"><span class="label">NSW VPP Rebate (BESS2) &mdash; ${gwBess2.prcs} PRCs</span><span class="value">&minus; ${fmt(gwBess2.net)}</span></div>`;
+      sHtml += `<div class="bess2-note">${gwBess2.prcs} PRCs &times; $${BESS2_PRC_PRICE.toFixed(2)} &times; ${((1 - BESS2_ACP_FEE) * 100).toFixed(0)}% (net of ACP fee) &mdash; paid after VPP onboarding</div>`;
+    }
+  } else if (gPdrsAct !== 'none' && hasBattery) {
+    const gInvKw = parseFloat((inverterType.match(/\d+(?:\.\d+)?/) || [0])[0]) * (numInverters || 1);
+    const gPvKw = numPanels * (PANEL_WATTS[panelType] || 475) / 1000;
+    const g90 = (document.getElementById('g-pdrsSolar90') || { value: 'yes' }).value === 'yes';
+    const gDw = parseInt((document.getElementById('g-pdrsDwellings') || { value: 4 }).value) || 0;
+    const gRes = calcBessCommercial(gPdrsAct, 0.9 * batteryKwh, gInvKw, gPvKw, g90, gDw, BESS2_NLF);
+    if (gRes) {
+      if (gRes.prcs > 0) sHtml += `<div class="bess2-rebate"><span class="label">NSW PDRS ${gPdrsAct.toUpperCase()} &mdash; ${gRes.prcs.toLocaleString('en-AU')} PRCs</span><span class="value">&minus; ${fmt(gRes.net)}</span></div>`;
+      for (const n of gRes.notes) sHtml += `<div class="bess2-note">&#9888; ${n}</div>`;
+    }
   }
 
   // Rep commission is added into the recommended price above — show it as an addition
