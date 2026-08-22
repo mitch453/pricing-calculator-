@@ -1240,8 +1240,12 @@
           <input type="number" id="ci-pvinvQty" min="0" max="8" step="1" value="0" oninput="calcCI()">
         </div>
         <div class="form-group">
-          <label>Battery Modules (BAT 12.0, 4&ndash;21)</label>
+          <label>Battery Modules per System (BAT 12.0, 4&ndash;21)</label>
           <input type="number" id="ci-mods" min="0" max="21" step="1" value="10" oninput="calcCI()">
+        </div>
+        <div class="form-group">
+          <label>SigenStack Systems (stacks)</label>
+          <input type="number" id="ci-systems" min="1" max="10" step="1" value="1" oninput="calcCI()">
         </div>
         <div class="form-group">
           <label>Battery Controller</label>
@@ -2100,6 +2104,7 @@ function calcCI() {
   const pvinv     = CI_PVINV[v('ci-pvinv').value];
   const pvQty     = parseInt(v('ci-pvinvQty').value) || 0;
   const mods      = parseInt(v('ci-mods').value) || 0;
+  const systems   = Math.max(1, Math.min(10, parseInt(v('ci-systems').value) || 1));
   const bcChoice  = v('ci-bc').value;
   const nlf       = parseFloat(v('ci-network').value) || 1.04;
   const siteworks = parseFloat(v('ci-siteworks').value) || 0;
@@ -2124,7 +2129,8 @@ function calcCI() {
 
   // ── panels + PV inverters ──
   if (numPanels > 0) add(PANEL_LABELS[panelType], numPanels, PANEL_PRICES[panelType]);
-  if (hyb.price > 0) add(hyb.label, 1, hyb.price * CI_GST);
+  const hybQty = (mods > 0) ? systems : 1;
+  if (hyb.price > 0) add(hyb.label, hybQty, hyb.price * CI_GST);
   if (pvQty > 0 && pvinv.price > 0) add(pvinv.label, pvQty, pvinv.price * CI_GST);
 
   // ── SigenStack battery bank ──
@@ -2141,20 +2147,20 @@ function calcCI() {
     const bcPrice = { bc05: CI_P.bc05, bc05bst: CI_P.bc05bst, bc1bst: CI_P.bc1bst }[bcKey];
     const bcLabel = { bc05: 'Battery Controller M2-0.5C', bc05bst: 'Battery Controller M2-0.5C-BST', bc1bst: 'Battery Controller M2-1C-BST' }[bcKey];
 
-    add('SigenStack BAT 12.0 (12.06kWh)', mods, CI_P.bat * CI_GST);
-    add(bcLabel, 1, bcPrice * CI_GST);
+    add('SigenStack BAT 12.0 (12.06kWh)', mods * systems, CI_P.bat * CI_GST);
+    add(bcLabel + (systems > 1 ? ' (1 per system)' : ''), systems, bcPrice * CI_GST);
 
     const towers = mods <= 7 ? 1 : mods <= 12 ? 2 : mods <= 18 ? 3 : 4;
     const oneC = bcKey === 'bc1bst';
     if (towers === 4) {
-      add('Base 4S-0.5C (pre-cabled 4-tower)', 1, CI_P.base4s * CI_GST);
+      add('Base 4S-0.5C (pre-cabled 4-tower)', systems, CI_P.base4s * CI_GST);
     } else {
-      add(oneC ? 'Base MAIN-1C' : 'Base MAIN-0.5C', 1, (oneC ? CI_P.baseMain1 : CI_P.baseMain05) * CI_GST);
-      if (towers > 1) add(oneC ? 'Base SUB-1C' : 'Base SUB-0.5C', towers - 1, (oneC ? CI_P.baseSub1 : CI_P.baseSub05) * CI_GST);
+      add(oneC ? 'Base MAIN-1C' : 'Base MAIN-0.5C', systems, (oneC ? CI_P.baseMain1 : CI_P.baseMain05) * CI_GST);
+      if (towers > 1) add(oneC ? 'Base SUB-1C' : 'Base SUB-0.5C', (towers - 1) * systems, (oneC ? CI_P.baseSub1 : CI_P.baseSub05) * CI_GST);
     }
-    if (towers > 1) add('SigenStack Cover (per SUB tower)', towers - 1, CI_P.cover * CI_GST);
-    add('BC Cables 4m set', 1, CI_P.cables * CI_GST);
-    if (mods === 7) add('Fixation kit (7th module in tower)', 1, CI_P.fixKit * CI_GST);
+    if (towers > 1) add('SigenStack Cover (per SUB tower)', (towers - 1) * systems, CI_P.cover * CI_GST);
+    add('BC Cables 4m set', systems, CI_P.cables * CI_GST);
+    if (mods === 7) add('Fixation kit (7th module in tower)', systems, CI_P.fixKit * CI_GST);
   }
 
   // ── BoS (residential-rate placeholder, ex GST) ──
@@ -2168,9 +2174,9 @@ function calcCI() {
   const gross = equip + bos + siteworks;
 
   // ── rebates ──
-  const nominal = mods * CI_P.batKwh;
+  const nominal = systems * mods * CI_P.batKwh;
   const usable = 0.9 * nominal;                       // PDRS Rule clause 10
-  const invKw = hyb.kw;
+  const invKw = hyb.kw * hybQty;
 
   // solar STCs (<=100kW small generation unit; 2026 = 5yr deeming)
   let solarStcs = 0, solarStcValue = 0;
