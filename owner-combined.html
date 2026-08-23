@@ -833,7 +833,7 @@
             </select>
           </div>
           <div class="form-group">
-            <label>BAT 10.0 (9 kWh) Modules — $2,780 ea</label>
+            <label>BAT 10.0 (9 kWh) Modules — $2,607 ea</label>
             <select id="s-num8kwh" onchange="calcSig()">
               <option value="0">0</option>
               <option value="1">1</option>
@@ -842,6 +842,20 @@
               <option value="4">4</option>
               <option value="5">5</option>
               <option value="6" selected>6</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>BAT 8.0 (8 kWh) Modules — $2,200 ea</label>
+            <select id="s-num8k" onchange="calcSig()">
+              <option value="0" selected>0</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+              <option value="7">7</option>
+              <option value="8">8</option>
             </select>
           </div>
           <div class="form-group">
@@ -1836,6 +1850,7 @@ const SIG_INVERTER_LABELS = {
 };
 const SIG_BAT8  = { kwh: 9,   price: 2607.00, label: 'Sigenergy BAT 10.0 (9kWh module)' };
 const SIG_BAT5  = { kwh: 5,   price: 3056.90, label: 'Sigenergy BAT 5.0 (5kWh module)' };
+const SIG_BAT8K = { kwh: 8,   price: 2200.00, label: 'Sigenergy BAT 8.0 (8kWh module)' };   // $2,000 ex GST (owner purchase, Aug 2026)
 const SIG_GATEWAY_PRICES = { sp: 756.86, tp: 935.45 };
 const SIG_STC_BATTERY_CAP = 50;
 // Overheads (admin, editable). Weekly $ + working days; daily = weekly / days.
@@ -2683,14 +2698,15 @@ function calcSig() {
   const numInverters = parseInt(document.getElementById('s-numInverters').value);
   const num8kwh      = parseInt(document.getElementById('s-num8kwh').value) || 0;
   const num5kwh      = parseInt(document.getElementById('s-num5kwh').value) || 0;
+  const num8k        = parseInt(document.getElementById('s-num8k').value) || 0;
   const gatewayType  = document.getElementById('s-gatewayType').value;
   const numInstallKits = parseInt(document.getElementById('s-numInstallKits').value);
   const powerSensor  = document.getElementById('s-powerSensor').value;
   const salePriceVal = document.getElementById('s-salePrice').value;
   const salePrice    = salePriceVal ? parseFloat(salePriceVal) : null;
 
-  const batteryKwh    = num8kwh * SIG_BAT8.kwh + num5kwh * SIG_BAT5.kwh;
-  const batteryModules = num8kwh + num5kwh;
+  const batteryKwh    = num8kwh * SIG_BAT8.kwh + num5kwh * SIG_BAT5.kwh + num8k * SIG_BAT8K.kwh;
+  const batteryModules = num8kwh + num5kwh + num8k;
   const hasPanels  = numPanels > 0;
   const hasBattery = batteryModules > 0;
   const threePhase = isTPinv(inverterType);
@@ -2726,6 +2742,7 @@ function calcSig() {
   if (hasBattery) {
     addSection('Battery');
     if (num8kwh > 0) addRow(SIG_BAT8.label, num8kwh, fmt(SIG_BAT8.price), num8kwh * SIG_BAT8.price);
+    if (num8k > 0) addRow(SIG_BAT8K.label, num8k, fmt(SIG_BAT8K.price), num8k * SIG_BAT8K.price);
     if (num5kwh > 0) addRow(SIG_BAT5.label, num5kwh, fmt(SIG_BAT5.price), num5kwh * SIG_BAT5.price);
   }
 
