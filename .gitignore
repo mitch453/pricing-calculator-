@@ -1,0 +1,5 @@
+# never publish internals to the public Pages repo
+cost_engine.py
+*.pdf
+*.py[co]
+generate_pdf.py
