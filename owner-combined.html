@@ -2818,7 +2818,19 @@ function calcSig() {
     batterySTCvalue = batterySTCs * STC_PRICE;
   }
   const totalSTCvalue  = solarSTCvalue + batterySTCvalue;
-  const netMaterialCost = grossTotal - totalSTCvalue;
+
+  // BESS3/4/5 PRCs — deducted from cost like STCs (owner, 26 Aug 2026); BESS2 stays informational
+  const sPdrsAct = (document.getElementById('s-pdrsActivity') || { value: 'auto' }).value;
+  let sPdrsRes = null, sPdrsNet = 0;
+  if (sPdrsAct !== 'auto' && sPdrsAct !== 'none' && hasBattery) {
+    const pInvKw = parseFloat((inverterType.match(/\d+(?:\.\d+)?/) || [0])[0]) * (numInverters || 1);
+    const pPvKw = numPanels * (PANEL_WATTS[panelType] || 475) / 1000;
+    const p90 = (document.getElementById('s-pdrsSolar90') || { value: 'yes' }).value === 'yes';
+    const pDw = parseInt((document.getElementById('s-pdrsDwellings') || { value: 4 }).value) || 0;
+    sPdrsRes = calcBessCommercial(sPdrsAct, 0.9 * batteryKwh, pInvKw, pPvKw, p90, pDw, BESS2_NLF);
+    if (sPdrsRes) sPdrsNet = sPdrsRes.net;
+  }
+  const netMaterialCost = grossTotal - totalSTCvalue - sPdrsNet;
 
   // Recommended price — solar-only jobs use a flat $/kW rate; everything else
   // uses the tiered battery-module margin.
@@ -2883,6 +2895,7 @@ function calcSig() {
     sHtml += summaryRow(`STC spread income (${solarSTCs + batterySTCs} STCs &times; $${(STC_ACTUAL_PRICE - STC_PRICE).toFixed(2)} ex GST)`, '+ ' + fmt((solarSTCs + batterySTCs) * (STC_ACTUAL_PRICE - STC_PRICE)));
     sHtml += '</div>';
   }
+  if (sPdrsRes && sPdrsRes.prcs > 0) sHtml += summaryRow(`PDRS ${sPdrsAct.toUpperCase()} PRCs (${sPdrsRes.prcs.toLocaleString('en-AU')} &times; $3.36 &times; 70%)`, '&minus; ' + fmt(sPdrsNet), 'big');
   sHtml += '<div class="admin-only">';
   sHtml += '<div class="summary-divider"></div>';
   sHtml += summaryRow('Net Material Cost (ex GST)', fmt(netMaterialCost / 1.1), 'big');
@@ -2898,24 +2911,15 @@ function calcSig() {
 
   sHtml += `<div class="recommended-row"><span class="label">Recommended Sale Price (inc GST)${extrasIncGst > 0 ? ' (+ extras)' : ''}<span class="admin-only"> (${recMarginLabel})</span></span><span class="value">${fmt(recommendedPrice)}</span></div>`;
 
-  // NSW PDRS — auto BESS2 (2-28kWh usable), or toggled BESS3/4/5 commercial activities
-  const sPdrsAct = (document.getElementById('s-pdrsActivity') || { value: 'auto' }).value;
+  // NSW PDRS — BESS2 informational (auto); BESS3/4/5 already deducted from cost above
   if (sPdrsAct === 'auto') {
     const sigBess2 = calcBess2(batteryKwh);
     if (sigBess2) {
       sHtml += `<div class="bess2-rebate"><span class="label">NSW VPP Rebate (BESS2) &mdash; ${sigBess2.prcs} PRCs</span><span class="value">&minus; ${fmt(sigBess2.net)}</span></div>`;
       sHtml += `<div class="bess2-note">${sigBess2.prcs} PRCs &times; $${BESS2_PRC_PRICE.toFixed(2)} &times; ${((1 - BESS2_ACP_FEE) * 100).toFixed(0)}% (net of ACP fee) &mdash; paid after VPP onboarding</div>`;
     }
-  } else if (sPdrsAct !== 'none' && hasBattery) {
-    const sInvKw = parseFloat((inverterType.match(/\d+(?:\.\d+)?/) || [0])[0]) * (numInverters || 1);
-    const sPvKw = numPanels * (PANEL_WATTS[panelType] || 475) / 1000;
-    const s90 = (document.getElementById('s-pdrsSolar90') || { value: 'yes' }).value === 'yes';
-    const sDw = parseInt((document.getElementById('s-pdrsDwellings') || { value: 4 }).value) || 0;
-    const sRes = calcBessCommercial(sPdrsAct, 0.9 * batteryKwh, sInvKw, sPvKw, s90, sDw, BESS2_NLF);
-    if (sRes) {
-      if (sRes.prcs > 0) sHtml += `<div class="bess2-rebate"><span class="label">NSW PDRS ${sPdrsAct.toUpperCase()} &mdash; ${sRes.prcs.toLocaleString('en-AU')} PRCs</span><span class="value">&minus; ${fmt(sRes.net)}</span></div>`;
-      for (const n of sRes.notes) sHtml += `<div class="bess2-note">&#9888; ${n}</div>`;
-    }
+  } else if (sPdrsRes) {
+    for (const n of sPdrsRes.notes) sHtml += `<div class="bess2-note">&#9888; ${n}</div>`;
   }
 
   // Rep commission is added into the recommended price above — show it as an addition
@@ -3110,7 +3114,19 @@ function calcGW() {
     batterySTCvalue = batterySTCs * STC_PRICE;
   }
   const totalSTCvalue   = solarSTCvalue + batterySTCvalue;
-  const netMaterialCost = grossTotal - totalSTCvalue;
+
+  // BESS3/4/5 PRCs — deducted from cost like STCs (owner, 26 Aug 2026); BESS2 stays informational
+  const gPdrsAct = (document.getElementById('g-pdrsActivity') || { value: 'auto' }).value;
+  let gPdrsRes = null, gPdrsNet = 0;
+  if (gPdrsAct !== 'auto' && gPdrsAct !== 'none' && hasBattery) {
+    const pInvKw = parseFloat((inverterType.match(/\d+(?:\.\d+)?/) || [0])[0]) * (numInverters || 1);
+    const pPvKw = numPanels * (PANEL_WATTS[panelType] || 475) / 1000;
+    const p90 = (document.getElementById('g-pdrsSolar90') || { value: 'yes' }).value === 'yes';
+    const pDw = parseInt((document.getElementById('g-pdrsDwellings') || { value: 4 }).value) || 0;
+    gPdrsRes = calcBessCommercial(gPdrsAct, 0.9 * batteryKwh, pInvKw, pPvKw, p90, pDw, BESS2_NLF);
+    if (gPdrsRes) gPdrsNet = gPdrsRes.net;
+  }
+  const netMaterialCost = grossTotal - totalSTCvalue - gPdrsNet;
 
   // Recommended price — solar-only jobs use a flat $/kW rate; everything else
   // uses the tiered battery-module margin.
@@ -3175,6 +3191,7 @@ function calcGW() {
     sHtml += summaryRow(`STC spread income (${solarSTCs + batterySTCs} STCs &times; $${(STC_ACTUAL_PRICE - STC_PRICE).toFixed(2)} ex GST)`, '+ ' + fmt((solarSTCs + batterySTCs) * (STC_ACTUAL_PRICE - STC_PRICE)));
     sHtml += '</div>';
   }
+  if (gPdrsRes && gPdrsRes.prcs > 0) sHtml += summaryRow(`PDRS ${gPdrsAct.toUpperCase()} PRCs (${gPdrsRes.prcs.toLocaleString('en-AU')} &times; $3.36 &times; 70%)`, '&minus; ' + fmt(gPdrsNet), 'big');
   sHtml += '<div class="admin-only">';
   sHtml += '<div class="summary-divider"></div>';
   sHtml += summaryRow('Net Material Cost (ex GST)', fmt(netMaterialCost / 1.1), 'big');
@@ -3190,24 +3207,15 @@ function calcGW() {
 
   sHtml += `<div class="recommended-row"><span class="label">Recommended Sale Price (inc GST)${extrasIncGst > 0 ? ' (+ extras)' : ''}<span class="admin-only"> (${recMarginLabel})</span></span><span class="value">${fmt(recommendedPrice)}</span></div>`;
 
-  // NSW PDRS — auto BESS2 (2-28kWh usable), or toggled BESS3/4/5 commercial activities
-  const gPdrsAct = (document.getElementById('g-pdrsActivity') || { value: 'auto' }).value;
+  // NSW PDRS — BESS2 informational (auto); BESS3/4/5 already deducted from cost above
   if (gPdrsAct === 'auto') {
     const gwBess2 = calcBess2(batteryKwh);
     if (gwBess2) {
       sHtml += `<div class="bess2-rebate"><span class="label">NSW VPP Rebate (BESS2) &mdash; ${gwBess2.prcs} PRCs</span><span class="value">&minus; ${fmt(gwBess2.net)}</span></div>`;
       sHtml += `<div class="bess2-note">${gwBess2.prcs} PRCs &times; $${BESS2_PRC_PRICE.toFixed(2)} &times; ${((1 - BESS2_ACP_FEE) * 100).toFixed(0)}% (net of ACP fee) &mdash; paid after VPP onboarding</div>`;
     }
-  } else if (gPdrsAct !== 'none' && hasBattery) {
-    const gInvKw = parseFloat((inverterType.match(/\d+(?:\.\d+)?/) || [0])[0]) * (numInverters || 1);
-    const gPvKw = numPanels * (PANEL_WATTS[panelType] || 475) / 1000;
-    const g90 = (document.getElementById('g-pdrsSolar90') || { value: 'yes' }).value === 'yes';
-    const gDw = parseInt((document.getElementById('g-pdrsDwellings') || { value: 4 }).value) || 0;
-    const gRes = calcBessCommercial(gPdrsAct, 0.9 * batteryKwh, gInvKw, gPvKw, g90, gDw, BESS2_NLF);
-    if (gRes) {
-      if (gRes.prcs > 0) sHtml += `<div class="bess2-rebate"><span class="label">NSW PDRS ${gPdrsAct.toUpperCase()} &mdash; ${gRes.prcs.toLocaleString('en-AU')} PRCs</span><span class="value">&minus; ${fmt(gRes.net)}</span></div>`;
-      for (const n of gRes.notes) sHtml += `<div class="bess2-note">&#9888; ${n}</div>`;
-    }
+  } else if (gPdrsRes) {
+    for (const n of gPdrsRes.notes) sHtml += `<div class="bess2-note">&#9888; ${n}</div>`;
   }
 
   // Rep commission is added into the recommended price above — show it as an addition
