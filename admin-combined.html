@@ -1289,7 +1289,8 @@
 // ================================================================
 // SHARED PRICING DATA
 // ================================================================
-const STC_PRICE = 36.00;
+const STC_PRICE = 36.00;          // credited to the customer on the quote
+const STC_ACTUAL_PRICE = 37.20;   // actually received — the spread flows to margin on every job
 const PANEL_PRICES = { ja475: 130, jinko475: 135, jinko510: 117.81, aiko475: 175 };
 const PANEL_WATTS  = { ja475: 475, jinko475: 475, jinko510: 510, aiko475: 490 };
 const PANEL_LABELS = { ja475: 'JA 475W', jinko475: 'Jinko 475W (All Black)', jinko510: 'Jinko 510W N-Type (Black Frame)', aiko475: 'AIKO 490W' };
@@ -1695,6 +1696,11 @@ function calcSig() {
   if (hasPanels)  sHtml += summaryRow(`Solar STCs (${solarSTCs} &times; $${STC_PRICE})`, '&minus; ' + fmt(solarSTCvalue));
   if (hasBattery) sHtml += summaryRow(`Battery STCs (${batterySTCs} &times; $${STC_PRICE})`, '&minus; ' + fmt(batterySTCvalue));
   sHtml += summaryRow('Total STC Rebate', '&minus; ' + fmt(totalSTCvalue), 'big');
+  if (solarSTCs + batterySTCs > 0) {
+    sHtml += '<div class="admin-only">';
+    sHtml += summaryRow(`STC spread income (${solarSTCs + batterySTCs} STCs &times; $${(STC_ACTUAL_PRICE - STC_PRICE).toFixed(2)} ex GST)`, '+ ' + fmt((solarSTCs + batterySTCs) * (STC_ACTUAL_PRICE - STC_PRICE)));
+    sHtml += '</div>';
+  }
   sHtml += '<div class="admin-only">';
   sHtml += '<div class="summary-divider"></div>';
   sHtml += summaryRow('Net Material Cost (ex GST)', fmt(netMaterialCost / 1.1), 'big');
@@ -1969,6 +1975,11 @@ function calcGW() {
   if (hasPanels)  sHtml += summaryRow(`Solar STCs (${solarSTCs} &times; $${STC_PRICE})`, '&minus; ' + fmt(solarSTCvalue));
   if (hasBattery) sHtml += summaryRow(`Battery STCs (${batterySTCs} &times; $${STC_PRICE})`, '&minus; ' + fmt(batterySTCvalue));
   sHtml += summaryRow('Total STC Rebate', '&minus; ' + fmt(totalSTCvalue), 'big');
+  if (solarSTCs + batterySTCs > 0) {
+    sHtml += '<div class="admin-only">';
+    sHtml += summaryRow(`STC spread income (${solarSTCs + batterySTCs} STCs &times; $${(STC_ACTUAL_PRICE - STC_PRICE).toFixed(2)} ex GST)`, '+ ' + fmt((solarSTCs + batterySTCs) * (STC_ACTUAL_PRICE - STC_PRICE)));
+    sHtml += '</div>';
+  }
   sHtml += '<div class="admin-only">';
   sHtml += '<div class="summary-divider"></div>';
   sHtml += summaryRow('Net Material Cost (ex GST)', fmt(netMaterialCost / 1.1), 'big');
