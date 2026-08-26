@@ -806,19 +806,19 @@
             <label>Inverter</label>
             <select id="s-inverterType" onchange="calcSig()">
               <optgroup label="Single Phase">
-                <option value="ec5sp">EC 5.0 SP — $1,413.50</option>
-                <option value="ec6sp">EC 6.0 SP — $1,527.90</option>
-                <option value="ec8sp">EC 8.0 SP — $2,611.40</option>
-                <option value="ec10sp" selected>EC 10.0 SP — $2,814.90</option>
-                <option value="ec12sp">EC 12.0 SP — $3,019.50</option>
+                <option value="ec5sp">EC 5.0 SP — $1,378.16</option>
+                <option value="ec6sp">EC 6.0 SP — $1,489.70</option>
+                <option value="ec8sp">EC 8.0 SP — $2,546.12</option>
+                <option value="ec10sp" selected>EC 10.0 SP — $2,744.53</option>
+                <option value="ec12sp">EC 12.0 SP — $2,944.01</option>
               </optgroup>
               <optgroup label="Three Phase">
-                <option value="ec5tp">EC 5.0 TP — $2,420.00</option>
-                <option value="ec10tp">EC 10.0 TP — $2,802.80</option>
-                <option value="ec15tp">EC 15.0 TP — $3,693.80</option>
-                <option value="ec20tp">EC 20.0 TP — $4,215.20</option>
-                <option value="ec25tp">EC 25.0 TP — $4,840.00</option>
-                <option value="ec30tp">EC 30.0 TP — $5,324.00</option>
+                <option value="ec5tp">EC 5.0 TP — $2,359.50</option>
+                <option value="ec10tp">EC 10.0 TP — $2,732.73</option>
+                <option value="ec15tp">EC 15.0 TP — $3,601.45</option>
+                <option value="ec20tp">EC 20.0 TP — $4,109.82</option>
+                <option value="ec25tp">EC 25.0 TP — $4,719.00</option>
+                <option value="ec30tp">EC 30.0 TP — $5,190.90</option>
               </optgroup>
             </select>
           </div>
@@ -1307,8 +1307,8 @@ const CAR_CHARGER_LABELS = { none: '', gw7khca: 'GW7K-HCA (7kW Single Phase)', g
 // SIGENERGY PRICING DATA
 // ================================================================
 const SIG_INVERTER_PRICES = {
-  ec5sp: 1413.50, ec6sp: 1527.90, ec8sp: 2611.40, ec10sp: 2814.90, ec12sp: 3019.50,
-  ec5tp: 2420.00, ec10tp: 2802.80, ec15tp: 3693.80, ec20tp: 4215.20, ec25tp: 4840.00, ec30tp: 5324.00
+  ec5sp: 1378.16, ec6sp: 1489.70, ec8sp: 2546.12, ec10sp: 2744.53, ec12sp: 2944.01,   // 2.5% Sigenergy discount (Aug 2026)
+  ec5tp: 2359.50, ec10tp: 2732.73, ec15tp: 3601.45, ec20tp: 4109.82, ec25tp: 4719.00, ec30tp: 5190.90
 };
 const SIG_INVERTER_LABELS = {
   ec5sp: 'EC 5.0 SP', ec6sp: 'EC 6.0 SP', ec8sp: 'EC 8.0 SP', ec10sp: 'EC 10.0 SP', ec12sp: 'EC 12.0 SP',
