@@ -827,48 +827,19 @@
           </div>
           <div class="form-group">
             <label>No. of Inverters</label>
-            <select id="s-numInverters" onchange="calcSig()">
-              <option value="1">1</option>
-              <option value="2">2 (Dual)</option>
-            </select>
+            <input type="number" id="s-numInverters" min="1" step="1" value="1" oninput="calcSig()">
           </div>
           <div class="form-group">
-            <label>BAT 10.0 (9 kWh) Modules — $2,530 ea</label>
-            <select id="s-num8kwh" onchange="calcSig()">
-              <option value="0">0</option>
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-              <option value="5">5</option>
-              <option value="6" selected>6</option>
-            </select>
+            <label>BAT 10.0 (9 kWh) Modules — $2,530 ea (0&ndash;24)</label>
+            <input type="number" id="s-num8kwh" min="0" max="24" step="1" value="6" oninput="calcSig()">
           </div>
           <div class="form-group">
-            <label>BAT 8.0 (8 kWh) Modules — $2,200 ea</label>
-            <select id="s-num8k" onchange="calcSig()">
-              <option value="0" selected>0</option>
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-              <option value="5">5</option>
-              <option value="6">6</option>
-              <option value="7">7</option>
-              <option value="8">8</option>
-            </select>
+            <label>BAT 8.0 (8 kWh) Modules — $2,200 ea (0&ndash;24)</label>
+            <input type="number" id="s-num8k" min="0" max="24" step="1" value="0" oninput="calcSig()">
           </div>
           <div class="form-group">
-            <label>BAT 5.0 (5 kWh) Modules — $3,056.90 ea</label>
-            <select id="s-num5kwh" onchange="calcSig()">
-              <option value="0" selected>0</option>
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-              <option value="5">5</option>
-              <option value="6">6</option>
-            </select>
+            <label>BAT 5.0 (5 kWh) Modules — $3,056.90 ea (0&ndash;24)</label>
+            <input type="number" id="s-num5kwh" min="0" max="24" step="1" value="0" oninput="calcSig()">
           </div>
           <div class="form-group">
             <label>Gateway</label>
@@ -1048,10 +1019,7 @@
           </div>
           <div class="form-group">
             <label>No. of Inverters</label>
-            <select id="g-numInverters" onchange="calcGW()">
-              <option value="1">1</option>
-              <option value="2">2 (Dual)</option>
-            </select>
+            <input type="number" id="g-numInverters" min="1" step="1" value="1" oninput="calcGW()">
           </div>
           <div class="form-group">
             <label>Battery Module</label>
@@ -2696,10 +2664,10 @@ function calcSig() {
   const panelType    = document.getElementById('s-panelType').value;
   const roofType     = document.getElementById('s-roofType').value;
   const inverterType = document.getElementById('s-inverterType').value;
-  const numInverters = parseInt(document.getElementById('s-numInverters').value);
-  const num8kwh      = parseInt(document.getElementById('s-num8kwh').value) || 0;
-  const num5kwh      = parseInt(document.getElementById('s-num5kwh').value) || 0;
-  const num8k        = parseInt(document.getElementById('s-num8k').value) || 0;
+  const numInverters = Math.max(1, parseInt(document.getElementById('s-numInverters').value) || 1);
+  const num8kwh      = Math.max(0, Math.min(24, parseInt(document.getElementById('s-num8kwh').value) || 0));
+  const num5kwh      = Math.max(0, Math.min(24, parseInt(document.getElementById('s-num5kwh').value) || 0));
+  const num8k        = Math.max(0, Math.min(24, parseInt(document.getElementById('s-num8k').value) || 0));
   const gatewayType  = document.getElementById('s-gatewayType').value;
   const numInstallKits = parseInt(document.getElementById('s-numInstallKits').value);
   const powerSensor  = document.getElementById('s-powerSensor').value;
@@ -2981,7 +2949,7 @@ function updateGwBatterySizes() {
   const sel = document.getElementById('g-batteryKwh');
   const prevKwh = parseFloat(sel.value) || 0;
   sel.innerHTML = '<option value="0">No Battery</option>';
-  const maxModules = Math.floor(GW_STC_CAP / mod.kwh);
+  const maxModules = 24;   // UI limit; battery STCs still cap at GW_STC_CAP kWh
   for (let i = 1; i <= maxModules; i++) {
     const kwh = parseFloat((i * mod.kwh).toFixed(1));
     sel.innerHTML += `<option value="${kwh}">${kwh} kWh (${i} module${i > 1 ? 's' : ''})</option>`;
@@ -3007,7 +2975,7 @@ function calcGW() {
   const panelType    = document.getElementById('g-panelType').value;
   const roofType     = document.getElementById('g-roofType').value;
   const inverterType = document.getElementById('g-inverterType').value;
-  const numInverters = parseInt(document.getElementById('g-numInverters').value);
+  const numInverters = Math.max(1, parseInt(document.getElementById('g-numInverters').value) || 1);
   const batteryKwh   = parseFloat(document.getElementById('g-batteryKwh').value) || 0;
   const modType      = document.getElementById('g-batteryModule').value;
   const batMod       = GW_BATTERY_MODULES[modType];
