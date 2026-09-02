@@ -1024,7 +1024,8 @@
           <div class="form-group">
             <label>Battery Module</label>
             <select id="g-batteryModule" onchange="updateGwBatterySizes()">
-              <option value="gw83">GW8.3-BAT-D-G20 (8.3 kWh) — $2,277</option>
+              <option value="gw83">GW8.3-BAT-D-G20 (8.3 kWh) — $2,112 inc ($1,920 ex)</option>
+              <option value="gw90">GW9.0-BAT-D-G20 (9 kWh) — $2,198.90 inc ($1,999 ex)</option>
             </select>
           </div>
           <div class="form-group">
@@ -1899,7 +1900,8 @@ const GW_INVERTER_LABELS = {
   gw10ktp: 'GW10K-ET-G20', gw15ktp: 'GW15K-ET-G20', gw20ktp: 'GW20K-ET-G20', gw25ktp: 'GW25K-ET-G20'
 };
 const GW_BATTERY_MODULES = {
-  gw83: { kwh: 8.3, price: 2112.00, label: 'GW8.3-BAT-D-G20 (8.3kWh module)' }
+  gw83: { kwh: 8.3, price: 2112.00, label: 'GW8.3-BAT-D-G20 (8.3kWh module)' },
+  gw90: { kwh: 9.0, price: 2198.90, label: 'GW9.0-BAT-D-G20 (9kWh module)' }   // $1,999 ex GST (owner, Aug 2026)
 };
 const GW_STC_CAP = 50;
 
