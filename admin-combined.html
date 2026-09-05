@@ -951,7 +951,7 @@
       <div class="card-header">Daily &amp; Weekly Profit Projection</div>
       <div class="card-body">
         <div class="form-group" style="margin-bottom:0.75rem;">
-          <label>Jobs Per Week</label>
+          <label>Installs Per Week &mdash; sets the recommended price</label>
           <input type="number" id="s-jobsPerWeek" min="0" step="0.5" value="15" oninput="calcSig()">
         </div>
         <div id="s-profit"></div>
@@ -1123,7 +1123,7 @@
       <div class="card-header">Daily &amp; Weekly Profit Projection</div>
       <div class="card-body">
         <div class="form-group" style="margin-bottom:0.75rem;">
-          <label>Jobs Per Week</label>
+          <label>Installs Per Week &mdash; sets the recommended price</label>
           <input type="number" id="g-jobsPerWeek" min="0" step="0.5" value="15" oninput="calcGW()">
         </div>
         <div id="g-profit"></div>
@@ -1137,7 +1137,7 @@
 <!-- ============================================================ -->
 <!-- ADMIN: SOLAR-ONLY PRICING (applies to both tabs)            -->
 <!-- ============================================================ -->
-<div class="container admin-only" id="solar-pricing-section">
+<div class="container" id="solar-pricing-section" style="display:none;"><!-- retired 5 Sep 2026: pricing is net-target driven -->
   <div class="card brand-card-solar">
     <div class="card-header">Solar-Only Pricing</div>
     <div class="card-body">
@@ -1167,7 +1167,7 @@
     <div class="card-header">Overheads</div>
     <div class="card-body">
       <p class="margin-tier-hint">
-        Weekly business overhead used in the daily/weekly profit cards. Daily overhead = weekly &divide; working days (currently <strong id="overhead-daily-display"></strong> / day). Applies to both tabs and persists in this browser. The net profit target drives the floor-price and jobs-needed lines in the profit cards and the price alerts; set it to 0 to turn those off.
+        <strong>Weekly overhead and the net target set the recommended price</strong> (with Installs Per Week on each tab; working days only splits the profit card into days). Every job is priced so the business nets the target % of ex-GST revenue: price = (net cost + extras + commission + 1.1 &times; weekly overhead &divide; installs/wk) &divide; (1 &minus; target). Margin tiers are no longer used. Daily overhead = weekly &divide; working days (currently <strong id="overhead-daily-display"></strong> / day). Applies to both tabs and persists in this browser.
       </p>
       <div class="margin-tier-grid">
         <div class="margin-tier-row">
@@ -1242,7 +1242,7 @@
 <!-- ============================================================ -->
 <!-- ADMIN: MARGIN TIER EDITOR (applies to both tabs)             -->
 <!-- ============================================================ -->
-<div class="container admin-only" id="margin-tier-section">
+<div class="container" id="margin-tier-section" style="display:none;"><!-- retired 5 Sep 2026: pricing is net-target driven -->
   <div class="card">
     <div class="card-header">Margin Tiers</div>
     <div class="card-body">
@@ -1330,6 +1330,15 @@ function netTargetFrac() { return (OVERHEAD.targetNet || 0) / 100; }
 function netFloorPrice(costsPerJobInc, jobsPerWeek) {
   const t = netTargetFrac();
   if (!(t > 0) || !(t < 1) || !(jobsPerWeek > 0)) return null;
+  return (costsPerJobInc + 1.1 * OVERHEAD.weekly / jobsPerWeek) / (1 - t);
+}
+// RECOMMENDED PRICE (owner, 5 Sep 2026): the margin tiers are no longer used. Every job is
+// priced at the sale price that returns the net target on ex-GST revenue at the configured
+// installs/week and weekly overheads:  P = (net cost + extras + commission + 1.1 x OH/J) / (1 - t).
+// Target 0 is allowed (break-even); null only when installs/week is not set.
+function netTargetPrice(costsPerJobInc, jobsPerWeek) {
+  const t = netTargetFrac();
+  if (!(jobsPerWeek > 0) || !(t >= 0) || !(t < 1)) return null;
   return (costsPerJobInc + 1.1 * OVERHEAD.weekly / jobsPerWeek) / (1 - t);
 }
 
@@ -1488,12 +1497,13 @@ function buildProfitHtml(isBatteryOnly, jobsPerDay, marginPerJob, labelExtra, no
     if (jobsWk > 0) {
       const netWk = weeklyGrossMargin - OVERHEAD.weekly;
       const netPct = netWk / (jobsWk * basisPrice / 1.1) * 100;
-      const col = netPct >= tPct ? okCol : badCol;
-      nt += `<div class="profit-line"><span class="label">Projected net margin at ${Math.round(jobsWk * 10) / 10} jobs/wk</span><span class="value" style="color:${col};font-weight:700;">${netPct.toFixed(1)}% ${netPct >= tPct ? '&mdash; on target' : '&mdash; below target'}</span></div>`;
+      const onTarget = Math.round(netPct * 10) >= Math.round(tPct * 10);   // 1-dp compare: the recommended price sits exactly on the target
+      const col = onTarget ? okCol : badCol;
+      nt += `<div class="profit-line"><span class="label">Projected net margin at ${Math.round(jobsWk * 10) / 10} jobs/wk</span><span class="value" style="color:${col};font-weight:700;">${netPct.toFixed(1)}% ${onTarget ? '&mdash; on target' : '&mdash; below target'}</span></div>`;
       const floor = netFloorPrice(basisPrice - marginPerJob, jobsWk);
       if (floor !== null) {
         const lift = (floor / basisPrice - 1) * 100;
-        nt += `<div class="profit-line"><span class="label">Price for ${tPct}% net at ${Math.round(jobsWk * 10) / 10} jobs/wk</span><span class="value">${fmt(Math.ceil(floor))} inc GST${lift > 0.05 ? ` (+${lift.toFixed(1)}% vs current basis)` : ' (already above)'}</span></div>`;
+        nt += `<div class="profit-line"><span class="label">Price for ${tPct}% net at ${Math.round(jobsWk * 10) / 10} jobs/wk</span><span class="value">${fmt(floor)} inc GST${lift > 0.05 ? ` (+${lift.toFixed(1)}% vs current basis)` : ' (at or above)'}</span></div>`;
       }
     } else {
       nt += `<div class="profit-line"><span class="label">Enter jobs per week to project against the net target</span><span class="value"></span></div>`;
@@ -1502,7 +1512,7 @@ function buildProfitHtml(isBatteryOnly, jobsPerDay, marginPerJob, labelExtra, no
     if (surplusEx > 0) {
       const jobsNeed = OVERHEAD.weekly / surplusEx;
       const breakEv = mEx > 0 ? OVERHEAD.weekly / mEx : null;
-      nt += `<div class="profit-line"><span class="label">Jobs/wk for ${tPct}% net at this price</span><span class="value">${jobsNeed > 40 ? '40+ &mdash; not realistic at this price' : (Math.ceil(jobsNeed * 10) / 10) + (breakEv ? ` (break-even ${Math.ceil(breakEv * 10) / 10})` : '')}</span></div>`;
+      nt += `<div class="profit-line"><span class="label">Jobs/wk for ${tPct}% net at this price</span><span class="value">${jobsNeed > 40 ? '40+ &mdash; not realistic at this price' : (Math.ceil(jobsNeed * 10 - 1e-6) / 10) + (breakEv ? ` (break-even ${Math.ceil(breakEv * 10 - 1e-6) / 10})` : '')}</span></div>`;
     } else {
       nt += `<div class="profit-line"><span class="label">Jobs/wk for ${tPct}% net at this price</span><span class="value" style="color:${badCol};">Not achievable &mdash; margin is under ${tPct}% of revenue before overheads. Raise the price.</span></div>`;
     }
@@ -1658,22 +1668,8 @@ function calcSig() {
   const sBess2Net = sBess2 ? sBess2.net : 0;
   const netMaterialCost = grossTotal - totalSTCvalue - sBess2Net;
 
-  // Recommended price — solar-only jobs use a flat $/kW rate; everything else
-  // uses the tiered battery-module margin.
-  const isSolarOnly = hasPanels && !hasBattery;
-  let recommendedPrice, recMarginLabel;
-  if (isSolarOnly) {
-    const solarKw = numPanels * PANEL_WATTS[panelType] / 1000;
-    recommendedPrice = solarKw * SOLAR_RATE_PER_KW;
-    recMarginLabel = `$${SOLAR_RATE_PER_KW.toLocaleString('en-AU')}/kW solar, ${solarKw.toFixed(1)} kW`;
-  } else {
-    const marginTier   = isBatteryOnly ? BATTERY_ONLY_MARGINS : MODULE_MARGINS;
-    const marginIdx    = batteryModules > 0 ? Math.min(batteryModules - 1, marginTier.length - 1) : 0;
-    const tieredMargin = marginTier[marginIdx];
-    recommendedPrice = netMaterialCost / (1 - tieredMargin);
-    const jobTypeLabel = isBatteryOnly ? 'battery only' : `${batteryModules} module${batteryModules !== 1 ? 's' : ''}`;
-    recMarginLabel = `${(tieredMargin * 100).toFixed(0)}% margin, ${jobTypeLabel}`;
-  }
+  // Recommended price is computed below from the net target, once extras, commission and
+  // installs/week are known (owner, 5 Sep 2026 — margin tiers and the solar $/kW rate retired).
 
   // Extras
   let extrasExGst = 0;
@@ -1691,12 +1687,10 @@ function calcSig() {
     extrasExGst += unitPrice * qty;
   });
   const extrasIncGst = extrasExGst * 1.1;
-  recommendedPrice += extrasIncGst;
 
   // Rep commission — ADDED to the final recommended price (customer covers it; margin preserved)
   const sRepType = document.getElementById('s-repType').value;
   const sCommission = calcCommission(sRepType, numPanels, hasBattery);
-  recommendedPrice += sCommission;
 
   // Auto-default jobs/day on job-type transition (battery-only = 4, solar+battery = 3)
   if (sigPrevIsBatteryOnly !== isBatteryOnly) {
@@ -1705,6 +1699,14 @@ function calcSig() {
   }
   const jobsPerWeek = parseFloat(document.getElementById('s-jobsPerWeek').value) || 0;
   const jobsPerDay = jobsPerWeek / (OVERHEAD.days || 5);
+
+  // Recommended price = net-target price at this installs/week and overhead (replaces margin tiers)
+  const costsPerJobInc = netMaterialCost + extrasIncGst + sCommission;
+  const targetPrice = netTargetPrice(costsPerJobInc, jobsPerWeek);
+  const recommendedPrice = targetPrice !== null ? targetPrice : costsPerJobInc;
+  const recLabelHtml = targetPrice !== null
+    ? `<span class="admin-only"> (net ${OVERHEAD.targetNet}% at ${jobsPerWeek} installs/wk, ${fmt(OVERHEAD.weekly)} overheads)</span>`
+    : `<span style="color:#c0392b;font-weight:700;"> &mdash; NOT A PRICE: bare cost. Set Installs Per Week above 0.</span>`;
 
   // Summary HTML
   let sHtml = '';
@@ -1735,7 +1737,7 @@ function calcSig() {
     sHtml += summaryRow('Extras Total (inc GST)', fmt(extrasIncGst));
   }
 
-  sHtml += `<div class="recommended-row"><span class="label">Recommended Sale Price (inc GST)${extrasIncGst > 0 ? ' (+ extras)' : ''}<span class="admin-only"> (${recMarginLabel})</span></span><span class="value">${fmt(recommendedPrice)}</span></div>`;
+  sHtml += `<div class="recommended-row"><span class="label">Recommended Sale Price (inc GST)${extrasIncGst > 0 ? ' (+ extras)' : ''}${recLabelHtml}</span><span class="value">${fmt(recommendedPrice)}</span></div>`;
 
   // BESS2 NSW VPP rebate — Sigenergy: already taken off the price above as an upfront discount (owner, 5 Sep 2026)
   if (sBess2) {
@@ -1759,23 +1761,20 @@ function calcSig() {
     const marginDollars = salePrice - netMaterialCost - extrasIncGst - sCommission;
     const marginPct = (marginDollars / salePrice) * 100;
     const sFloor = netFloorPrice(netMaterialCost + extrasIncGst + sCommission, jobsPerWeek);
-    const belowNet = sFloor !== null && salePrice + 1e-6 < sFloor;
+    const belowNet = sFloor !== null && Math.round(salePrice * 100) < Math.round(sFloor * 100);   // compare at cent precision — the recommended price IS the floor
     sHtml += '<div class="admin-only">';
     sHtml += '<div class="summary-divider"></div>';
     sHtml += summaryRow('Sale Price (inc GST)', fmt(salePrice));
-    if (sCommission > 0) sHtml += summaryRow('Gross Margin (after commission, inc GST)', fmt(marginDollars), marginPct < 35 ? 'danger' : '');
-    else sHtml += summaryRow('Gross Margin (inc GST)', fmt(marginDollars), marginPct < 35 ? 'danger' : '');
-    sHtml += summaryRow('Gross Margin (ex GST)', fmt(marginDollars / 1.1), marginPct < 35 ? 'danger' : 'big');
-    sHtml += summaryRow('Margin %', marginPct.toFixed(2) + '%', marginPct < 35 ? 'danger' : '');
-    if (sFloor !== null) sHtml += summaryRow(`Net-${OVERHEAD.targetNet}% floor at ${jobsPerWeek} jobs/wk (inc GST)`, fmt(Math.ceil(sFloor)), belowNet ? 'danger' : '');
+    if (sCommission > 0) sHtml += summaryRow('Gross Margin (after commission, inc GST)', fmt(marginDollars), belowNet ? 'danger' : '');
+    else sHtml += summaryRow('Gross Margin (inc GST)', fmt(marginDollars), belowNet ? 'danger' : '');
+    sHtml += summaryRow('Gross Margin (ex GST)', fmt(marginDollars / 1.1), belowNet ? 'danger' : 'big');
+    sHtml += summaryRow('Margin %', marginPct.toFixed(2) + '%', belowNet ? 'danger' : '');
+    if (sFloor !== null) sHtml += summaryRow(`Net-${OVERHEAD.targetNet}% price at ${jobsPerWeek} installs/wk (inc GST)`, fmt(sFloor), belowNet ? 'danger' : '');
     sHtml += '</div>';
-    if (marginPct < 35 || belowNet) {
-      const why = [];
-      if (marginPct < 35) why.push(`margin ${marginPct.toFixed(2)}% below 35%`);
-      if (belowNet) why.push(`below the net-${OVERHEAD.targetNet}% floor ${fmt(Math.ceil(sFloor))} at ${jobsPerWeek} jobs/wk`);
-      sHtml += `<div class="margin-alert low">Price is below the recommended minimum &mdash; please review<span class="admin-only"> (${why.join('; ')})</span></div>`;
+    if (belowNet) {
+      sHtml += `<div class="margin-alert low">Price is below the recommended minimum &mdash; please review<span class="admin-only"> (below the net-${OVERHEAD.targetNet}% price ${fmt(sFloor)} at ${jobsPerWeek} installs/wk; margin ${marginPct.toFixed(2)}%)</span></div>`;
     } else {
-      sHtml += `<div class="margin-alert ok">Price is acceptable<span class="admin-only"> (margin ${marginPct.toFixed(2)}%, above 35%${sFloor !== null ? `; above the net-${OVERHEAD.targetNet}% floor` : ''})</span></div>`;
+      sHtml += `<div class="margin-alert ok">Price is acceptable<span class="admin-only"> (margin ${marginPct.toFixed(2)}%${sFloor !== null ? `; at or above the net-${OVERHEAD.targetNet}% price` : ''})</span></div>`;
     }
   }
 
@@ -1939,22 +1938,8 @@ function calcGW() {
   const totalSTCvalue   = solarSTCvalue + batterySTCvalue;
   const netMaterialCost = grossTotal - totalSTCvalue;
 
-  // Recommended price — solar-only jobs use a flat $/kW rate; everything else
-  // uses the tiered battery-module margin.
-  const isSolarOnly = hasPanels && !hasBattery;
-  let recommendedPrice, recMarginLabel;
-  if (isSolarOnly) {
-    const solarKw = numPanels * PANEL_WATTS[panelType] / 1000;
-    recommendedPrice = solarKw * SOLAR_RATE_PER_KW;
-    recMarginLabel = `$${SOLAR_RATE_PER_KW.toLocaleString('en-AU')}/kW solar, ${solarKw.toFixed(1)} kW`;
-  } else {
-    const marginTier   = isBatteryOnly ? BATTERY_ONLY_MARGINS : MODULE_MARGINS;
-    const marginIdx    = batteryModules > 0 ? Math.min(batteryModules - 1, marginTier.length - 1) : 0;
-    const tieredMargin = marginTier[marginIdx];
-    recommendedPrice = netMaterialCost / (1 - tieredMargin);
-    const jobTypeLabel = isBatteryOnly ? 'battery only' : `${batteryModules} module${batteryModules !== 1 ? 's' : ''}`;
-    recMarginLabel = `${(tieredMargin * 100).toFixed(0)}% margin, ${jobTypeLabel}`;
-  }
+  // Recommended price is computed below from the net target, once extras, commission and
+  // installs/week are known (owner, 5 Sep 2026 — margin tiers and the solar $/kW rate retired).
 
   // Extras
   let extrasExGst = 0;
@@ -1972,12 +1957,10 @@ function calcGW() {
     extrasExGst += unitPrice * qty;
   });
   const extrasIncGst = extrasExGst * 1.1;
-  recommendedPrice += extrasIncGst;
 
   // Rep commission — ADDED to the final recommended price (customer covers it; margin preserved)
   const gRepType = document.getElementById('g-repType').value;
   const gCommission = calcCommission(gRepType, numPanels, hasBattery);
-  recommendedPrice += gCommission;
 
   // Auto-default jobs/day on job-type transition (battery-only = 4, solar+battery = 3)
   if (gwPrevIsBatteryOnly !== isBatteryOnly) {
@@ -1986,6 +1969,14 @@ function calcGW() {
   }
   const jobsPerWeek = parseFloat(document.getElementById('g-jobsPerWeek').value) || 0;
   const jobsPerDay = jobsPerWeek / (OVERHEAD.days || 5);
+
+  // Recommended price = net-target price at this installs/week and overhead (replaces margin tiers)
+  const costsPerJobInc = netMaterialCost + extrasIncGst + gCommission;
+  const targetPrice = netTargetPrice(costsPerJobInc, jobsPerWeek);
+  const recommendedPrice = targetPrice !== null ? targetPrice : costsPerJobInc;
+  const recLabelHtml = targetPrice !== null
+    ? `<span class="admin-only"> (net ${OVERHEAD.targetNet}% at ${jobsPerWeek} installs/wk, ${fmt(OVERHEAD.weekly)} overheads)</span>`
+    : `<span style="color:#c0392b;font-weight:700;"> &mdash; NOT A PRICE: bare cost. Set Installs Per Week above 0.</span>`;
 
   // Summary
   let sHtml = '';
@@ -2015,7 +2006,7 @@ function calcGW() {
     sHtml += summaryRow('Extras Total (inc GST)', fmt(extrasIncGst));
   }
 
-  sHtml += `<div class="recommended-row"><span class="label">Recommended Sale Price (inc GST)${extrasIncGst > 0 ? ' (+ extras)' : ''}<span class="admin-only"> (${recMarginLabel})</span></span><span class="value">${fmt(recommendedPrice)}</span></div>`;
+  sHtml += `<div class="recommended-row"><span class="label">Recommended Sale Price (inc GST)${extrasIncGst > 0 ? ' (+ extras)' : ''}${recLabelHtml}</span><span class="value">${fmt(recommendedPrice)}</span></div>`;
 
   // BESS2 NSW VPP rebate (only when usable capacity is strictly between 2 and 28 kWh)
   const gwBess2 = calcBess2(batteryKwh);
@@ -2039,17 +2030,17 @@ function calcGW() {
     const cpBase          = customPrice - extrasIncGst;
     const cpMarginPct     = cpBase > 0 ? (cpMarginDollars / cpBase) * 100 : 0;
     const gwFloor         = netFloorPrice(netMaterialCost + extrasIncGst + gCommission, jobsPerWeek);
-    const gwBelowNet      = gwFloor !== null && customPrice + 1e-6 < gwFloor;
-    const cpBad           = cpMarginPct < 35 || gwBelowNet;
+    const gwBelowNet      = gwFloor !== null && Math.round(customPrice * 100) < Math.round(gwFloor * 100);   // cent precision — recommended price IS the floor
+    const cpBad           = gwBelowNet;
     const cpColor         = cpBad ? '#c0392b' : '#27ae60';
     sHtml += '<div class="summary-divider"></div>';
     sHtml += `<div style="padding:10px;border-radius:8px;background:${cpBad ? '#ffeaea' : '#eafff0'};border:1px solid ${cpColor};">`;
     sHtml += `<div style="font-weight:700;font-size:0.95em;margin-bottom:4px;">Your Price: ${fmt(customPrice)}</div>`;
     sHtml += `<span class="admin-only" style="font-weight:700;color:${cpColor};font-size:1.1em;">Margin${gCommission > 0 ? ' (after comm.)' : ''}: ${fmt(cpMarginDollars)} inc GST &middot; ${fmt(cpMarginDollars / 1.1)} ex GST (${cpMarginPct.toFixed(1)}%)</span>`;
-    if (gwFloor !== null) sHtml += `<div class="admin-only" style="font-size:0.85em;margin-top:2px;">Net-${OVERHEAD.targetNet}% floor at ${jobsPerWeek} jobs/wk: <strong>${fmt(Math.ceil(gwFloor))}</strong> inc GST</div>`;
+    if (gwFloor !== null) sHtml += `<div class="admin-only" style="font-size:0.85em;margin-top:2px;">Net-${OVERHEAD.targetNet}% price at ${jobsPerWeek} installs/wk: <strong>${fmt(gwFloor)}</strong> inc GST</div>`;
     sHtml += cpBad
-      ? `<div style="color:#c0392b;font-size:0.85em;margin-top:4px;">Price is below the recommended minimum &mdash; please review<span class="admin-only"> (${[cpMarginPct < 35 ? `margin ${cpMarginPct.toFixed(1)}% below 35%` : '', gwBelowNet ? `below net-${OVERHEAD.targetNet}% floor` : ''].filter(Boolean).join('; ')})</span></div>`
-      : `<div style="color:#27ae60;font-size:0.85em;margin-top:4px;">Price is acceptable<span class="admin-only"> (margin ${cpMarginPct.toFixed(1)}%, above 35%${gwFloor !== null ? `; above the net-${OVERHEAD.targetNet}% floor` : ''})</span></div>`;
+      ? `<div style="color:#c0392b;font-size:0.85em;margin-top:4px;">Price is below the recommended minimum &mdash; please review<span class="admin-only"> (below the net-${OVERHEAD.targetNet}% price; margin ${cpMarginPct.toFixed(1)}%)</span></div>`
+      : `<div style="color:#27ae60;font-size:0.85em;margin-top:4px;">Price is acceptable<span class="admin-only"> (margin ${cpMarginPct.toFixed(1)}%${gwFloor !== null ? `; at or above the net-${OVERHEAD.targetNet}% price` : ''})</span></div>`;
     sHtml += '</div>';
   }
 
@@ -2171,7 +2162,9 @@ function loadOverhead() {
     // saved 104000 was the stale pre-Aug-2026 default — migrate those browsers to $145k
     if (typeof saved.weekly === 'number' && saved.weekly >= 0 && saved.weekly !== 104000) OVERHEAD.weekly = saved.weekly;
     if (typeof saved.days === 'number' && saved.days >= 1 && saved.days <= 7) OVERHEAD.days = saved.days;
-    if (typeof saved.targetNet === 'number' && saved.targetNet >= 0 && saved.targetNet <= 50) OVERHEAD.targetNet = saved.targetNet;
+    // a saved 0 was the old 'turn the floor lines off' setting (and the owner calc shares this key) — now that the
+    // target sets the price, ignore a persisted 0 and start from the default; a live edit to 0 still prices at break-even
+    if (typeof saved.targetNet === 'number' && saved.targetNet > 0 && saved.targetNet <= 50) OVERHEAD.targetNet = saved.targetNet;
   } catch (e) { /* ignore — fall back to defaults */ }
 }
 function saveOverhead() {
