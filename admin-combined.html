@@ -1466,8 +1466,9 @@ function buildProfitHtml(isBatteryOnly, jobsPerDay, marginPerJob, labelExtra, no
   const mEx = marginPerJob / 1.1;
   const dailyGrossMargin  = jobsPerDay * mEx;
   const weeklyGrossMargin = jobsPerDay * OVERHEAD.days * mEx;
-  const dailyNetProfit    = dailyGrossMargin - dailyOverhead();
-  const weeklyNetProfit   = weeklyGrossMargin - OVERHEAD.weekly;
+  const zeroClamp = v => Math.abs(v) < 0.005 ? 0 : v;   // break-even pricing leaves ±1e-11 residue; don't paint it red as $-0.00
+  const dailyNetProfit    = zeroClamp(dailyGrossMargin - dailyOverhead());
+  const weeklyNetProfit   = zeroClamp(weeklyGrossMargin - OVERHEAD.weekly);
 
   let h = `<div style="font-size:0.75rem;color:var(--muted);margin-bottom:0.5rem;">Job type: <strong>${isBatteryOnly ? 'Battery Only' : 'Solar + Battery'}</strong> &mdash; Capacity: <strong>${Math.round(jobsPerDay * OVERHEAD.days * 10) / 10} jobs/week (${Math.round(jobsPerDay * 10) / 10}/day)</strong>${labelExtra} &mdash; Margin/job (ex GST): <strong>${fmt(mEx)}</strong></div>`;
   h += '<div class="profit-grid">';
@@ -1512,7 +1513,7 @@ function buildProfitHtml(isBatteryOnly, jobsPerDay, marginPerJob, labelExtra, no
     if (surplusEx > 0) {
       const jobsNeed = OVERHEAD.weekly / surplusEx;
       const breakEv = mEx > 0 ? OVERHEAD.weekly / mEx : null;
-      nt += `<div class="profit-line"><span class="label">Jobs/wk for ${tPct}% net at this price</span><span class="value">${jobsNeed > 40 ? '40+ &mdash; not realistic at this price' : (Math.ceil(jobsNeed * 10 - 1e-6) / 10) + (breakEv ? ` (break-even ${Math.ceil(breakEv * 10 - 1e-6) / 10})` : '')}</span></div>`;
+      nt += `<div class="profit-line"><span class="label">Jobs/wk for ${tPct}% net at this price</span><span class="value">${jobsNeed > 40 ? '40+ &mdash; not realistic at this price' : (Math.ceil(Math.round(jobsNeed * 100) / 10) / 10) + (breakEv ? ` (break-even ${Math.ceil(Math.round(breakEv * 100) / 10) / 10})` : '')}</span></div>`;
     } else {
       nt += `<div class="profit-line"><span class="label">Jobs/wk for ${tPct}% net at this price</span><span class="value" style="color:${badCol};">Not achievable &mdash; margin is under ${tPct}% of revenue before overheads. Raise the price.</span></div>`;
     }
@@ -1760,7 +1761,9 @@ function calcSig() {
   if (salePrice !== null && salePrice > 0) {
     const marginDollars = salePrice - netMaterialCost - extrasIncGst - sCommission;
     const marginPct = (marginDollars / salePrice) * 100;
-    const sFloor = netFloorPrice(netMaterialCost + extrasIncGst + sCommission, jobsPerWeek);
+    // floor = the recommended (net-target) price; when installs/week is 0 there is no price, so bare cost is the floor
+    const sFloor = targetPrice !== null ? targetPrice : costsPerJobInc;
+    const sFloorLabel = targetPrice !== null ? `Net-${OVERHEAD.targetNet}% price at ${jobsPerWeek} installs/wk` : 'Bare cost (Installs Per Week is 0)';
     const belowNet = sFloor !== null && Math.round(salePrice * 100) < Math.round(sFloor * 100);   // compare at cent precision — the recommended price IS the floor
     sHtml += '<div class="admin-only">';
     sHtml += '<div class="summary-divider"></div>';
@@ -1769,12 +1772,12 @@ function calcSig() {
     else sHtml += summaryRow('Gross Margin (inc GST)', fmt(marginDollars), belowNet ? 'danger' : '');
     sHtml += summaryRow('Gross Margin (ex GST)', fmt(marginDollars / 1.1), belowNet ? 'danger' : 'big');
     sHtml += summaryRow('Margin %', marginPct.toFixed(2) + '%', belowNet ? 'danger' : '');
-    if (sFloor !== null) sHtml += summaryRow(`Net-${OVERHEAD.targetNet}% price at ${jobsPerWeek} installs/wk (inc GST)`, fmt(sFloor), belowNet ? 'danger' : '');
+    sHtml += summaryRow(sFloorLabel + ' (inc GST)', fmt(sFloor), belowNet ? 'danger' : '');
     sHtml += '</div>';
     if (belowNet) {
-      sHtml += `<div class="margin-alert low">Price is below the recommended minimum &mdash; please review<span class="admin-only"> (below the net-${OVERHEAD.targetNet}% price ${fmt(sFloor)} at ${jobsPerWeek} installs/wk; margin ${marginPct.toFixed(2)}%)</span></div>`;
+      sHtml += `<div class="margin-alert low">Price is below the recommended minimum &mdash; please review<span class="admin-only"> (below the ${sFloorLabel.toLowerCase()} ${fmt(sFloor)}; margin ${marginPct.toFixed(2)}%)</span></div>`;
     } else {
-      sHtml += `<div class="margin-alert ok">Price is acceptable<span class="admin-only"> (margin ${marginPct.toFixed(2)}%${sFloor !== null ? `; at or above the net-${OVERHEAD.targetNet}% price` : ''})</span></div>`;
+      sHtml += `<div class="margin-alert ok">Price is acceptable<span class="admin-only"> (margin ${marginPct.toFixed(2)}%; at or above the ${sFloorLabel.toLowerCase()})</span></div>`;
     }
   }
 
@@ -2029,7 +2032,8 @@ function calcGW() {
     const cpMarginDollars = customPrice - netMaterialCost - extrasIncGst - gCommission;
     const cpBase          = customPrice - extrasIncGst;
     const cpMarginPct     = cpBase > 0 ? (cpMarginDollars / cpBase) * 100 : 0;
-    const gwFloor         = netFloorPrice(netMaterialCost + extrasIncGst + gCommission, jobsPerWeek);
+    const gwFloor         = targetPrice !== null ? targetPrice : costsPerJobInc;   // recommended price, or bare cost when installs/week is 0
+    const gwFloorLabel    = targetPrice !== null ? `Net-${OVERHEAD.targetNet}% price at ${jobsPerWeek} installs/wk` : 'Bare cost (Installs Per Week is 0)';
     const gwBelowNet      = gwFloor !== null && Math.round(customPrice * 100) < Math.round(gwFloor * 100);   // cent precision — recommended price IS the floor
     const cpBad           = gwBelowNet;
     const cpColor         = cpBad ? '#c0392b' : '#27ae60';
@@ -2037,10 +2041,10 @@ function calcGW() {
     sHtml += `<div style="padding:10px;border-radius:8px;background:${cpBad ? '#ffeaea' : '#eafff0'};border:1px solid ${cpColor};">`;
     sHtml += `<div style="font-weight:700;font-size:0.95em;margin-bottom:4px;">Your Price: ${fmt(customPrice)}</div>`;
     sHtml += `<span class="admin-only" style="font-weight:700;color:${cpColor};font-size:1.1em;">Margin${gCommission > 0 ? ' (after comm.)' : ''}: ${fmt(cpMarginDollars)} inc GST &middot; ${fmt(cpMarginDollars / 1.1)} ex GST (${cpMarginPct.toFixed(1)}%)</span>`;
-    if (gwFloor !== null) sHtml += `<div class="admin-only" style="font-size:0.85em;margin-top:2px;">Net-${OVERHEAD.targetNet}% price at ${jobsPerWeek} installs/wk: <strong>${fmt(gwFloor)}</strong> inc GST</div>`;
+    sHtml += `<div class="admin-only" style="font-size:0.85em;margin-top:2px;">${gwFloorLabel}: <strong>${fmt(gwFloor)}</strong> inc GST</div>`;
     sHtml += cpBad
-      ? `<div style="color:#c0392b;font-size:0.85em;margin-top:4px;">Price is below the recommended minimum &mdash; please review<span class="admin-only"> (below the net-${OVERHEAD.targetNet}% price; margin ${cpMarginPct.toFixed(1)}%)</span></div>`
-      : `<div style="color:#27ae60;font-size:0.85em;margin-top:4px;">Price is acceptable<span class="admin-only"> (margin ${cpMarginPct.toFixed(1)}%${gwFloor !== null ? `; at or above the net-${OVERHEAD.targetNet}% price` : ''})</span></div>`;
+      ? `<div style="color:#c0392b;font-size:0.85em;margin-top:4px;">Price is below the recommended minimum &mdash; please review<span class="admin-only"> (below the ${gwFloorLabel.toLowerCase()}; margin ${cpMarginPct.toFixed(1)}%)</span></div>`
+      : `<div style="color:#27ae60;font-size:0.85em;margin-top:4px;">Price is acceptable<span class="admin-only"> (margin ${cpMarginPct.toFixed(1)}%; at or above the ${gwFloorLabel.toLowerCase()})</span></div>`;
     sHtml += '</div>';
   }
 
