@@ -1794,7 +1794,6 @@
 // SHARED PRICING DATA
 // ================================================================
 const STC_PRICE = 36.00;          // credited to the customer on the quote
-const STC_ACTUAL_PRICE = 37.20;   // actually received — the spread flows to margin on every job
 const PANEL_PRICES = { ja475: 130, jinko475: 127.60, jinko510: 117.81, aiko475: 175 };   // Jinko 475 = $116 ex GST (owner, Aug 2026)
 const PANEL_WATTS  = { ja475: 475, jinko475: 475, jinko510: 510, aiko475: 490 };
 const PANEL_LABELS = { ja475: 'JA 475W', jinko475: 'Jinko 475W (All Black)', jinko510: 'Jinko 510W N-Type (Black Frame)', aiko475: 'AIKO 490W' };
@@ -2884,11 +2883,6 @@ function calcSig() {
   if (hasPanels)  sHtml += summaryRow(`Solar STCs (${solarSTCs} &times; $${STC_PRICE})`, '&minus; ' + fmt(solarSTCvalue));
   if (hasBattery) sHtml += summaryRow(`Battery STCs (${batterySTCs} &times; $${STC_PRICE})`, '&minus; ' + fmt(batterySTCvalue));
   sHtml += summaryRow('Total STC Rebate', '&minus; ' + fmt(totalSTCvalue), 'big');
-  if (solarSTCs + batterySTCs > 0) {
-    sHtml += '<div class="admin-only">';
-    sHtml += summaryRow(`STC spread income (${solarSTCs + batterySTCs} STCs &times; $${(STC_ACTUAL_PRICE - STC_PRICE).toFixed(2)} ex GST)`, '+ ' + fmt((solarSTCs + batterySTCs) * (STC_ACTUAL_PRICE - STC_PRICE)));
-    sHtml += '</div>';
-  }
   if (sPdrsRes && sPdrsRes.prcs > 0) sHtml += summaryRow(`PDRS ${sPdrsAct.toUpperCase()} PRCs (${sPdrsRes.prcs.toLocaleString('en-AU')} &times; $3.36 &times; 70%)`, '&minus; ' + fmt(sPdrsNet), 'big');
   if (sBess2) sHtml += summaryRow(bess2Label(sBess2), '&minus; ' + fmt(sBess2Net), 'big');
   sHtml += '<div class="admin-only">';
@@ -3173,11 +3167,6 @@ function calcGW() {
   if (hasPanels)  sHtml += summaryRow(`Solar STCs (${solarSTCs} &times; $${STC_PRICE})`, '&minus; ' + fmt(solarSTCvalue));
   if (hasBattery) sHtml += summaryRow(`Battery STCs (${batterySTCs} &times; $${STC_PRICE})`, '&minus; ' + fmt(batterySTCvalue));
   sHtml += summaryRow('Total STC Rebate', '&minus; ' + fmt(totalSTCvalue), 'big');
-  if (solarSTCs + batterySTCs > 0) {
-    sHtml += '<div class="admin-only">';
-    sHtml += summaryRow(`STC spread income (${solarSTCs + batterySTCs} STCs &times; $${(STC_ACTUAL_PRICE - STC_PRICE).toFixed(2)} ex GST)`, '+ ' + fmt((solarSTCs + batterySTCs) * (STC_ACTUAL_PRICE - STC_PRICE)));
-    sHtml += '</div>';
-  }
   if (gPdrsRes && gPdrsRes.prcs > 0) sHtml += summaryRow(`PDRS ${gPdrsAct.toUpperCase()} PRCs (${gPdrsRes.prcs.toLocaleString('en-AU')} &times; $3.36 &times; 70%)`, '&minus; ' + fmt(gPdrsNet), 'big');
   sHtml += '<div class="admin-only">';
   sHtml += '<div class="summary-divider"></div>';
