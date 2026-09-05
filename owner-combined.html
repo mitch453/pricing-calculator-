@@ -913,7 +913,7 @@
           <div class="form-group admin-only">
             <label>NSW PDRS Activity</label>
             <select id="s-pdrsActivity" onchange="calcSig()">
-              <option value="auto" selected>Auto (BESS2 if 2&ndash;28kWh usable)</option>
+              <option value="auto" selected>Auto (BESS2 upfront discount if 2&ndash;28kWh usable)</option>
               <option value="bess3">BESS3 &mdash; strata (from 1 Sep 2026)</option>
               <option value="bess4">BESS4 &mdash; commercial &le;200kWh (from 1 Sep 2026)</option>
               <option value="bess5">BESS5 &mdash; &gt;200kWh (from 1 Sep 2026)</option>
@@ -1926,6 +1926,15 @@ function calcBess2(usableKwh) {
 }
 
 // BESS3/4/5 — PDRS commercial/strata activities (from 1 Sep 2026), mirrors the C&I tabs.
+// BESS2 as an UPFRONT DISCOUNT on Sigenergy batteries (owner, 5 Sep 2026): comes off the
+// price like STCs. Calibrated to $1,300 at the 28kWh-usable cap ($46.43 per usable kWh),
+// eligible 2-28kWh usable inclusive; over 28kWh there is no BESS2 (BESS3/4/5 are separate).
+const BESS2_SIG_CAP_VALUE = 1300;
+function calcBess2Sig(usableKwh) {
+  if (!(usableKwh >= BESS2_MIN_KWH && usableKwh <= BESS2_MAX_KWH)) return null;
+  const rate = BESS2_SIG_CAP_VALUE / BESS2_MAX_KWH;
+  return { kwh: usableKwh, rate, net: Math.min(usableKwh, BESS2_MAX_KWH) * rate };
+}
 // usable = 0.9 x nominal per PDRS Rule clause 10. PRC $3.36 inc GST x 70% net of ACP fee.
 function calcBessCommercial(activity, usable, invKw, pvKw, solar90, dwellings, nlf) {
   const notes = [];
@@ -2789,7 +2798,7 @@ function calcSig() {
   }
   const totalSTCvalue  = solarSTCvalue + batterySTCvalue;
 
-  // BESS3/4/5 PRCs — deducted from cost like STCs (owner, 26 Aug 2026); BESS2 stays informational
+  // BESS3/4/5 PRCs — deducted from cost like STCs (owner, 26 Aug 2026); BESS2 is an upfront discount on Sigenergy (5 Sep 2026)
   const sPdrsAct = (document.getElementById('s-pdrsActivity') || { value: 'auto' }).value;
   let sPdrsRes = null, sPdrsNet = 0;
   if (sPdrsAct !== 'auto' && sPdrsAct !== 'none' && hasBattery) {
@@ -2800,7 +2809,10 @@ function calcSig() {
     sPdrsRes = calcBessCommercial(sPdrsAct, 0.9 * batteryKwh, pInvKw, pPvKw, p90, pDw, BESS2_NLF);
     if (sPdrsRes) sPdrsNet = sPdrsRes.net;
   }
-  const netMaterialCost = grossTotal - totalSTCvalue - sPdrsNet;
+  // BESS2 VPP PRCs — Sigenergy upfront discount off the price like STCs (owner, 5 Sep 2026): $1,300 at 28kWh usable
+  const sBess2 = (hasBattery && sPdrsAct === 'auto') ? calcBess2Sig(batteryKwh) : null;
+  const sBess2Net = sBess2 ? sBess2.net : 0;
+  const netMaterialCost = grossTotal - totalSTCvalue - sPdrsNet - sBess2Net;
 
   // Recommended price — solar-only jobs use a flat $/kW rate; everything else
   // uses the tiered battery-module margin.
@@ -2866,6 +2878,7 @@ function calcSig() {
     sHtml += '</div>';
   }
   if (sPdrsRes && sPdrsRes.prcs > 0) sHtml += summaryRow(`PDRS ${sPdrsAct.toUpperCase()} PRCs (${sPdrsRes.prcs.toLocaleString('en-AU')} &times; $3.36 &times; 70%)`, '&minus; ' + fmt(sPdrsNet), 'big');
+  if (sBess2) sHtml += summaryRow(`NSW VPP BESS2 PRC discount (${sBess2.kwh}kWh usable &times; $${sBess2.rate.toFixed(2)})`, '&minus; ' + fmt(sBess2Net), 'big');
   sHtml += '<div class="admin-only">';
   sHtml += '<div class="summary-divider"></div>';
   sHtml += summaryRow('Net Material Cost (ex GST)', fmt(netMaterialCost / 1.1), 'big');
@@ -2881,12 +2894,13 @@ function calcSig() {
 
   sHtml += `<div class="recommended-row"><span class="label">Recommended Sale Price (inc GST)${extrasIncGst > 0 ? ' (+ extras)' : ''}<span class="admin-only"> (${recMarginLabel})</span></span><span class="value">${fmt(recommendedPrice)}</span></div>`;
 
-  // NSW PDRS — BESS2 informational (auto); BESS3/4/5 already deducted from cost above
+  // NSW PDRS — BESS2 already deducted from cost above (Sigenergy upfront discount); BESS3/4/5 likewise
   if (sPdrsAct === 'auto') {
-    const sigBess2 = calcBess2(batteryKwh);
-    if (sigBess2) {
-      sHtml += `<div class="bess2-rebate"><span class="label">NSW VPP Rebate (BESS2) &mdash; ${sigBess2.prcs} PRCs</span><span class="value">&minus; ${fmt(sigBess2.net)}</span></div>`;
-      sHtml += `<div class="bess2-note">${sigBess2.prcs} PRCs &times; $${BESS2_PRC_PRICE.toFixed(2)} &times; ${((1 - BESS2_ACP_FEE) * 100).toFixed(0)}% (net of ACP fee) &mdash; paid after VPP onboarding</div>`;
+    if (sBess2) {
+      sHtml += `<div class="bess2-rebate"><span class="label">NSW VPP Rebate (BESS2) &mdash; included in the price above</span><span class="value">&minus; ${fmt(sBess2Net)}</span></div>`;
+      sHtml += `<div class="bess2-note">${sBess2.kwh}kWh usable &times; $${sBess2.rate.toFixed(2)} (= $${BESS2_SIG_CAP_VALUE.toLocaleString('en-AU')} at the 28kWh cap) &mdash; taken off the price upfront, not paid later</div>`;
+    } else if (hasBattery && batteryKwh > BESS2_MAX_KWH) {
+      sHtml += `<div class="bess2-note">No BESS2 VPP rebate &mdash; ${batteryKwh}kWh usable is over the 28kWh BESS2 cap.</div>`;
     }
   } else if (sPdrsRes) {
     for (const n of sPdrsRes.notes) sHtml += `<div class="bess2-note">&#9888; ${n}</div>`;

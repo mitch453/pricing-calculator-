@@ -643,6 +643,14 @@ const SENSOR_LABELS = { none: 'None', spct100: 'SP-CT100 Single Phase', tpct100:
 const INSTALL_KIT_PRICE = 254.08;
 
 const STC_PRICE = 36.00;
+// BESS2 (NSW PDRS VPP) upfront discount on Sigenergy batteries (owner, 5 Sep 2026): off the price like STCs,
+// $1,300 at the 28kWh-usable cap ($46.43 per usable kWh), eligible 2-28kWh usable; nothing over 28kWh.
+const BESS2_MIN_KWH = 2, BESS2_MAX_KWH = 28, BESS2_SIG_CAP_VALUE = 1300;
+function calcBess2Sig(usableKwh) {
+  if (!(usableKwh >= BESS2_MIN_KWH && usableKwh <= BESS2_MAX_KWH)) return null;
+  const rate = BESS2_SIG_CAP_VALUE / BESS2_MAX_KWH;
+  return { kwh: usableKwh, rate, net: Math.min(usableKwh, BESS2_MAX_KWH) * rate };
+}
 
 function isTP(inv) { return inv.endsWith('tp'); }
 function isSP(inv) { return inv.endsWith('sp'); }
@@ -824,7 +832,10 @@ function calculate() {
   }
 
   const totalSTCvalue = solarSTCvalue + batterySTCvalue;
-  const netMaterialCost = grossTotal - totalSTCvalue;
+  // BESS2 VPP PRCs — Sigenergy upfront discount, usable = modules x module kWh (3 x 9kWh = 27kWh)
+  const sBess2 = hasBattery ? calcBess2Sig(batteryModules * batMod.kwh) : null;
+  const sBess2Net = sBess2 ? sBess2.net : 0;
+  const netMaterialCost = grossTotal - totalSTCvalue - sBess2Net;
 
   // ── Summary ──
   let sHtml = '';
@@ -838,6 +849,7 @@ function calculate() {
     sHtml += summaryRow(`Battery STCs (${batterySTCs} &times; $${STC_PRICE})`, '&minus; ' + fmt(batterySTCvalue));
   }
   sHtml += summaryRow('Total STC Rebate', '&minus; ' + fmt(totalSTCvalue), 'big');
+  if (sBess2) sHtml += summaryRow(`NSW VPP BESS2 PRC discount (${sBess2.kwh}kWh usable &times; $${sBess2.rate.toFixed(2)})`, '&minus; ' + fmt(sBess2Net), 'big');
   sHtml += '<div class="summary-divider"></div>';
   sHtml += summaryRow('Net Material Cost', fmt(netMaterialCost), 'big');
   sHtml += '</div>';
