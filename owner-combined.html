@@ -1169,8 +1169,8 @@
     <div class="card-header">Sigen C&amp;I — Commercial Job Configuration (all prices INC GST)</div>
     <div class="card-body">
       <p class="margin-tier-hint" style="margin-top:0.5rem;">
-        SigenStack commercial systems: 4&ndash;21 &times; BAT 12.0 modules (12.06kWh nominal each) under ONE battery controller,
-        DC-coupled to a Sigen C&amp;I <strong>hybrid</strong> inverter. PV-only inverters add extra solar on the AC side and cannot connect the battery.
+        SigenStack commercial systems: each stack is 4&ndash;21 &times; BAT 12.0 modules (12.06kWh nominal each) under its own battery controller,
+        DC-coupled to its own Sigen C&amp;I <strong>hybrid</strong> inverter. Quote several stacks (sized independently) for bigger sites; PDRS certificates are worked out on the site total. PV-only inverters add extra solar on the AC side and cannot connect the battery.
         Bases, covers, cables and fixation kits are derived automatically. Everything on this tab is <strong>inc GST</strong> (supplier list prices grossed up 10%); certificates are also shown at inc-GST equivalents.
       </p>
       <div class="form-grid">
@@ -1223,12 +1223,13 @@
           <input type="number" id="ci-pvinvQty" min="0" max="8" step="1" value="0" oninput="calcCI()">
         </div>
         <div class="form-group">
-          <label>Battery Modules per System (BAT 12.0, 4&ndash;21)</label>
-          <input type="number" id="ci-mods" min="0" max="21" step="1" value="10" oninput="calcCI()">
+          <label>SigenStack Stacks (1&ndash;20)</label>
+          <input type="number" id="ci-systems" min="1" max="20" step="1" value="1" oninput="calcCI()">
         </div>
-        <div class="form-group">
-          <label>SigenStack Systems (stacks)</label>
-          <input type="number" id="ci-systems" min="1" max="10" step="1" value="1" oninput="calcCI()">
+        <div class="form-group" style="grid-column:1 / -1;">
+          <label>Battery Modules per Stack (BAT 12.0, 4&ndash;21 each &mdash; size each stack separately)</label>
+          <div id="ci-stack-mods" style="display:flex;flex-wrap:wrap;gap:0.5rem 0.75rem;"></div>
+          <div id="ci-stack-total" style="font-size:0.78rem;color:var(--muted);margin-top:0.35rem;"></div>
         </div>
         <div class="form-group">
           <label>Battery Controller</label>
@@ -2109,6 +2110,29 @@ const CI_GST = 1.1;   // supplier C&I list prices are ex GST; this tab shows inc
 
 function ciFmt(n) { return '$' + Math.round(n).toLocaleString('en-AU'); }
 
+// Per-stack module inputs (owner, 8 Sep 2026): one number input per SigenStack stack so stacks can
+// be sized independently. Inputs are only re-rendered when the stack COUNT changes (existing values
+// are kept, new stacks copy the last one), so typing in a stack box never loses focus.
+let CI_STACK_VALS = [];   // remembered per-stack module counts — kept beyond the current stack count, so typing
+                          // "12" over "3" (which passes through "1") or backspacing to blank never loses stacks 2..N
+function ciSyncStackInputs(n) {
+  const box = document.getElementById('ci-stack-mods');
+  const cur = [...box.querySelectorAll('.ci-stack-mod')];
+  cur.forEach((inp, i) => { CI_STACK_VALS[i] = inp.value; });
+  if (cur.length !== n) {
+    const known = CI_STACK_VALS.filter(v => v !== undefined && v !== '');
+    const last = known.length ? known[known.length - 1] : '10';
+    let h = '';
+    for (let i = 0; i < n; i++) {
+      const val = (CI_STACK_VALS[i] !== undefined && CI_STACK_VALS[i] !== '') ? CI_STACK_VALS[i] : last;
+      h += '<label style="display:flex;flex-direction:column;gap:2px;font-size:0.72rem;font-weight:600;">Stack ' + (i + 1) +
+           '<input type="number" class="ci-stack-mod" id="ci-mods-' + (i + 1) + '" min="0" max="21" step="1" value="' + val + '" oninput="calcCI()" style="width:4.6rem;"></label>';
+    }
+    box.innerHTML = h;
+  }
+  return [...box.querySelectorAll('.ci-stack-mod')].map(i => parseInt(i.value) || 0);
+}
+
 function calcCI() {
   const v = id => document.getElementById(id);
   const numPanels = parseInt(v('ci-numPanels').value) || 0;
@@ -2117,8 +2141,12 @@ function calcCI() {
   const hyb       = CI_HYBRIDS[v('ci-hybrid').value];
   const pvinv     = CI_PVINV[v('ci-pvinv').value];
   const pvQty     = parseInt(v('ci-pvinvQty').value) || 0;
-  const mods      = parseInt(v('ci-mods').value) || 0;
-  const systems   = Math.max(1, Math.min(10, parseInt(v('ci-systems').value) || 1));
+  const sysRaw    = parseInt(v('ci-systems').value);
+  const systems   = isNaN(sysRaw) ? Math.max(1, document.querySelectorAll('.ci-stack-mod').length) : Math.max(1, Math.min(20, sysRaw));   // blank while typing = keep current stacks
+  const stackMods = ciSyncStackInputs(systems);                 // modules in each stack (0 = empty stack)
+  const stackList = stackMods.map((m, i) => ({ m, n: i + 1 })).filter(x => x.m > 0);   // keep the on-screen stack number
+  const activeStacks = stackList.map(x => x.m);
+  const mods      = activeStacks.reduce((a, b) => a + b, 0);   // TOTAL modules across all stacks
   const bcChoice  = v('ci-bc').value;
   const nlf       = parseFloat(v('ci-network').value) || 1.04;
   const siteworks = parseFloat(v('ci-siteworks').value) || 0;
@@ -2140,41 +2168,51 @@ function calcCI() {
   const watts = PANEL_WATTS[panelType] || 475;
   const pvKw = numPanels * watts / 1000;
   const hasBat = mods > 0;
+  const nStacks = activeStacks.length;
 
   // ── panels + PV inverters ──
   if (numPanels > 0) add(PANEL_LABELS[panelType], numPanels, PANEL_PRICES[panelType]);
-  const hybQty = (mods > 0) ? systems : 1;
+  const hybQty = hasBat ? nStacks : 1;                           // one hybrid per stack
   if (hyb.price > 0) add(hyb.label, hybQty, hyb.price * CI_GST);
   if (pvQty > 0 && pvinv.price > 0) add(pvinv.label, pvQty, pvinv.price * CI_GST);
 
-  // ── SigenStack battery bank ──
-  let bcKey = null;
+  // ── SigenStack battery bank — one controller / base set / cable set per stack, sized per stack ──
   if (hasBat) {
-    if (mods < 4) warnings.push('SigenStack minimum is 4 modules (48.2kWh) — ' + mods + ' selected.');
-    if (mods > 21) warnings.push('SigenStack maximum is 21 modules per system — quote a second system.');
+    stackList.forEach(({ m, n }) => {
+      if (m < 4)  warnings.push('Stack ' + n + ': SigenStack minimum is 4 modules (48.2kWh) — ' + m + ' selected.');
+      if (m > 21) warnings.push('Stack ' + n + ': SigenStack maximum is 21 modules — move the rest into another stack.');
+    });
     if (hyb.kw === 0) warnings.push('A battery needs a Sigen HYBRID inverter — PV-only units have no battery port.');
 
-    bcKey = bcChoice;
-    if (bcChoice === 'auto') bcKey = (mods >= 20 && numPanels === 0 && !hyb.backup) ? 'bc05' : 'bc05bst';
-    if (bcKey === 'bc1bst' && mods > 10) warnings.push('1C controller is documented only for 4-10 modules — check with Sigenergy for ' + mods + '.');
-    if (hyb.backup && bcKey === 'bc05') { bcKey = 'bc05bst'; warnings.push('HYB backup inverter requires a BST controller — upgraded to M2-0.5C-BST.'); }
-    const bcPrice = { bc05: CI_P.bc05, bc05bst: CI_P.bc05bst, bc1bst: CI_P.bc1bst }[bcKey];
-    const bcLabel = { bc05: 'Battery Controller M2-0.5C', bc05bst: 'Battery Controller M2-0.5C-BST', bc1bst: 'Battery Controller M2-1C-BST' }[bcKey];
+    const bcPriceOf = { bc05: CI_P.bc05, bc05bst: CI_P.bc05bst, bc1bst: CI_P.bc1bst };
+    const bcLabelOf = { bc05: 'Battery Controller M2-0.5C', bc05bst: 'Battery Controller M2-0.5C-BST', bc1bst: 'Battery Controller M2-1C-BST' };
+    const ctr = {}, bases = {}; let covers = 0, fixKits = 0, bstUpgraded = false;
+    stackList.forEach(({ m, n }) => {
+      let k = bcChoice;
+      if (bcChoice === 'auto') k = (m >= 20 && numPanels === 0 && !hyb.backup) ? 'bc05' : 'bc05bst';
+      if (k === 'bc1bst' && m > 10) warnings.push('Stack ' + n + ': 1C controller is documented only for 4-10 modules — check with Sigenergy for ' + m + '.');
+      if (hyb.backup && k === 'bc05') { k = 'bc05bst'; bstUpgraded = true; }
+      ctr[k] = (ctr[k] || 0) + 1;
+      const towers = m <= 7 ? 1 : m <= 12 ? 2 : m <= 18 ? 3 : 4;
+      const oneC = k === 'bc1bst';
+      if (towers === 4) {
+        bases.base4s = (bases.base4s || 0) + 1;
+      } else {
+        const mk = oneC ? 'baseMain1' : 'baseMain05'; bases[mk] = (bases[mk] || 0) + 1;
+        if (towers > 1) { const sk = oneC ? 'baseSub1' : 'baseSub05'; bases[sk] = (bases[sk] || 0) + (towers - 1); }
+      }
+      if (towers > 1) covers += towers - 1;
+      if (m === 7) fixKits++;
+    });
+    if (bstUpgraded) warnings.push('HYB backup inverter requires a BST controller — upgraded to M2-0.5C-BST.');
 
-    add('SigenStack BAT 12.0 (12.06kWh)', mods * systems, CI_P.bat * CI_GST);
-    add(bcLabel + (systems > 1 ? ' (1 per system)' : ''), systems, bcPrice * CI_GST);
-
-    const towers = mods <= 7 ? 1 : mods <= 12 ? 2 : mods <= 18 ? 3 : 4;
-    const oneC = bcKey === 'bc1bst';
-    if (towers === 4) {
-      add('Base 4S-0.5C (pre-cabled 4-tower)', systems, CI_P.base4s * CI_GST);
-    } else {
-      add(oneC ? 'Base MAIN-1C' : 'Base MAIN-0.5C', systems, (oneC ? CI_P.baseMain1 : CI_P.baseMain05) * CI_GST);
-      if (towers > 1) add(oneC ? 'Base SUB-1C' : 'Base SUB-0.5C', (towers - 1) * systems, (oneC ? CI_P.baseSub1 : CI_P.baseSub05) * CI_GST);
-    }
-    if (towers > 1) add('SigenStack Cover (per SUB tower)', (towers - 1) * systems, CI_P.cover * CI_GST);
-    add('BC Cables 4m set', systems, CI_P.cables * CI_GST);
-    if (mods === 7) add('Fixation kit (7th module in tower)', systems, CI_P.fixKit * CI_GST);
+    add('SigenStack BAT 12.0 (12.06kWh)' + (nStacks > 1 ? ' — ' + activeStacks.join(' + ') + ' across ' + nStacks + ' stacks' : ''), mods, CI_P.bat * CI_GST);
+    for (const k of ['bc05', 'bc05bst', 'bc1bst']) if (ctr[k]) add(bcLabelOf[k] + (nStacks > 1 ? ' (1 per stack)' : ''), ctr[k], bcPriceOf[k] * CI_GST);
+    const baseLabel = { base4s: 'Base 4S-0.5C (pre-cabled 4-tower)', baseMain05: 'Base MAIN-0.5C', baseMain1: 'Base MAIN-1C', baseSub05: 'Base SUB-0.5C', baseSub1: 'Base SUB-1C' };
+    for (const k of ['base4s', 'baseMain05', 'baseMain1', 'baseSub05', 'baseSub1']) if (bases[k]) add(baseLabel[k], bases[k], CI_P[k] * CI_GST);
+    if (covers > 0) add('SigenStack Cover (per SUB tower)', covers, CI_P.cover * CI_GST);
+    add('BC Cables 4m set', nStacks, CI_P.cables * CI_GST);
+    if (fixKits > 0) add('Fixation kit (7th module in tower)', fixKits, CI_P.fixKit * CI_GST);
   }
 
   // ── BoS (residential-rate placeholder, ex GST) ──
@@ -2188,7 +2226,7 @@ function calcCI() {
   const gross = equip + bos + siteworks;
 
   // ── rebates ──
-  const nominal = systems * mods * CI_P.batKwh;
+  const nominal = mods * CI_P.batKwh;                 // mods = site total across stacks
   const usable = 0.9 * nominal;                       // PDRS Rule clause 10
   const invKw = hyb.kw * hybQty;
 
@@ -2270,6 +2308,10 @@ function calcCI() {
   h += '<tr class="total-row"><td colspan="3"><strong>Gross Cost (ex GST)</strong></td><td style="text-align:right;"><strong>' + ciFmt(gross / 1.1) + '</strong></td></tr>'
     + '<tr><td colspan="3" style="color:var(--muted);">Gross Cost (inc GST)</td><td style="text-align:right;color:var(--muted);">' + ciFmt(gross) + '</td></tr></tbody>';
   document.getElementById('ci-bom').innerHTML = h;
+  document.getElementById('ci-stack-total').innerHTML = hasBat
+    ? '<strong>' + mods + ' modules</strong> in ' + nStacks + ' stack' + (nStacks !== 1 ? 's' : '') + ' (' + activeStacks.join(' + ') + ') &middot; ' +
+      nominal.toFixed(1) + 'kWh nominal &middot; ' + usable.toFixed(1) + 'kWh usable &middot; ' + (hyb.kw > 0 ? hybQty + ' hybrid inverter' + (hybQty !== 1 ? 's' : '') : '<span style="color:#c0392b;">no hybrid inverter selected</span>')
+    : 'No battery — set modules in at least one stack.';
 
   let s = '';
   if (solarStcValue > 0) s += summaryRow('Solar STCs (' + solarStcs + ' &times; $' + stcPrice + ')', '&minus; ' + ciFmt(solarStcValue));
