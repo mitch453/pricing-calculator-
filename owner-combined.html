@@ -1232,6 +1232,13 @@
           <div id="ci-stack-total" style="font-size:0.78rem;color:var(--muted);margin-top:0.35rem;"></div>
         </div>
         <div class="form-group">
+          <label>Sigenergy 25% Discount (SigenStack hybrid + BAT 12.0 modules)</label>
+          <select id="ci-discount" onchange="calcCI()">
+            <option value="off" selected>Off &mdash; list price</option>
+            <option value="on">On &mdash; 25% off hybrid inverter and battery modules</option>
+          </select>
+        </div>
+        <div class="form-group">
           <label>Battery Controller</label>
           <select id="ci-bc" onchange="calcCI()">
             <option value="auto" selected>Auto-select</option>
@@ -2159,6 +2166,9 @@ function calcCI() {
   const acpFee    = (parseFloat(v('ci-acpFee').value) || 0) / 100;
   const stcPrice  = parseFloat(v('ci-stcPrice').value) || 0;
   const fedBat    = v('ci-fedBat').value === 'yes';
+  const disc      = v('ci-discount').value === 'on' ? 0.25 : 0;   // Sigenergy 25% off SigenStack hybrid + BAT 12.0 (owner, 8 Sep 2026)
+  const discTag   = disc > 0 ? ' — 25% off' : '';
+  let discSaved   = 0;                                             // list-price value given up, for the summary line
 
   const warnings = [];
   const rows = [];
@@ -2173,7 +2183,7 @@ function calcCI() {
   // ── panels + PV inverters ──
   if (numPanels > 0) add(PANEL_LABELS[panelType], numPanels, PANEL_PRICES[panelType]);
   const hybQty = hasBat ? nStacks : 1;                           // one hybrid per stack
-  if (hyb.price > 0) add(hyb.label, hybQty, hyb.price * CI_GST);
+  if (hyb.price > 0) { add(hyb.label + discTag, hybQty, hyb.price * CI_GST * (1 - disc)); discSaved += hybQty * hyb.price * CI_GST * disc; }
   if (pvQty > 0 && pvinv.price > 0) add(pvinv.label, pvQty, pvinv.price * CI_GST);
 
   // ── SigenStack battery bank — one controller / base set / cable set per stack, sized per stack ──
@@ -2206,7 +2216,8 @@ function calcCI() {
     });
     if (bstUpgraded) warnings.push('HYB backup inverter requires a BST controller — upgraded to M2-0.5C-BST.');
 
-    add('SigenStack BAT 12.0 (12.06kWh)' + (nStacks > 1 ? ' — ' + activeStacks.join(' + ') + ' across ' + nStacks + ' stacks' : ''), mods, CI_P.bat * CI_GST);
+    add('SigenStack BAT 12.0 (12.06kWh)' + (nStacks > 1 ? ' — ' + activeStacks.join(' + ') + ' across ' + nStacks + ' stacks' : '') + discTag, mods, CI_P.bat * CI_GST * (1 - disc));
+    discSaved += mods * CI_P.bat * CI_GST * disc;
     for (const k of ['bc05', 'bc05bst', 'bc1bst']) if (ctr[k]) add(bcLabelOf[k] + (nStacks > 1 ? ' (1 per stack)' : ''), ctr[k], bcPriceOf[k] * CI_GST);
     const baseLabel = { base4s: 'Base 4S-0.5C (pre-cabled 4-tower)', baseMain05: 'Base MAIN-0.5C', baseMain1: 'Base MAIN-1C', baseSub05: 'Base SUB-0.5C', baseSub1: 'Base SUB-1C' };
     for (const k of ['base4s', 'baseMain05', 'baseMain1', 'baseSub05', 'baseSub1']) if (bases[k]) add(baseLabel[k], bases[k], CI_P[k] * CI_GST);
@@ -2314,6 +2325,7 @@ function calcCI() {
     : 'No battery — set modules in at least one stack.';
 
   let s = '';
+  if (discSaved > 0) s += summaryRow('Sigenergy 25% discount on hybrid + modules (already in the BOM above, ex GST)', '&minus; ' + ciFmt(discSaved / 1.1));
   if (solarStcValue > 0) s += summaryRow('Solar STCs (' + solarStcs + ' &times; $' + stcPrice + ')', '&minus; ' + ciFmt(solarStcValue));
   if (fedStcValue > 0) s += summaryRow('Federal battery STCs (' + fedStcs + ')', '&minus; ' + ciFmt(fedStcValue));
   if (prcs > 0) {
