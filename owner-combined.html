@@ -1282,7 +1282,8 @@
     <div class="card-body">
       <p class="margin-tier-hint">
         Commercial battery PRCs (BESS3/4/5) commence <strong>1 September 2026</strong> &mdash; installs before that date earn none.
-        BESS4/BESS5 require <strong>new solar &ge; 25% of usable battery capacity</strong> at the site (hard eligibility rule).
+        New solar is <strong>not required</strong> (PDRS Amendment No. 3, from 7 Sep 2026): BESS4/5 get the higher rate only when the battery
+        goes in <strong>within 90 days of new solar &ge; 25% of usable capacity</strong>, otherwise the lower rate (0.067 vs 0.1 kW/kWh). BESS3 needs only the 90 days.
         Usable capacity = 90% of nominal per the PDRS Rule. Counted capacity is capped at 4h &times; battery-inverter kW. Certificates trade EX GST (PRC ~$3.05, STC ~$38) — the defaults here are their inc-GST equivalents ($3.36 / $41.80).
       </p>
       <div class="form-grid">
@@ -1415,8 +1416,8 @@
     <div class="card-header">Rebates — NSW PDRS PRCs + Solar STCs</div>
     <div class="card-body">
       <p class="margin-tier-hint">
-        Commercial battery PRCs (BESS4/5) commence <strong>1 September 2026</strong>. BESS4/5 require
-        <strong>new solar &ge; 25% of usable battery capacity</strong> (27.6kW per cabinet). At 122.8kWh nominal this unit is
+        Commercial battery PRCs (BESS4/5) commence <strong>1 September 2026</strong>. The higher rate needs the battery within 90 days of
+        <strong>new solar &ge; 25% of usable battery capacity</strong> (27.6kW per cabinet); otherwise the lower rate applies. At 122.8kWh nominal this unit is
         <strong>never eligible for federal battery STCs</strong> (100kWh nominal cap) — PRCs are the whole battery rebate.
         Certificates trade EX GST (PRC ~$3.05); defaults below are inc-GST equivalents.
       </p>
@@ -1596,11 +1597,11 @@
     <div class="card-header">Rebates — NSW PDRS PRCs + STCs</div>
     <div class="card-body">
       <p class="margin-tier-hint">
-        Commercial battery PRCs (BESS4/5) commence <strong>1 September 2026</strong> and require
-        <strong>new solar &ge; 25% of usable battery capacity</strong>. The ESA 261 lands in <strong>BESS5</strong>
+        Commercial battery PRCs (BESS4/5) commence <strong>1 September 2026</strong>. The higher rate needs the battery within 90 days of
+        <strong>new solar &ge; 25% of usable battery capacity</strong>; otherwise the lower rate applies. The ESA 261 lands in <strong>BESS5</strong>
         (UL9540A required — GoodWe claims tested-to-methodology, report not publicly sighted); the smaller cabinets land
-        in <strong>BESS4</strong> (approved-product list + $5,000 min customer payment; ESA battery CEC listing shows
-        &ldquo;Waiting&rdquo;). Federal battery STCs: eligible only when total nominal &le; 100kWh (ESA 60 / BAT 61.4 /
+        in <strong>BESS4</strong> (approved-product list + $5,000 min customer payment; BAT-AC-G10 61.4/92.1 are CEC-listed,
+        the ESA 261 itself is not). Federal battery STCs: eligible only when total nominal &le; 100kWh (ESA 60 / BAT 61.4 /
         BAT 92.1 at qty 1). Certificates trade EX GST; defaults are inc-GST equivalents.
       </p>
       <div class="form-grid">
@@ -1970,30 +1971,39 @@ function bess2Label(b) {
     ? `NSW VPP BESS2 PRC discount (${b.kwh}kWh battery &mdash; capped at ${BESS2_VALUE_KWH}kWh)`
     : `NSW VPP BESS2 PRC discount (${b.kwh}kWh &times; $${b.rate.toFixed(2)})`;
 }
+// PDRS Amendment No. 3 Rule 2026 (from 7 Sep 2026; Method Guide V3.1 s5.2.5, Tables B.9/B.10): new solar is
+// NOT an eligibility rule for BESS3/4/5 — it only picks the rate. BESS4.2A-C / BESS5.2 (0.1 kW/kWh) need the
+// battery within 90 days of new solar AND new solar >= 25% of usable (Equipment Requirement 4); otherwise the
+// lower BESS4.3A-C / BESS5.3 (0.067 kW/kWh). BESS3.2 (0.12 kW/kWh) needs only the 90 days — no 25% test.
+function pdrsHighRate(activity, solar90, pvKw, usable, notes) {
+  if (!solar90 || activity === 'bess3' || pvKw >= 0.25 * usable) return solar90;
+  notes.push('Lower PRC rate (BESS4.3/5.3, 0.067 kW/kWh): the higher rate needs NEW solar &ge; 25% of usable — need ' +
+    (0.25 * usable).toFixed(1) + 'kW, currently ' + pvKw.toFixed(1) + 'kW. The Rule picks the equation by the 90-day test alone, ' +
+    'so confirm this fallback with the ACP before quoting.');
+  return false;
+}
+
 // usable = 0.9 x nominal per PDRS Rule clause 10. PRC $3.36 inc GST x 70% net of ACP fee.
 function calcBessCommercial(activity, usable, invKw, pvKw, solar90, dwellings, nlf) {
   const notes = [];
   if (!(usable > 0)) return null;
   if (!(invKw > 0)) { notes.push('PDRS: no inverter capacity in this configuration — no PRCs.'); return { prcs: 0, gross: 0, net: 0, notes }; }
   if (usable > 6 * invKw) { notes.push('PDRS ineligible: usable exceeds 6 &times; inverter kW.'); return { prcs: 0, gross: 0, net: 0, notes }; }
-  if (pvKw < 0.25 * usable) {
-    notes.push('PDRS ineligible: BESS3/4/5 need NEW solar &ge; 25% of usable — need ' + (0.25 * usable).toFixed(1) + 'kW of new solar, currently ' + pvKw.toFixed(1) + 'kW.');
-    return { prcs: 0, gross: 0, net: 0, notes };
-  }
+  const high = pdrsHighRate(activity, solar90, pvKw, usable, notes);
   let counted = Math.min(usable, 4 * invKw);
   let base = 0;
   if (activity === 'bess3') {
     counted = Math.min(counted, 5 * (dwellings || 0));
-    base = counted * (solar90 ? 108 : 76.77);
-    notes.push('BESS3: strata building with &ge;4 dwellings, battery OUTDOORS, no existing BESS at the NMI, min $1,000 net customer payment.');
+    base = counted * (high ? 108 : 76.77);
+    notes.push('BESS3: strata building with &ge;4 dwellings, battery OUTDOORS supplying common property and/or multiple dwellings, no existing BESS at the NMI, min $1,000 net customer payment. Higher rate not available if the new solar had NSW Government funding.');
   } else if (activity === 'bess4') {
     if (usable <= 20 || usable > 200) notes.push('BESS4 band is &gt;20&ndash;200kWh usable — check ' + usable.toFixed(1) + 'kWh qualifies.');
-    const t1 = solar90 ? 45 : 30.15, t2 = solar90 ? 63 : 42.21, full = solar90 ? 90 : 60.3;
+    const t1 = high ? 45 : 30.15, t2 = high ? 63 : 42.21, full = high ? 90 : 60.3;
     base = counted <= 50 ? counted * t1 : counted <= 100 ? 50 * t1 + (counted - 50) * t2 : counted * full;
     notes.push('BESS4: COMMERCIAL sites only (not residential premises); min $5,000 net customer payment ex GST; one BESS4/5 per site EVER; approved-product list applies.');
   } else {
     counted = Math.min(counted, 10000);
-    base = counted * (solar90 ? 90 : 60.3);
+    base = counted * (high ? 90 : 60.3);
     notes.push('BESS5 (&gt;200kWh usable): UL9540A fire test certification required; no minimum customer payment.');
   }
   const prcs = Math.floor(base * nlf);
@@ -2095,12 +2105,18 @@ function buildProfitHtml(isBatteryOnly, jobsPerDay, marginPerJob, labelExtra, no
 // requires a BST controller; plain 0.5C allowed only for storage-only
 // systems of 20+ modules. PV-only inverters have no battery port.
 // PDRS BESS3/4/5 per the PDRS Rule consolidated 1 Jul 2026
-// (NSWGG-2026-260-2), effective 1 Sep 2026:
+// (NSWGG-2026-260-2), effective 1 Sep 2026, as amended by Amendment
+// No. 3 Rule 2026 (from 7 Sep 2026):
 //   usable = 90% x nominal; counted = min(usable, 4h x inverter kW)
 //   (+ 5kWh x dwellings cap for BESS3; 10MWh cap for BESS5)
 //   BESS4 tiers: x0.5 to 50kWh, x0.7 for 50-100, FULL rate on the
 //   whole counted capacity above 100. Firmness 1.0, lifetime 15yr,
 //   6h window, x10; PRCs = floor(base x NLF).
+//   New solar only picks the rate (see pdrsHighRate) — never zero.
+// CEC approved battery list (SigenStack, approved 17 Feb 2026): 4-25
+//   modules with M2-0.5C-BST / M2-1C-BST; plain M2-0.5C 20-25 only.
+//   UL9540A: Intertek unit-level report 241016030GZU-002 (Apr 2025).
+//   Sigenergy AU C&I warranty: 60% at 10yr (BESS3/4 need 70%).
 // ================================================================
 const CI_HYBRIDS = {
   none:  { kw: 0,    price: 0,     backup: false, label: '' },
@@ -2212,6 +2228,7 @@ function calcCI() {
       if (bcChoice === 'auto') k = (m >= 20 && numPanels === 0 && !hyb.backup) ? 'bc05' : 'bc05bst';
       if (k === 'bc1bst' && m > 10) warnings.push('Stack ' + n + ': 1C controller is documented only for 4-10 modules — check with Sigenergy for ' + m + '.');
       if (hyb.backup && k === 'bc05') { k = 'bc05bst'; bstUpgraded = true; }
+      if (k === 'bc05' && m < 20) warnings.push('Stack ' + n + ': the plain M2-0.5C is CEC-listed only for 20-25 modules — with ' + m + ' modules use a BST controller or BESS3/4 PRCs fail the approved-product list.');
       ctr[k] = (ctr[k] || 0) + 1;
       const towers = m <= 7 ? 1 : m <= 12 ? 2 : m <= 18 ? 3 : 4;
       const oneC = k === 'bc1bst';
@@ -2284,36 +2301,39 @@ function calcCI() {
   if (activity !== 'none' && hasBat) {
     let eligible = true;
     if (usable <= 20) { eligible = false; warnings.push('PDRS: usable capacity must exceed 20kWh (currently ' + usable.toFixed(1) + 'kWh).'); }
-    if (invKw > 0 && usable > 6 * invKw) { eligible = false; warnings.push('PDRS: usable (' + usable.toFixed(0) + 'kWh) exceeds 6 x inverter kW (' + (6 * invKw).toFixed(0) + ') — ineligible.'); }
-    if ((activity === 'bess4' || activity === 'bess5') && pvKw < 0.25 * usable) {
-      eligible = false;
-      warnings.push('BESS4/5 HARD REQUIREMENT: new solar >= 25% of usable capacity. Need ' + (0.25 * usable).toFixed(1) + 'kW of new solar, currently ' + pvKw.toFixed(1) + 'kW — NO PRCs without it.');
-    }
+    if (invKw <= 0) { eligible = false; warnings.push('PDRS: no hybrid (battery) inverter selected — no PRCs counted.'); }
+    else if (usable > 6 * invKw) { eligible = false; warnings.push('PDRS: usable (' + usable.toFixed(0) + 'kWh) exceeds 6 x inverter kW (' + (6 * invKw).toFixed(0) + ') — ineligible.'); }
     if (eligible) {
-      let counted = Math.min(usable, 4 * (invKw || 1e9));
+      const high = pdrsHighRate(activity, solar90, pvKw, usable, warnings);
+      let counted = Math.min(usable, 4 * invKw);
       let base = 0;
       if (activity === 'bess3') {
         counted = Math.min(counted, 5 * dwellings);
-        base = counted * (solar90 ? 108 : 76.77);
-        warnings.push('BESS3: strata building with >=4 dwellings, battery OUTDOORS, no existing BESS at the NMI, min $1,000 net customer payment.');
+        base = counted * (high ? 108 : 76.77);
+        warnings.push('BESS3: strata building with >=4 dwellings, battery OUTDOORS supplying common property and/or multiple dwellings, no existing BESS at the NMI, min $1,000 net customer payment. Higher rate not available if the new solar had NSW Government funding.');
       } else if (activity === 'bess4') {
-        const t1 = solar90 ? 45 : 30.15, t2 = solar90 ? 63 : 42.21, full = solar90 ? 90 : 60.3;
+        const t1 = high ? 45 : 30.15, t2 = high ? 63 : 42.21, full = high ? 90 : 60.3;
         base = counted <= 50 ? counted * t1
              : counted <= 100 ? 50 * t1 + (counted - 50) * t2
              : counted * full;                       // full rate on the WHOLE capacity above 100
-        warnings.push('BESS4: min $5,000 net customer payment ex GST; one BESS4/5 per site EVER; not residential or data-centre premises.');
+        warnings.push('BESS4: min $5,000 net customer payment ex GST; one BESS4/5 per site EVER; not residential or data-centre premises; ' +
+          'approved-product list applies — SigenStack is CEC-listed for 4-25 modules per stack with M2-0.5C-BST / M2-1C-BST (plain M2-0.5C 20-25 only; approved 17 Feb 2026).');
       } else {
         counted = Math.min(counted, 10000);
-        base = counted * (solar90 ? 90 : 60.3);
-        warnings.push('BESS5: UL9540A fire test certification required; no minimum customer payment.');
+        base = counted * (high ? 90 : 60.3);
+        warnings.push('BESS5: UL9540A fire test certification required — SigenStack has an Intertek UL9540A unit-level report (241016030GZU-002, Apr 2025); ' +
+          'confirm it meets the Scheme Administrator\'s test requirement. No minimum customer payment.');
       }
+      if (activity === 'bess3' || activity === 'bess4')
+        warnings.push('WARRANTY: Sigenergy\'s AU C&I warranty guarantees 60% capacity at 10 years, but ' + activity.toUpperCase() +
+          ' Equipment Requirement ' + (activity === 'bess3' ? 5 : 6) + ' needs at least 70% at 10 years — get a written 70% guarantee from Sigenergy before counting these PRCs.');
       prcs = Math.floor(base * nlf);
       prcGross = prcs * prcPrice;
       prcNet = prcGross * (1 - acpFee);
       prcNote = counted.toFixed(1) + ' counted kWh (usable ' + usable.toFixed(1) + ' of ' + nominal.toFixed(1) + ' nominal)';
       warnings.push('PRCs are payable only for installs ON/AFTER 1 SEPTEMBER 2026 — earlier installs earn none.');
       if (activity === 'bess4' && counted > 50 && counted <= 100)
-        warnings.push('BESS4 tip: above 100 counted kWh the FULL 90 PRC rate applies to every kWh — 10+ modules with enough inverter jumps the rebate sharply.');
+        warnings.push('BESS4 tip: above 100 counted kWh the FULL ' + (high ? 90 : 60.3) + ' PRC rate applies to every kWh — 10+ modules with enough inverter jumps the rebate sharply.');
     }
   }
 
@@ -2436,16 +2456,12 @@ function calcDeye() {
   if (activity !== 'none') {
     let eligible = true;
     if (usable > 6 * invKw) { eligible = false; warnings.push('PDRS: usable exceeds 6 x inverter kW — ineligible.'); }
-    if (pvKw < 0.25 * usable) {
-      eligible = false;
-      warnings.push('BESS4/5 HARD REQUIREMENT: new solar >= 25% of usable capacity. Need ' + (0.25 * usable).toFixed(1) +
-        'kW of new solar, currently ' + pvKw.toFixed(1) + 'kW — NO PRCs without it.');
-    }
     if (eligible) {
+      const high = pdrsHighRate(activity, solar90, pvKw, usable, warnings);
       let counted = Math.min(usable, 4 * invKw);
       let base = 0;
       if (activity === 'bess4') {
-        const t1 = solar90 ? 45 : 30.15, t2 = solar90 ? 63 : 42.21, full = solar90 ? 90 : 60.3;
+        const t1 = high ? 45 : 30.15, t2 = high ? 63 : 42.21, full = high ? 90 : 60.3;
         base = counted <= 50 ? counted * t1
              : counted <= 100 ? 50 * t1 + (counted - 50) * t2
              : counted * full;
@@ -2453,7 +2469,7 @@ function calcDeye() {
           'requirement applies — confirm the GE-F120 is listed with the NSW Scheme Administrator.');
       } else {
         counted = Math.min(counted, 10000);
-        base = counted * (solar90 ? 90 : 60.3);
+        base = counted * (high ? 90 : 60.3);
         warnings.push('BESS5 (>200kWh usable): UL9540A large-scale fire test certification required; no minimum customer payment.');
       }
       prcs = Math.floor(base * nlf);
@@ -2510,27 +2526,37 @@ function calcDeye() {
 // Specs researched + adversarially verified against GoodWe AU datasheets.
 // ESA 261 (GW125/261-ESA-LCN-G11): only all-in-one — 261.25kWh LFP
 //   liquid-cooled + integrated 125kW PCS, AC-coupled (pair GT for PV).
-//   BESS5 territory; UL9540A per GoodWe press only; CEC battery listing
-//   "Waiting"; PCS CEC-approved 30/04/2026.
+//   BESS5 territory; UL9540A per GoodWe press only. The ESA 261 itself
+//   is NOT on the CEC inverter or battery list; its PCS matches the
+//   CEC-listed GW125K-PCS-N-G10/G11 (approved 30 Apr 2026, listed to
+//   30 Apr 2029).
 // BAT-AC-G10 (61.4/92.1/102.4/112.6kWh): DC-coupled HV cabinets for ET
 //   hybrids (inverter separate); <=4 parallel to 450kWh; 6,000 cycles.
+//   CEC approved battery list: 61.4/71.6/81.9/92.1kWh (102.4/112.6 not
+//   confirmed).
 // ESA 60 master (GW60-ESA-ACPN-G10): 60kWh usable, pairs with ET
 //   15-30kW hybrids per datasheet (40/50 compatibility per BAT manual);
 //   +2x GW60KWH-D-10 extensions per master (180kWh).
 // ================================================================
-const GWCI_CABINETS = {   // ex-GST OSW trade prices; BOM converts x1.1
+const GWCI_CABINETS = {   // ex-GST OSW trade prices; BOM converts x1.1; cec = CEC approved battery list status (30 Sep 2026)
   esa261: { label: 'GoodWe ESA 261 all-in-one (GW125/261-ESA-LCN-G11, 261.25kWh + 125kW PCS)',
-            nominal: 261.25, invKw: 125, allInOne: true,  ex: 65197, maxQty: 20 },
+            nominal: 261.25, invKw: 125, allInOne: true,  ex: 65197, maxQty: 20,
+            cec: 'the ESA 261 is NOT on the CEC battery or inverter list (only its PCS matches the listed GW125K-PCS-N-G10/G11) — no BESS4 PRCs until it is listed' },
   esa60:  { label: 'GoodWe ESA 60 master cabinet (GW60-ESA-ACPN-G10, 60kWh usable)',
-            nominal: 63.36, invKw: 0, allInOne: false, ex: 19386, maxQty: 4, ext: true },
+            nominal: 63.36, invKw: 0, allInOne: false, ex: 19386, maxQty: 4, ext: true,
+            cec: 'the ESA 60 is not confirmed on the CEC approved battery list — check the list before quoting' },
   bat614: { label: 'GoodWe BAT 61.4 HV cabinet (GW61.4-BAT-AC-G10, 60kWh usable)',
-            nominal: 61.4,  invKw: 0, allInOne: false, ex: 22220, maxQty: 4 },
+            nominal: 61.4,  invKw: 0, allInOne: false, ex: 22220, maxQty: 4,
+            cec: 'the BAT-AC-G10 61.4 is on the CEC approved battery list' },
   bat921: { label: 'GoodWe BAT 92.1 HV cabinet (GW92.1-BAT-AC-G10, 90kWh usable)',
-            nominal: 92.1,  invKw: 0, allInOne: false, ex: 28810, maxQty: 4 },
+            nominal: 92.1,  invKw: 0, allInOne: false, ex: 28810, maxQty: 4,
+            cec: 'the BAT-AC-G10 92.1 is on the CEC approved battery list' },
   bat1024:{ label: 'GoodWe BAT 102.4 HV cabinet (GW102.4-BAT-AC-G10, 100kWh usable)',
-            nominal: 102.4, invKw: 0, allInOne: false, ex: 31070, maxQty: 4 },
+            nominal: 102.4, invKw: 0, allInOne: false, ex: 31070, maxQty: 4,
+            cec: 'the BAT 102.4 is not confirmed on the CEC approved battery list (listed BAT-AC-G10 sizes: 61.4/71.6/81.9/92.1kWh) — check before quoting' },
   bat1126:{ label: 'GoodWe BAT 112.6 HV cabinet (GW112.6-BAT-AC-G10, 110kWh usable)',
-            nominal: 112.6, invKw: 0, allInOne: false, ex: 33141, maxQty: 4 },
+            nominal: 112.6, invKw: 0, allInOne: false, ex: 33141, maxQty: 4,
+            cec: 'the BAT 112.6 is not confirmed on the CEC approved battery list (listed BAT-AC-G10 sizes: 61.4/71.6/81.9/92.1kWh) — check before quoting' },
 };
 const GWCI_EXT = { label: 'GoodWe 60kWh extension cabinet (GW60KWH-D-10)', ex: 18488, nominal: 63.36 };
 const GWCI_INVERTERS = {
@@ -2669,25 +2695,20 @@ function calcGwci() {
     let eligible = true;
     if (invKw <= 0) { eligible = false; warnings.push('PDRS: no battery inverter capacity in this configuration — no PRCs counted.'); }
     else if (usable > 6 * invKw) { eligible = false; warnings.push('PDRS: usable exceeds 6 x inverter kW — ineligible.'); }
-    if (pvKw < 0.25 * usable) {
-      eligible = false;
-      warnings.push('BESS4/5 HARD REQUIREMENT: new solar >= 25% of usable capacity. Need ' + (0.25 * usable).toFixed(1) +
-        'kW of new solar, currently ' + pvKw.toFixed(1) + 'kW — NO PRCs without it.');
-    }
     if (eligible) {
+      const high = pdrsHighRate(activity, solar90, pvKw, usable, warnings);
       let counted = Math.min(usable, 4 * invKw);
       let base = 0;
       if (activity === 'bess4') {
-        const t1 = solar90 ? 45 : 30.15, t2 = solar90 ? 63 : 42.21, full = solar90 ? 90 : 60.3;
+        const t1 = high ? 45 : 30.15, t2 = high ? 63 : 42.21, full = high ? 90 : 60.3;
         base = counted <= 50 ? counted * t1
              : counted <= 100 ? 50 * t1 + (counted - 50) * t2
              : counted * full;
         warnings.push('BESS4: min $5,000 net customer payment ex GST; one BESS4/5 per site EVER; approved-product-list ' +
-          'requirement applies — the ESA/BAT batteries are NOT yet CEC-listed as C&I units ("Waiting" on the 261) — confirm ' +
-          'with the NSW Scheme Administrator.');
+          'requirement applies — ' + unit.cec + '.');
       } else {
         counted = Math.min(counted, 10000);
-        base = counted * (solar90 ? 90 : 60.3);
+        base = counted * (high ? 90 : 60.3);
         warnings.push('BESS5 (>200kWh usable): UL9540A large-scale fire test certification required — GoodWe claims ' +
           '"tested using UL 9540A methodology" (press only, report not publicly sighted). Obtain the test report before ' +
           'committing PRCs to a quote. No minimum customer payment for BESS5.');
