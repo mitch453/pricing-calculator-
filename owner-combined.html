@@ -1296,6 +1296,7 @@
         Commercial battery PRCs (BESS3/4/5) commence <strong>1 September 2026</strong> &mdash; installs before that date earn none.
         New solar is <strong>not required</strong> (PDRS Amendment No. 3, from 7 Sep 2026): BESS4/5 get the higher rate only when the battery
         goes in <strong>within 90 days of new solar &ge; 25% of usable capacity</strong>, otherwise the lower rate (0.067 vs 0.1 kW/kWh). BESS3 needs only the 90 days.
+        BESS3/4 also need a CEC-listed battery &mdash; SigenStack is listed only as <strong>4&ndash;8 module stacks on a BST controller</strong>, so bigger stacks earn no BESS3/4 PRCs.
         Usable capacity = 90% of nominal per the PDRS Rule. Counted capacity is capped at 4h &times; battery-inverter kW. Certificates trade EX GST (PRC ~$3.05, STC ~$38) — the defaults here are their inc-GST equivalents ($3.36 / $41.80).
       </p>
       <div class="form-grid">
@@ -1344,7 +1345,7 @@
   </div>
 
   <div class="card" id="ci-results-card">
-    <div class="card-header">Bill of Materials &amp; Costing (inc GST)</div>
+    <div class="card-header">Bill of Materials &amp; Costing</div>
     <div class="card-body">
       <div id="ci-warnings"></div>
       <table class="breakdown-table" id="ci-bom" style="width:100%;font-size:0.85rem;border-collapse:collapse;"></table>
@@ -1366,8 +1367,8 @@
         Deye GE-F120-2H2: outdoor all-in-one cabinet — <strong>122.8kWh nominal LiFePO4</strong> + integrated
         <strong>50kW three-phase hybrid PCS</strong>, aircon, aerosol fire suppression, off-grid/black start. Up to
         <strong>65kW of PV input</strong> per cabinet (4 MPPTs); up to 10 cabinets in parallel. IP55, 10-year warranty.
-        PDRS usable capacity = 90% &times; nominal = <strong>110.5kWh per cabinet</strong> — over the 100kWh BESS4 threshold,
-        so the FULL 90 PRC/kWh rate applies to every kWh.
+        PDRS usable capacity = 90% &times; nominal = <strong>110.5kWh per cabinet</strong>. The GE-F120 is <strong>not on the CEC approved
+        battery list</strong>, so one cabinet (BESS4) earns no PRCs; two or more cabinets (&gt;200kWh usable) fall under BESS5.
       </p>
       <div class="form-grid">
         <div class="form-group">
@@ -1468,7 +1469,7 @@
   </div>
 
   <div class="card" id="dy-results-card">
-    <div class="card-header">Bill of Materials &amp; Costing (inc GST)</div>
+    <div class="card-header">Bill of Materials &amp; Costing</div>
     <div class="card-body">
       <div id="dy-warnings"></div>
       <table class="breakdown-table" id="dy-bom" style="width:100%;font-size:0.85rem;border-collapse:collapse;"></table>
@@ -1614,8 +1615,8 @@
         Commercial battery PRCs (BESS4/5) commence <strong>1 September 2026</strong>. The higher rate needs the battery within 90 days of
         <strong>new solar &ge; 25% of usable battery capacity</strong>; otherwise the lower rate applies. The ESA 261 lands in <strong>BESS5</strong>
         (UL9540A required — GoodWe claims tested-to-methodology, report not publicly sighted); the smaller cabinets land
-        in <strong>BESS4</strong> (approved-product list + $5,000 min customer payment; BAT-AC-G10 61.4/92.1 are CEC-listed,
-        the ESA 261 itself is not). Federal battery STCs: eligible only when total nominal &le; 100kWh (ESA 60 / BAT 61.4 /
+        in <strong>BESS4</strong> (approved-product list + $5,000 min customer payment): only the BAT 61.4 and BAT 92.1 are CEC-listed, so the
+        ESA 60, BAT 102.4 and BAT 112.6 earn no BESS4 PRCs. Federal battery STCs: eligible only when total nominal &le; 100kWh (ESA 60 / BAT 61.4 /
         BAT 92.1 at qty 1). Certificates trade EX GST; defaults are inc-GST equivalents.
       </p>
       <div class="form-grid">
@@ -1728,7 +1729,7 @@
           <input type="number" id="ks-pcsQty" min="0" max="20" step="1" value="1" oninput="calcKstar()">
         </div>
         <div class="form-group">
-          <label>PCS Unit Cost ($ inc GST, on request)</label>
+          <label>PCS Unit Cost ($ inc GST)</label>
           <input type="number" id="ks-pcsCost" min="0" step="100" placeholder="Enter OSW price" oninput="calcKstar()">
         </div>
         <div class="form-group">
@@ -1993,12 +1994,13 @@
 // ================================================================
 // SHARED PRICING DATA
 // ================================================================
+const BATTERY_STC_MAX_NOMINAL = 100;   // CER: batteries over 100kWh nominal get no battery STCs
 const STC_PRICE = 36.00;          // credited to the customer on the quote
 const PANEL_PRICES = { ja475: 130, jinko475: 127.60, jinko510: 117.81, aiko475: 175, aiko545: 150.70, risen630: 152.46, ja625: 137.50 };   // Jinko 475 = $116 ex GST (owner, Aug 2026); AIKO 545 All Black (A545-MCE60Mb) = $137 ex GST (owner, 21 Sep 2026); Risen 630W (RSM132-11-630BNDG) = $0.22/W = $138.60 ex GST (owner, 30 Sep 2026); JA 625W = $0.20/W = $125 ex GST (owner, 30 Sep 2026)
 const PANEL_WATTS  = { ja475: 475, jinko475: 475, jinko510: 510, aiko475: 490, aiko545: 545, risen630: 630, ja625: 625 };
 const PANEL_LABELS = { ja475: 'JA 475W', jinko475: 'Jinko 475W (All Black)', jinko510: 'Jinko 510W N-Type (Black Frame)', aiko475: 'AIKO 490W', aiko545: 'AIKO 545W All Black (A545-MCE60Mb)', risen630: 'Risen 630W N-Type Bifacial (RSM132-11-630BNDG)', ja625: 'JA 625W' };
-const MOUNTING = { tin: 6.50, tile: 14.50 };
-const RAIL_PER_PANEL   = 13.75;
+const MOUNTING = { tin: 6.50 * 1.1, tile: 14.50 };   // tin feet $6.50/panel is ex GST (Solar Juice Mibet) -> inc (owner, 30 Sep 2026)
+const RAIL_PER_PANEL   = 13.75 * 1.1;              // $13.75/panel ex GST (Mibet 4.7m rail $27.50 ex / 2) -> inc (owner, 30 Sep 2026)
 const DC_CABLE_PER_PANEL = 8;
 const INSTALL_KIT_PRICE  = 219.98;
 const SENSOR_PRICES = { none: 0, spct100: 109.99, tpct100: 219.98, tpct300dh: 316.90, tpct600dh: 372.44, tpdhci: 331.06, nanobanana: 1200 };
@@ -2109,8 +2111,8 @@ const GW_INVERTER_LABELS = {
   gw10ktp: 'GW10K-ET-G20', gw15ktp: 'GW15K-ET-G20', gw20ktp: 'GW20K-ET-G20', gw25ktp: 'GW25K-ET-G20'
 };
 const GW_BATTERY_MODULES = {
-  gw83: { kwh: 8.3, price: 2112.00, label: 'GW8.3-BAT-D-G20 (8.3kWh module)' },
-  gw90: { kwh: 9.0, price: 2198.90, label: 'GW9.0-BAT-D-G20 (9kWh module)' }   // $1,999 ex GST (owner, Aug 2026)
+  gw83: { kwh: 8.3, usable: 8.0, price: 2112.00, label: 'GW8.3-BAT-D-G20 (8.3kWh module)' },
+  gw90: { kwh: 9.0, usable: 8.85, price: 2198.90, label: 'GW9.0-BAT-D-G20 (9kWh module)' }   // $1,999 ex GST (owner, Aug 2026)
 };
 const GW_STC_CAP = 50;
 
@@ -2164,12 +2166,25 @@ function pdrsHighRate(activity, solar90, pvKw, usable, notes) {
   return false;
 }
 
+// PDRS size/eligibility bands (Rule as amended from 7 Sep 2026): BESS3 needs an apartment building of >= 4 dwellings
+// and >20-200kWh usable; BESS4 >20-200kWh usable; BESS5 >200kWh usable. Returns why it fails, or ''.
+function pdrsBandIssue(activity, usable, dwellings) {
+  if (activity === 'bess3' && !(dwellings >= 4)) return 'BESS3 needs an apartment building with at least 4 dwellings — no PRCs counted.';
+  if ((activity === 'bess3' || activity === 'bess4') && !(usable > 20 && usable <= 200))
+    return activity.toUpperCase() + ' needs over 20 and up to 200kWh usable — ' + usable.toFixed(1) + 'kWh does not qualify, so no PRCs are counted' +
+      (usable > 200 ? ' (over 200kWh is BESS5)' : '') + '.';
+  if (activity === 'bess5' && !(usable > 200)) return 'BESS5 needs over 200kWh usable — ' + usable.toFixed(1) + 'kWh does not qualify, so no PRCs are counted.';
+  return '';
+}
+
 // usable = 0.9 x nominal per PDRS Rule clause 10. PRC $3.36 inc GST x 70% net of ACP fee.
 function calcBessCommercial(activity, usable, invKw, pvKw, solar90, dwellings, nlf) {
   const notes = [];
   if (!(usable > 0)) return null;
   if (!(invKw > 0)) { notes.push('PDRS: no inverter capacity in this configuration — no PRCs.'); return { prcs: 0, gross: 0, net: 0, notes }; }
   if (usable > 6 * invKw) { notes.push('PDRS ineligible: usable exceeds 6 &times; inverter kW.'); return { prcs: 0, gross: 0, net: 0, notes }; }
+  const band = pdrsBandIssue(activity, usable, dwellings);
+  if (band) { notes.push(band); return { prcs: 0, gross: 0, net: 0, notes }; }
   const high = pdrsHighRate(activity, solar90, pvKw, usable, notes);
   let counted = Math.min(usable, 4 * invKw);
   let base = 0;
@@ -2178,7 +2193,6 @@ function calcBessCommercial(activity, usable, invKw, pvKw, solar90, dwellings, n
     base = counted * (high ? 108 : 76.77);
     notes.push('BESS3: strata building with &ge;4 dwellings, battery OUTDOORS supplying common property and/or multiple dwellings, no existing BESS at the NMI, min $1,000 net customer payment. Higher rate not available if the new solar had NSW Government funding.');
   } else if (activity === 'bess4') {
-    if (usable <= 20 || usable > 200) notes.push('BESS4 band is &gt;20&ndash;200kWh usable — check ' + usable.toFixed(1) + 'kWh qualifies.');
     const t1 = high ? 45 : 30.15, t2 = high ? 63 : 42.21, full = high ? 90 : 60.3;
     base = counted <= 50 ? counted * t1 : counted <= 100 ? 50 * t1 + (counted - 50) * t2 : counted * full;
     notes.push('BESS4: COMMERCIAL sites only (not residential premises); min $5,000 net customer payment ex GST; one BESS4/5 per site EVER; approved-product list applies.');
@@ -2192,6 +2206,13 @@ function calcBessCommercial(activity, usable, invKw, pvKw, solar90, dwellings, n
   const net = gross * 0.70;
   notes.push('Installs ON/AFTER 1 SEP 2026 only &middot; ' + counted.toFixed(1) + ' counted kWh &middot; ' + prcs.toLocaleString('en-AU') + ' PRCs &times; $3.36 inc GST &times; 70% net of ACP fee.');
   return { prcs, gross, net, notes };
+}
+
+// Solar STCs = floor(kW x zone rating x deeming years) — CER zone 3 (postcodes 1001–2355, incl. Newcastle,
+// Hunter and Central Coast) = 1.382; 2026 installs deem 5 years -> 6.91 STCs/kW (was 6.875 until 30 Sep 2026).
+// Integer maths so exact kW values never round down on floating-point error.
+function solarStcCount(watts) {
+  return Math.floor(Math.round(watts) * 691 / 100000);
 }
 
 function calcBatterySTCs(batteryKwh, cap) {
@@ -2296,8 +2317,8 @@ function buildProfitHtml(isBatteryOnly, jobsPerDay, marginPerJob, labelExtra, no
 //   New solar only picks the rate (see pdrsHighRate) — never zero.
 // CEC approved battery list (CER copy, data as at 23 Sep 2026): SigenStack
 //   only as 4-8 module stacks with M2-0.5C-BST / M2-1C-BST (approved
-//   17 Feb 2026); plain M2-0.5C and 9+ modules are not listed. BESS3/4
-//   PRCs are still counted for them here, with a warning (owner, 30 Sep 2026).
+//   17 Feb 2026); plain M2-0.5C and 9+ modules are not listed, so they
+//   earn no BESS3/4 PRCs (owner, 30 Sep 2026).
 //   UL9540A: Intertek unit-level report 241016030GZU-002 (Apr 2025).
 //   Sigenergy AU C&I warranty: 60% at 10yr (BESS3/4 need 70%).
 // ================================================================
@@ -2388,6 +2409,7 @@ function calcCI() {
   const pvKw = numPanels * watts / 1000;
   const hasBat = mods > 0;
   const nStacks = activeStacks.length;
+  const cecUnlisted = [];                                        // stacks that aren't a CEC-listed config (4-8 modules + BST controller)
 
   // ── panels + PV inverters ──
   if (numPanels > 0) add(PANEL_LABELS[panelType], numPanels, PANEL_PRICES[panelType]);
@@ -2411,7 +2433,9 @@ function calcCI() {
       if (bcChoice === 'auto') k = (m >= 20 && numPanels === 0 && !hyb.backup) ? 'bc05' : 'bc05bst';
       if (k === 'bc1bst' && m > 10) warnings.push('Stack ' + n + ': 1C controller is documented only for 4-10 modules — check with Sigenergy for ' + m + '.');
       if (hyb.backup && k === 'bc05') { k = 'bc05bst'; bstUpgraded = true; }
-      if (k === 'bc05') warnings.push('Stack ' + n + ': the plain M2-0.5C is not on the CEC approved battery list — BESS3/4 PRCs need a BST controller.');
+      if (k === 'bc05' && (m <= 19 || numPanels > 0))
+        warnings.push('Stack ' + n + ': Sigenergy requires a BST controller for 19 or fewer modules or PV + battery (DC-coupled) — the plain M2-0.5C is not suitable here.');
+      if (k === 'bc05' || m < 4 || m > 8) cecUnlisted.push(n);
       ctr[k] = (ctr[k] || 0) + 1;
       const towers = m <= 7 ? 1 : m <= 12 ? 2 : m <= 18 ? 3 : 4;
       const oneC = k === 'bc1bst';
@@ -2436,7 +2460,7 @@ function calcCI() {
     if (fixKits > 0) add('Fixation kit (7th module in tower)', fixKits, CI_P.fixKit * CI_GST);
   }
 
-  // ── BoS (residential-rate placeholder, ex GST) ──
+  // ── BoS (residential-rate placeholder, inc GST like the rest of the gross) ──
   let bos = 0;
   if (numPanels > 0) {
     bos += numPanels * (MOUNTING[roofType] + RAIL_PER_PANEL + DC_CABLE_PER_PANEL);
@@ -2451,17 +2475,18 @@ function calcCI() {
   const usable = 0.9 * nominal;                       // PDRS Rule clause 10
   const invKw = hyb.kw * hybQty;
 
-  // solar STCs (<=100kW small generation unit; 2026 = 5yr deeming)
+  // solar STCs — SRES up to 1MW for installs from 1 Oct 2026 (CER); 2026 = 5yr deeming
   let solarStcs = 0, solarStcValue = 0;
   if (numPanels > 0) {
-    const stcKw = Math.min(pvKw, 1000);              // SRES cap raised to 1MW per announced change
-    solarStcs = Math.floor(stcKw * 1000 * 0.006875);
-    solarStcValue = solarStcs * stcPrice;
-    if (pvKw > 100)
-      warnings.push('Solar ' + pvKw.toFixed(1) + 'kW: STCs calculated under the ANNOUNCED 1MW SRES cap (previously 100kW). ' +
-        'Confirm the change has commenced and its terms with the CER/your STC agent before quoting — CER guidance still showed 100kW at last check.');
-    if (pvKw > 1000)
-      warnings.push('Solar over 1MW (1,000kW): STCs claimed on the first 1,000kW only; the remainder is ignored.');
+    if (pvKw > 1000) {
+      warnings.push('Solar ' + pvKw.toFixed(1) + 'kW is over 1MW — not eligible for STCs at all (large-scale scheme / LGCs). No STCs counted.');
+    } else {
+      solarStcs = solarStcCount(pvKw * 1000);
+      solarStcValue = solarStcs * stcPrice;
+      if (pvKw > 100)
+        warnings.push('Solar ' + pvKw.toFixed(1) + 'kW is mid-scale (100kW–1MW): STCs only for systems installed ON/AFTER 1 OCTOBER 2026, ' +
+          'with a fixed 5-year deeming period (CER); STC applications open mid–late November 2026.');
+    }
   }
 
   // federal battery STCs (Cheaper Home Batteries) — optional, default off
@@ -2483,9 +2508,16 @@ function calcCI() {
   let prcs = 0, prcGross = 0, prcNet = 0, prcNote = '';
   if (activity !== 'none' && hasBat) {
     let eligible = true;
-    if (usable <= 20) { eligible = false; warnings.push('PDRS: usable capacity must exceed 20kWh (currently ' + usable.toFixed(1) + 'kWh).'); }
+    const band = pdrsBandIssue(activity, usable, dwellings);
+    if (band) { eligible = false; warnings.push(band); }
     if (invKw <= 0) { eligible = false; warnings.push('PDRS: no hybrid (battery) inverter selected — no PRCs counted.'); }
     else if (usable > 6 * invKw) { eligible = false; warnings.push('PDRS: usable (' + usable.toFixed(0) + 'kWh) exceeds 6 x inverter kW (' + (6 * invKw).toFixed(0) + ') — ineligible.'); }
+    if ((activity === 'bess3' || activity === 'bess4') && cecUnlisted.length) {
+      eligible = false;
+      warnings.push(activity.toUpperCase() + ' needs a battery on the CEC approved list — SigenStack is listed only as 4-8 module stacks with an M2-0.5C-BST or M2-1C-BST controller ' +
+        '(approved 17 Feb 2026; list as at 23 Sep 2026). ' + (cecUnlisted.length > 1 ? 'Stacks ' + cecUnlisted.join(', ') + ' are' : 'Stack ' + cecUnlisted[0] + ' is') + ' not, so no ' + activity.toUpperCase() +
+        ' PRCs are counted — split into stacks of 8 or fewer on BST controllers, or go over 200kWh usable for BESS5.');
+    }
     if (eligible) {
       const high = pdrsHighRate(activity, solar90, pvKw, usable, warnings);
       let counted = Math.min(usable, 4 * invKw);
@@ -2500,8 +2532,7 @@ function calcCI() {
              : counted <= 100 ? 50 * t1 + (counted - 50) * t2
              : counted * full;                       // full rate on the WHOLE capacity above 100
         warnings.push('BESS4: min $5,000 net customer payment ex GST; one BESS4/5 per site EVER; not residential or data-centre premises; ' +
-          'approved-product list applies — the CEC list (as at 23 Sep 2026) shows SigenStack only as 4-8 module stacks on a BST controller; ' +
-          'confirm every stack is a listed config before counting these PRCs.');
+          'approved-product list met — every stack is a CEC-listed SigenStack config (4-8 modules, BST controller).');
       } else {
         counted = Math.min(counted, 10000);
         base = counted * (high ? 90 : 60.3);
@@ -2576,6 +2607,7 @@ function calcCI() {
 const DEYE_KWH_NOMINAL = 122.8;   // per cabinet
 const DEYE_INV_KW = 50;           // per cabinet
 const DEYE_PV_MAX_KW = 65;        // per cabinet
+const DEYE_CEC_LISTED = false;    // GE-F120 not on the CEC approved battery list (as at 23 Sep 2026 — only the GE-F60 is)
 
 function calcDeye() {
   const v = id => document.getElementById(id);
@@ -2620,17 +2652,18 @@ function calcDeye() {
     warnings.push('PV exceeds the cabinets\' input limit: ' + pvKw.toFixed(1) + 'kW vs ' + (DEYE_PV_MAX_KW * qty) +
       'kW max (65kW x ' + qty + '). Extra PV needs separate string inverters (not costed here).');
 
-  // solar STCs (<=100kW small generation unit)
+  // solar STCs — SRES up to 1MW for installs from 1 Oct 2026 (CER)
   let solarStcs = 0, solarStcValue = 0;
   if (numPanels > 0) {
-    const stcKw = Math.min(pvKw, 1000);              // SRES cap raised to 1MW per announced change
-    solarStcs = Math.floor(stcKw * 1000 * 0.006875);
-    solarStcValue = solarStcs * stcPrice;
-    if (pvKw > 100)
-      warnings.push('Solar ' + pvKw.toFixed(1) + 'kW: STCs calculated under the ANNOUNCED 1MW SRES cap (previously 100kW). ' +
-        'Confirm the change has commenced and its terms with the CER/your STC agent before quoting — CER guidance still showed 100kW at last check.');
-    if (pvKw > 1000)
-      warnings.push('Solar over 1MW (1,000kW): STCs claimed on the first 1,000kW only; the remainder is ignored.');
+    if (pvKw > 1000) {
+      warnings.push('Solar ' + pvKw.toFixed(1) + 'kW is over 1MW — not eligible for STCs at all (large-scale scheme / LGCs). No STCs counted.');
+    } else {
+      solarStcs = solarStcCount(pvKw * 1000);
+      solarStcValue = solarStcs * stcPrice;
+      if (pvKw > 100)
+        warnings.push('Solar ' + pvKw.toFixed(1) + 'kW is mid-scale (100kW–1MW): STCs only for systems installed ON/AFTER 1 OCTOBER 2026, ' +
+          'with a fixed 5-year deeming period (CER); STC applications open mid–late November 2026.');
+    }
   }
 
   // PDRS PRCs — BESS4/5 per consolidated Rule (1 Jul 2026)
@@ -2639,7 +2672,14 @@ function calcDeye() {
   let prcs = 0, prcGross = 0, prcNet = 0, prcNote = '';
   if (activity !== 'none') {
     let eligible = true;
+    const band = pdrsBandIssue(activity, usable, 0);
+    if (band) { eligible = false; warnings.push(band); }
     if (usable > 6 * invKw) { eligible = false; warnings.push('PDRS: usable exceeds 6 x inverter kW — ineligible.'); }
+    if (activity === 'bess4' && !DEYE_CEC_LISTED) {
+      eligible = false;
+      warnings.push('BESS4 needs a battery on the CEC approved list — the GE-F120 is not (as at 23 Sep 2026; only the GE-F60 is). ' +
+        'No BESS4 PRCs counted — two or more cabinets (over 200kWh usable) qualify for BESS5 instead.');
+    }
     if (eligible) {
       const high = pdrsHighRate(activity, solar90, pvKw, usable, warnings);
       let counted = Math.min(usable, 4 * invKw);
@@ -2678,6 +2718,7 @@ function calcDeye() {
   document.getElementById('dy-bom').innerHTML = h;
 
   let s = '';
+  if (unitCost <= 0) s += '<div class=\"margin-alert low\">BOM incomplete — no cabinet cost entered. The net cost and recommended sale below leave it out.</div>';
   if (solarStcValue > 0) s += summaryRow('Solar STCs (' + solarStcs + ' &times; $' + stcPrice + ')', '&minus; ' + ciFmt(solarStcValue));
   if (prcs > 0) {
     s += summaryRow('PRCs — ' + activity.toUpperCase() + ' (' + prcs.toLocaleString('en-AU') + ' &times; $' + prcPrice.toFixed(2) + ')', ciFmt(prcGross) + ' gross');
@@ -2798,7 +2839,7 @@ function calcKstar() {
   if (ems > 0) add('KSTAR EMS01D / grid meter / comms', 1, ems);
   if (numPanels > 0) add(PANEL_LABELS[panelType], numPanels, PANEL_PRICES[panelType]);
 
-  // price gaps — OSW lists everything but the BC197DE2 as "on request"
+  // price gaps — OSW prices only the BC197DE2, BC260DE2A and KAC50DP2; everything else is "on request"
   const missing = [];
   if (unitCost <= 0) { missing.push(unit.model); warnings.push(unit.model + ' cost not entered — price on request at OSW, so the cabinet is missing from the BOM.'); }
   if (pcsQty > 0 && pcsCost <= 0) { missing.push(pcs.model); warnings.push('PCS cost not entered — KSTAR PCS prices are on request at OSW, so ' + pcsQty + ' x ' + pcs.model + ' is missing from the BOM.'); }
@@ -2837,14 +2878,15 @@ function calcKstar() {
   // solar STCs
   let solarStcs = 0, solarStcValue = 0;
   if (numPanels > 0) {
-    const stcKw = Math.min(pvKw, 1000);              // SRES cap raised to 1MW per announced change
-    solarStcs = Math.floor(stcKw * 1000 * 0.006875);
-    solarStcValue = solarStcs * stcPrice;
-    if (pvKw > 100)
-      warnings.push('Solar ' + pvKw.toFixed(1) + 'kW: STCs calculated under the ANNOUNCED 1MW SRES cap (previously 100kW). ' +
-        'Confirm the change has commenced with the CER/your STC agent before quoting.');
-    if (pvKw > 1000)
-      warnings.push('Solar over 1MW (1,000kW): STCs claimed on the first 1,000kW only; the remainder is ignored.');
+    if (pvKw > 1000) {
+      warnings.push('Solar ' + pvKw.toFixed(1) + 'kW is over 1MW — not eligible for STCs at all (large-scale scheme / LGCs). No STCs counted.');
+    } else {
+      solarStcs = solarStcCount(pvKw * 1000);
+      solarStcValue = solarStcs * stcPrice;
+      if (pvKw > 100)
+        warnings.push('Solar ' + pvKw.toFixed(1) + 'kW is mid-scale (100kW–1MW): STCs only for systems installed ON/AFTER 1 OCTOBER 2026, ' +
+          'with a fixed 5-year deeming period (CER); STC applications open mid–late November 2026.');
+    }
   }
   warnings.push('Federal battery STCs: not applicable — ' + nominal.toFixed(1) + 'kWh nominal exceeds the 100kWh program cap.');
 
@@ -2861,10 +2903,8 @@ function calcKstar() {
       warnings.push('BESS4 needs a battery on the CEC approved battery list — no BC-DE2 cabinet is (as at 23 Sep 2026; the list has nothing over ' +
         '100kWh nominal). No BESS4 PRCs counted for ' + usable.toFixed(1) + 'kWh usable — BESS5 needs over 200kWh (a BC233DE2, a BC260DE2A or two cabinets).');
     }
-    if (activity === 'bess5' && usable <= 200) {
-      eligible = false;
-      warnings.push('BESS5 needs over 200kWh usable — ' + usable.toFixed(1) + 'kWh does not qualify.');
-    }
+    const band = pdrsBandIssue(activity, usable, 0);
+    if (band && !(activity === 'bess4' && !KSCI_BAT_CEC)) { eligible = false; warnings.push(band); }
     if (eligible) {
       const high = pdrsHighRate(activity, solar90, pvKw, usable, warnings);
       let counted = Math.min(usable, 4 * invKw);
@@ -2954,22 +2994,22 @@ function calcKstar() {
 const GWCI_CABINETS = {   // ex-GST OSW trade prices; BOM converts x1.1; cec = CEC approved battery list status (30 Sep 2026)
   esa261: { label: 'GoodWe ESA 261 all-in-one (GW125/261-ESA-LCN-G11, 261.25kWh + 125kW PCS)',
             nominal: 261.25, invKw: 125, allInOne: true,  ex: 65197, maxQty: 20,
-            cec: 'the ESA 261 is NOT on the CEC battery or inverter list (only its PCS matches the listed GW125K-PCS-N-G10/G11) — no BESS4 PRCs until it is listed' },
+            cecListed: false, cec: 'the ESA 261 is NOT on the CEC battery or inverter list (only its PCS matches the listed GW125K-PCS-N-G10/G11)' },
   esa60:  { label: 'GoodWe ESA 60 master cabinet (GW60-ESA-ACPN-G10, 60kWh usable)',
             nominal: 63.36, invKw: 0, allInOne: false, ex: 19386, maxQty: 4, ext: true,
-            cec: 'the ESA 60 is not confirmed on the CEC approved battery list — check the list before quoting' },
+            cecListed: false, cec: 'the ESA 60 master is not on the CEC approved battery list (only the GW60KWH-D-10 extension is, as at 23 Sep 2026)' },
   bat614: { label: 'GoodWe BAT 61.4 HV cabinet (GW61.4-BAT-AC-G10, 60kWh usable)',
             nominal: 61.4,  invKw: 0, allInOne: false, ex: 22220, maxQty: 4,
-            cec: 'the BAT-AC-G10 61.4 is on the CEC approved battery list' },
+            cecListed: true, cec: 'the BAT-AC-G10 61.4 is on the CEC approved battery list' },
   bat921: { label: 'GoodWe BAT 92.1 HV cabinet (GW92.1-BAT-AC-G10, 90kWh usable)',
             nominal: 92.1,  invKw: 0, allInOne: false, ex: 28810, maxQty: 4,
-            cec: 'the BAT-AC-G10 92.1 is on the CEC approved battery list' },
+            cecListed: true, cec: 'the BAT-AC-G10 92.1 is on the CEC approved battery list' },
   bat1024:{ label: 'GoodWe BAT 102.4 HV cabinet (GW102.4-BAT-AC-G10, 100kWh usable)',
             nominal: 102.4, invKw: 0, allInOne: false, ex: 31070, maxQty: 4,
-            cec: 'the BAT 102.4 is not confirmed on the CEC approved battery list (listed BAT-AC-G10 sizes: 61.4/71.6/81.9/92.1kWh) — check before quoting' },
+            cecListed: false, cec: 'the BAT 102.4 is not on the CEC approved battery list (listed BAT-AC-G10 sizes: 61.4/71.6/81.9/92.1kWh, as at 23 Sep 2026)' },
   bat1126:{ label: 'GoodWe BAT 112.6 HV cabinet (GW112.6-BAT-AC-G10, 110kWh usable)',
             nominal: 112.6, invKw: 0, allInOne: false, ex: 33141, maxQty: 4,
-            cec: 'the BAT 112.6 is not confirmed on the CEC approved battery list (listed BAT-AC-G10 sizes: 61.4/71.6/81.9/92.1kWh) — check before quoting' },
+            cecListed: false, cec: 'the BAT 112.6 is not on the CEC approved battery list (listed BAT-AC-G10 sizes: 61.4/71.6/81.9/92.1kWh, as at 23 Sep 2026)' },
 };
 const GWCI_EXT = { label: 'GoodWe 60kWh extension cabinet (GW60KWH-D-10)', ex: 18488, nominal: 63.36 };
 const GWCI_INVERTERS = {
@@ -3076,14 +3116,15 @@ function calcGwci() {
   // solar STCs
   let solarStcs = 0, solarStcValue = 0;
   if (numPanels > 0) {
-    const stcKw = Math.min(pvKw, 1000);              // SRES cap raised to 1MW per announced change
-    solarStcs = Math.floor(stcKw * 1000 * 0.006875);
-    solarStcValue = solarStcs * stcPrice;
-    if (pvKw > 100)
-      warnings.push('Solar ' + pvKw.toFixed(1) + 'kW: STCs calculated under the ANNOUNCED 1MW SRES cap (previously 100kW). ' +
-        'Confirm the change has commenced with the CER/your STC agent before quoting.');
-    if (pvKw > 1000)
-      warnings.push('Solar over 1MW (1,000kW): STCs claimed on the first 1,000kW only; the remainder is ignored.');
+    if (pvKw > 1000) {
+      warnings.push('Solar ' + pvKw.toFixed(1) + 'kW is over 1MW — not eligible for STCs at all (large-scale scheme / LGCs). No STCs counted.');
+    } else {
+      solarStcs = solarStcCount(pvKw * 1000);
+      solarStcValue = solarStcs * stcPrice;
+      if (pvKw > 100)
+        warnings.push('Solar ' + pvKw.toFixed(1) + 'kW is mid-scale (100kW–1MW): STCs only for systems installed ON/AFTER 1 OCTOBER 2026, ' +
+          'with a fixed 5-year deeming period (CER); STC applications open mid–late November 2026.');
+    }
   }
 
   // federal battery STCs — total nominal <= 100kWh only
@@ -3106,8 +3147,14 @@ function calcGwci() {
   let prcs = 0, prcGross = 0, prcNet = 0, prcNote = '';
   if (activity !== 'none') {
     let eligible = true;
+    const band = pdrsBandIssue(activity, usable, 0);
+    if (band) { eligible = false; warnings.push(band); }
     if (invKw <= 0) { eligible = false; warnings.push('PDRS: no battery inverter capacity in this configuration — no PRCs counted.'); }
     else if (usable > 6 * invKw) { eligible = false; warnings.push('PDRS: usable exceeds 6 x inverter kW — ineligible.'); }
+    if (activity === 'bess4' && !unit.cecListed) {
+      eligible = false;
+      warnings.push('BESS4 needs a battery on the CEC approved list — ' + unit.cec + '. No BESS4 PRCs counted.');
+    }
     if (eligible) {
       const high = pdrsHighRate(activity, solar90, pvKw, usable, warnings);
       let counted = Math.min(usable, 4 * invKw);
@@ -3147,6 +3194,7 @@ function calcGwci() {
   document.getElementById('gc-bom').innerHTML = h;
 
   let s = '';
+  if (unitCost <= 0) s += '<div class=\"margin-alert low\">BOM incomplete — no cabinet cost entered. The net cost and recommended sale below leave it out.</div>';
   if (solarStcValue > 0) s += summaryRow('Solar STCs (' + solarStcs + ' &times; $' + stcPrice + ')', '&minus; ' + ciFmt(solarStcValue));
   if (fedStcValue > 0) s += summaryRow('Federal battery STCs (' + fedStcs + ')', '&minus; ' + ciFmt(fedStcValue));
   if (prcs > 0) {
@@ -3307,11 +3355,11 @@ function calcSig() {
   // STC Rebates
   let solarSTCs = 0, solarSTCvalue = 0;
   if (hasPanels) {
-    solarSTCs = Math.floor(numPanels * PANEL_WATTS[panelType] * 0.006875);
+    solarSTCs = solarStcCount(numPanels * PANEL_WATTS[panelType]);
     solarSTCvalue = solarSTCs * STC_PRICE;
   }
   let batterySTCs = 0, batterySTCvalue = 0;
-  if (hasBattery) {
+  if (hasBattery && batteryKwh <= BATTERY_STC_MAX_NOMINAL) {
     batterySTCs = calcBatterySTCs(batteryKwh, SIG_STC_BATTERY_CAP);
     batterySTCvalue = batterySTCs * STC_PRICE;
   }
@@ -3381,7 +3429,9 @@ function calcSig() {
   sHtml += '</div>';
   sHtml += '<div class="summary-divider"></div>';
   if (hasPanels)  sHtml += summaryRow(`Solar STCs (${solarSTCs} &times; $${STC_PRICE})`, '&minus; ' + fmt(solarSTCvalue));
-  if (hasBattery) sHtml += summaryRow(`Battery STCs (${batterySTCs} &times; $${STC_PRICE})`, '&minus; ' + fmt(batterySTCvalue));
+  if (hasBattery) sHtml += batteryKwh > BATTERY_STC_MAX_NOMINAL
+    ? summaryRow('Battery STCs — none: over 100kWh nominal is not eligible (CER)', fmt(0))
+    : summaryRow(`Battery STCs (${batterySTCs} &times; $${STC_PRICE})`, '&minus; ' + fmt(batterySTCvalue));
   sHtml += summaryRow('Total STC Rebate', '&minus; ' + fmt(totalSTCvalue), 'big');
   if (sPdrsRes && sPdrsRes.prcs > 0) sHtml += summaryRow(`PDRS ${sPdrsAct.toUpperCase()} PRCs (${sPdrsRes.prcs.toLocaleString('en-AU')} &times; $3.36 &times; 70%)`, '&minus; ' + fmt(sPdrsNet), 'big');
   if (sBess2) sHtml += summaryRow(bess2Label(sBess2), '&minus; ' + fmt(sBess2Net), 'big');
@@ -3594,12 +3644,12 @@ function calcGW() {
   // STC Rebates
   let solarSTCs = 0, solarSTCvalue = 0;
   if (hasPanels) {
-    solarSTCs = Math.floor(numPanels * PANEL_WATTS[panelType] * 0.006875);
+    solarSTCs = solarStcCount(numPanels * PANEL_WATTS[panelType]);
     solarSTCvalue = solarSTCs * STC_PRICE;
   }
   let batterySTCs = 0, batterySTCvalue = 0;
-  if (hasBattery) {
-    batterySTCs = calcBatterySTCs(batteryKwh, GW_STC_CAP);
+  if (hasBattery && batteryKwh <= BATTERY_STC_MAX_NOMINAL) {
+    batterySTCs = calcBatterySTCs(batteryModules * batMod.usable, GW_STC_CAP);   // CER: STCs on CEC-listed usable kWh
     batterySTCvalue = batterySTCs * STC_PRICE;
   }
   const totalSTCvalue   = solarSTCvalue + batterySTCvalue;
@@ -3665,7 +3715,9 @@ function calcGW() {
   sHtml += '</div>';
   sHtml += '<div class="summary-divider"></div>';
   if (hasPanels)  sHtml += summaryRow(`Solar STCs (${solarSTCs} &times; $${STC_PRICE})`, '&minus; ' + fmt(solarSTCvalue));
-  if (hasBattery) sHtml += summaryRow(`Battery STCs (${batterySTCs} &times; $${STC_PRICE})`, '&minus; ' + fmt(batterySTCvalue));
+  if (hasBattery) sHtml += batteryKwh > BATTERY_STC_MAX_NOMINAL
+    ? summaryRow('Battery STCs — none: over 100kWh nominal is not eligible (CER)', fmt(0))
+    : summaryRow(`Battery STCs (${batterySTCs} &times; $${STC_PRICE})`, '&minus; ' + fmt(batterySTCvalue));
   sHtml += summaryRow('Total STC Rebate', '&minus; ' + fmt(totalSTCvalue), 'big');
   if (gPdrsRes && gPdrsRes.prcs > 0) sHtml += summaryRow(`PDRS ${gPdrsAct.toUpperCase()} PRCs (${gPdrsRes.prcs.toLocaleString('en-AU')} &times; $3.36 &times; 70%)`, '&minus; ' + fmt(gPdrsNet), 'big');
   sHtml += '<div class="admin-only">';
