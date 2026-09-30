@@ -2285,8 +2285,10 @@ function buildProfitHtml(isBatteryOnly, jobsPerDay, marginPerJob, labelExtra, no
 //   whole counted capacity above 100. Firmness 1.0, lifetime 15yr,
 //   6h window, x10; PRCs = floor(base x NLF).
 //   New solar only picks the rate (see pdrsHighRate) — never zero.
-// CEC approved battery list (SigenStack, approved 17 Feb 2026): 4-25
-//   modules with M2-0.5C-BST / M2-1C-BST; plain M2-0.5C 20-25 only.
+// CEC approved battery list (CER copy, data as at 23 Sep 2026): SigenStack
+//   only as 4-8 module stacks with M2-0.5C-BST / M2-1C-BST (approved
+//   17 Feb 2026); plain M2-0.5C and 9+ modules are not listed. BESS3/4
+//   PRCs are still counted for them here, with a warning (owner, 30 Sep 2026).
 //   UL9540A: Intertek unit-level report 241016030GZU-002 (Apr 2025).
 //   Sigenergy AU C&I warranty: 60% at 10yr (BESS3/4 need 70%).
 // ================================================================
@@ -2400,7 +2402,7 @@ function calcCI() {
       if (bcChoice === 'auto') k = (m >= 20 && numPanels === 0 && !hyb.backup) ? 'bc05' : 'bc05bst';
       if (k === 'bc1bst' && m > 10) warnings.push('Stack ' + n + ': 1C controller is documented only for 4-10 modules — check with Sigenergy for ' + m + '.');
       if (hyb.backup && k === 'bc05') { k = 'bc05bst'; bstUpgraded = true; }
-      if (k === 'bc05' && m < 20) warnings.push('Stack ' + n + ': the plain M2-0.5C is CEC-listed only for 20-25 modules — with ' + m + ' modules use a BST controller or BESS3/4 PRCs fail the approved-product list.');
+      if (k === 'bc05') warnings.push('Stack ' + n + ': the plain M2-0.5C is not on the CEC approved battery list — BESS3/4 PRCs need a BST controller.');
       ctr[k] = (ctr[k] || 0) + 1;
       const towers = m <= 7 ? 1 : m <= 12 ? 2 : m <= 18 ? 3 : 4;
       const oneC = k === 'bc1bst';
@@ -2489,7 +2491,8 @@ function calcCI() {
              : counted <= 100 ? 50 * t1 + (counted - 50) * t2
              : counted * full;                       // full rate on the WHOLE capacity above 100
         warnings.push('BESS4: min $5,000 net customer payment ex GST; one BESS4/5 per site EVER; not residential or data-centre premises; ' +
-          'approved-product list applies — SigenStack is CEC-listed for 4-25 modules per stack with M2-0.5C-BST / M2-1C-BST (plain M2-0.5C 20-25 only; approved 17 Feb 2026).');
+          'approved-product list applies — the CEC list (as at 23 Sep 2026) shows SigenStack only as 4-8 module stacks on a BST controller; ' +
+          'confirm every stack is a listed config before counting these PRCs.');
       } else {
         counted = Math.min(counted, 10000);
         base = counted * (high ? 90 : 60.3);
