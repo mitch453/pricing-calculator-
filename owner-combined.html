@@ -797,6 +797,7 @@
               <option value="ja475">JA 475W — $130</option>
               <option value="aiko475">AIKO 490W — $175</option>
               <option value="aiko545" selected>AIKO 545W All Black — $150.70</option>
+              <option value="risen630">Risen 630W Bifacial — $152.46</option>
             </select>
           </div>
           <div class="form-group">
@@ -994,6 +995,7 @@
               <option value="ja475">JA 475W — $130</option>
               <option value="aiko475">AIKO 490W — $175</option>
               <option value="aiko545" selected>AIKO 545W All Black — $150.70</option>
+              <option value="risen630">Risen 630W Bifacial — $152.46</option>
             </select>
           </div>
           <div class="form-group">
@@ -1188,6 +1190,7 @@
             <option value="ja475">JA 475W — $130</option>
             <option value="aiko475">AIKO 490W — $175</option>
             <option value="aiko545" selected>AIKO 545W All Black — $150.70</option>
+            <option value="risen630">Risen 630W Bifacial — $152.46</option>
           </select>
         </div>
         <div class="form-group">
@@ -1374,6 +1377,7 @@
             <option value="ja475">JA 475W — $130</option>
             <option value="aiko475">AIKO 490W — $175</option>
             <option value="aiko545" selected>AIKO 545W All Black — $150.70</option>
+            <option value="risen630">Risen 630W Bifacial — $152.46</option>
           </select>
         </div>
         <div class="form-group">
@@ -1554,6 +1558,7 @@
             <option value="ja475">JA 475W — $130</option>
             <option value="aiko475">AIKO 490W — $175</option>
             <option value="aiko545" selected>AIKO 545W All Black — $150.70</option>
+            <option value="risen630">Risen 630W Bifacial — $152.46</option>
           </select>
         </div>
         <div class="form-group">
@@ -1807,9 +1812,9 @@
 // SHARED PRICING DATA
 // ================================================================
 const STC_PRICE = 36.00;          // credited to the customer on the quote
-const PANEL_PRICES = { ja475: 130, jinko475: 127.60, jinko510: 117.81, aiko475: 175, aiko545: 150.70 };   // Jinko 475 = $116 ex GST (owner, Aug 2026); AIKO 545 All Black (A545-MCE60Mb) = $137 ex GST (owner, 21 Sep 2026)
-const PANEL_WATTS  = { ja475: 475, jinko475: 475, jinko510: 510, aiko475: 490, aiko545: 545 };
-const PANEL_LABELS = { ja475: 'JA 475W', jinko475: 'Jinko 475W (All Black)', jinko510: 'Jinko 510W N-Type (Black Frame)', aiko475: 'AIKO 490W', aiko545: 'AIKO 545W All Black (A545-MCE60Mb)' };
+const PANEL_PRICES = { ja475: 130, jinko475: 127.60, jinko510: 117.81, aiko475: 175, aiko545: 150.70, risen630: 152.46 };   // Jinko 475 = $116 ex GST (owner, Aug 2026); AIKO 545 All Black (A545-MCE60Mb) = $137 ex GST (owner, 21 Sep 2026); Risen 630W (RSM132-11-630BNDG) = $0.22/W = $138.60 ex GST (owner, 30 Sep 2026)
+const PANEL_WATTS  = { ja475: 475, jinko475: 475, jinko510: 510, aiko475: 490, aiko545: 545, risen630: 630 };
+const PANEL_LABELS = { ja475: 'JA 475W', jinko475: 'Jinko 475W (All Black)', jinko510: 'Jinko 510W N-Type (Black Frame)', aiko475: 'AIKO 490W', aiko545: 'AIKO 545W All Black (A545-MCE60Mb)', risen630: 'Risen 630W N-Type Bifacial (RSM132-11-630BNDG)' };
 const MOUNTING = { tin: 6.50, tile: 14.50 };
 const RAIL_PER_PANEL   = 13.75;
 const DC_CABLE_PER_PANEL = 8;
