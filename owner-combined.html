@@ -1673,11 +1673,13 @@
     <div class="card-header">KSTAR C&amp;I — BluePulse Gen2 BC-DE2 Range (OSW trade prices, all totals INC GST)</div>
     <div class="card-body">
       <p class="margin-tier-hint" style="margin-top:0.5rem;">
-        <strong>BC197DE2 / BC215DE2 / BC233DE2</strong> — 11 / 12 / 13 &times; 17.92kWh LFP modules, air-conditioned outdoor
-        cabinets (IP54), 0.5C, sold <strong>without inverter</strong>. Each cabinet needs a <strong>KSTAR KAC-DP2 hybrid PCS</strong>
-        (PV goes into the PCS; integrated STS for backup): KAC20&ndash;50DP2 suit the BC197/215 only, KAC80&ndash;125DP2 suit all three.
-        Up to 2 cabinets per PCS; more than one PCS needs the <strong>EMS01D</strong>. BC197DE2 is <strong>$44,797 ex GST</strong> at OSW
-        (30 Sep 2026); BC215/233, the PCS and the EMS are &ldquo;on request&rdquo; &mdash; enter those costs below.
+        <strong>BC197DE2 / BC215DE2 / BC233DE2</strong> — 11 / 12 / 13 &times; 17.92kWh LFP modules, plus the newer
+        <strong>BC260DE2A</strong> (13 &times; 20.09kWh, 261.24kWh); air-conditioned outdoor cabinets (IP54), 0.5C, sold <strong>without inverter</strong>.
+        Each cabinet needs a <strong>KSTAR KAC-DP2 hybrid PCS</strong> (PV goes into the PCS; integrated STS for backup): KAC20&ndash;50DP2 suit
+        the BC197/215 only (900V battery limit), KAC80&ndash;125DP2 suit every cabinet. Up to 2 cabinets per PCS; more than one PCS needs the
+        <strong>EMS01D</strong>. OSW prices ex GST: BC197DE2 <strong>$44,797</strong> (30 Sep 2026), BC260DE2A <strong>$50,979</strong> and
+        KAC50DP2 <strong>$3,693</strong> (quote QOSW919538, 30 Sep 2026, valid to 14 Oct 2026); BC215/233, the other PCS and the EMS are
+        &ldquo;on request&rdquo; &mdash; enter those costs below.
         Warranty: 5 years product, 70% usable at 10 years &mdash; only 3 years if the system isn&rsquo;t internet-connected, and it needs a
         KSTAR PCS and a KSTAR-certified installer.
       </p>
@@ -1688,6 +1690,7 @@
             <option value="bc197" selected>BC197DE2 — 197.12kWh ($44,797 ex)</option>
             <option value="bc215">BC215DE2 — 215.04kWh (price on request)</option>
             <option value="bc233">BC233DE2 — 232.96kWh (price on request)</option>
+            <option value="bc260">BC260DE2A — 261.24kWh ($50,979 ex)</option>
           </select>
         </div>
         <div class="form-group">
@@ -1708,7 +1711,7 @@
             <option value="kac30">KAC30DP2 — 30kW</option>
             <option value="kac40">KAC40DP2 — 40kW</option>
             <option value="kac499">KAC49.9DP2 — 49.9kW</option>
-            <option value="kac50">KAC50DP2 — 50kW</option>
+            <option value="kac50">KAC50DP2 — 50kW ($3,693 ex)</option>
             <option value="kac80">KAC80DP2 — 80kW</option>
             <option value="kac100" selected>KAC100DP2 — 100kW</option>
             <option value="kac110">KAC110DP2 — 110kW</option>
@@ -1780,8 +1783,8 @@
         Commercial battery PRCs (BESS4/5) commence <strong>1 September 2026</strong>. The higher rate needs the battery within 90 days of
         <strong>new solar &ge; 25% of usable battery capacity</strong>; otherwise the lower rate applies. <strong>BESS4</strong> (&le;200kWh usable)
         needs a battery on the CEC approved list &mdash; <strong>no BC-DE2 cabinet is listed</strong> (as at 23 Sep 2026), so a single BC197DE2 or
-        BC215DE2 earns no PRCs. <strong>BESS5</strong> (&gt;200kWh usable: a BC233DE2 or any two cabinets) needs UL9540A &mdash; KSTAR lists it, report
-        not sighted. Every cabinet is over 100kWh nominal, so <strong>no federal battery STCs</strong>. Certificates trade EX GST; defaults are inc-GST equivalents.
+        BC215DE2 earns no PRCs. <strong>BESS5</strong> (&gt;200kWh usable: a BC233DE2, a BC260DE2A or any two cabinets) needs UL9540A &mdash; KSTAR
+        lists it for the BC-DE2 cabinets (report not sighted); the BC260DE2A&rsquo;s published certificates don&rsquo;t include it. Every cabinet is over 100kWh nominal, so <strong>no federal battery STCs</strong>. Certificates trade EX GST; defaults are inc-GST equivalents.
       </p>
       <div class="form-grid">
         <div class="form-group">
@@ -2702,6 +2705,11 @@ function calcDeye() {
 //   OSW + warranty say 90% — PDRS usable = 90% x nominal like the other
 //   tabs. UL9540A on the datasheet, report not sighted. NOT on the CEC
 //   battery list (nothing over 100kWh nominal is), so no BESS4.
+// BC260DE2A (newer 314Ah cells): 13 x 20.09kWh = 261.24kWh, 832V nominal,
+//   741-936V, 0.5C (157A), 90% DoD, IP54, <2.66t (retailer listing, cdr.pl);
+//   its certificate list has no UL9540A. Above the KAC20-50DP2 900V limit.
+// Prices: OSW quote QOSW919538 (30 Sep 2026, expires 14 Oct 2026) —
+//   BC260DE2A $50,979 and KAC50DP2 $3,693 ex GST.
 // KAC-DP2 hybrid PCS (integrated STS, PV MPPTs): KAC20-50DP2 battery
 //   150-900V (BC197/215 only) and CEC-listed from 3 Sep 2026;
 //   KAC80-125DP2 200-950V (all three), NOT CEC-listed. 1 PCS : 1-2
@@ -2714,8 +2722,9 @@ const KSCI_CABINETS = {   // ex-GST OSW trade prices (0 = on request); BOM conve
   bc197: { model: 'BC197DE2', label: 'KSTAR BC197DE2 battery cabinet (11 x 17.92kWh, 197.12kWh)', nominal: 197.12, vMax: 792, ex: 44797 },
   bc215: { model: 'BC215DE2', label: 'KSTAR BC215DE2 battery cabinet (12 x 17.92kWh, 215.04kWh)', nominal: 215.04, vMax: 864, ex: 0 },
   bc233: { model: 'BC233DE2', label: 'KSTAR BC233DE2 battery cabinet (13 x 17.92kWh, 232.96kWh)', nominal: 232.96, vMax: 936, ex: 0 },
+  bc260: { model: 'BC260DE2A', label: 'KSTAR BC260DE2A battery cabinet (13 x 20.09kWh, 261.24kWh)', nominal: 261.24, vMax: 936, ex: 50979, noUl: true },
 };
-const KSCI_PCS = {        // vMax = top of the battery input range; pvMax = max PV kWp per PCS; cec = on the CEC inverter list
+const KSCI_PCS = {        // vMax = top of the battery input range; pvMax = max PV kWp per PCS; cec = on the CEC inverter list; ex = OSW ex-GST price (none = on request)
   none:   { model: '',           kw: 0 },
   kac20:  { model: 'KAC20DP2',   kw: 20,   vMax: 900, pvMax: 40,  cec: true },
   kac25:  { model: 'KAC25DP2',   kw: 25,   vMax: 900, pvMax: 50,  cec: true },
@@ -2723,7 +2732,7 @@ const KSCI_PCS = {        // vMax = top of the battery input range; pvMax = max 
   kac30:  { model: 'KAC30DP2',   kw: 30,   vMax: 900, pvMax: 60,  cec: true },
   kac40:  { model: 'KAC40DP2',   kw: 40,   vMax: 900, pvMax: 80,  cec: true },
   kac499: { model: 'KAC49.9DP2', kw: 49.9, vMax: 900, pvMax: 100, cec: true },
-  kac50:  { model: 'KAC50DP2',   kw: 50,   vMax: 900, pvMax: 100, cec: true },
+  kac50:  { model: 'KAC50DP2',   kw: 50,   vMax: 900, pvMax: 100, cec: true, ex: 3693 },
   kac80:  { model: 'KAC80DP2',   kw: 80,   vMax: 950, pvMax: 160, cec: false },
   kac100: { model: 'KAC100DP2',  kw: 100,  vMax: 950, pvMax: 200, cec: false },
   kac110: { model: 'KAC110DP2',  kw: 110,  vMax: 950, pvMax: 220, cec: false },
@@ -2738,7 +2747,8 @@ function onKsUnitChange() {
 }
 
 function onKsPcsChange() {
-  document.getElementById('ks-pcsCost').value = '';   // PCS prices differ by model — re-enter for the new one
+  const p = KSCI_PCS[document.getElementById('ks-pcs').value];
+  document.getElementById('ks-pcsCost').value = p.ex ? +(p.ex * 1.1).toFixed(2) : '';   // known OSW price (to the cent), else re-enter for the new model
   calcKstar();
 }
 
@@ -2843,7 +2853,7 @@ function calcKstar() {
     if (activity === 'bess4' && !KSCI_BAT_CEC) {
       eligible = false;
       warnings.push('BESS4 needs a battery on the CEC approved battery list — no BC-DE2 cabinet is (as at 23 Sep 2026; the list has nothing over ' +
-        '100kWh nominal). No BESS4 PRCs counted for ' + usable.toFixed(1) + 'kWh usable — BESS5 needs over 200kWh (a BC233DE2 or two cabinets).');
+        '100kWh nominal). No BESS4 PRCs counted for ' + usable.toFixed(1) + 'kWh usable — BESS5 needs over 200kWh (a BC233DE2, a BC260DE2A or two cabinets).');
     }
     if (activity === 'bess5' && usable <= 200) {
       eligible = false;
@@ -2863,8 +2873,11 @@ function calcKstar() {
       } else {
         counted = Math.min(counted, 10000);
         base = counted * (high ? 90 : 60.3);
-        warnings.push('BESS5: UL9540A fire test required — KSTAR lists UL 9540A on the datasheet but no report number or lab was found; ' +
-          'get the report from OSW/KSTAR before committing PRCs to a quote. No minimum customer payment.');
+        warnings.push(unit.noUl
+          ? 'BESS5: UL9540A fire test required — the ' + unit.model + '\'s published certificates (UN38.3, IEC 62040/62477/62619/63056) do not include ' +
+            'UL9540A; get a UL9540A report from OSW/KSTAR before counting these PRCs. No minimum customer payment.'
+          : 'BESS5: UL9540A fire test required — KSTAR lists UL 9540A on the datasheet but no report number or lab was found; ' +
+            'get the report from OSW/KSTAR before committing PRCs to a quote. No minimum customer payment.');
       }
       prcs = Math.floor(base * nlf);
       prcGross = prcs * prcPrice;
