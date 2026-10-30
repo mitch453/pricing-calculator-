@@ -1250,10 +1250,11 @@
           <div id="ci-stack-total" style="font-size:0.78rem;color:var(--muted);margin-top:0.35rem;"></div>
         </div>
         <div class="form-group">
-          <label>Sigenergy 25% Discount (SigenStack hybrid + BAT 12.0 modules)</label>
+          <label>Sigenergy Discount (SigenStack hybrid + BAT 12.0 modules)</label>
           <select id="ci-discount" onchange="calcCI()">
             <option value="off" selected>Off &mdash; list price</option>
-            <option value="on">On &mdash; 25% off hybrid inverter and battery modules</option>
+            <option value="25">25% off hybrid inverter and battery modules</option>
+            <option value="50">50% off hybrid inverter and battery modules</option>
           </select>
         </div>
         <div class="form-group">
@@ -2396,8 +2397,9 @@ function calcCI() {
   const acpFee    = (parseFloat(v('ci-acpFee').value) || 0) / 100;
   const stcPrice  = parseFloat(v('ci-stcPrice').value) || 0;
   const fedBat    = v('ci-fedBat').value === 'yes';
-  const disc      = v('ci-discount').value === 'on' ? 0.25 : 0;   // Sigenergy 25% off SigenStack hybrid + BAT 12.0 (owner, 8 Sep 2026)
-  const discTag   = disc > 0 ? ' — 25% off' : '';
+  const disc      = { '25': 0.25, '50': 0.50 }[v('ci-discount').value] || 0;   // Sigenergy off SigenStack hybrid + BAT 12.0: 25% (owner, 8 Sep 2026) or 50% (owner, 30 Oct 2026)
+  const discPct   = Math.round(disc * 100);
+  const discTag   = disc > 0 ? ' — ' + discPct + '% off' : '';
   let discSaved   = 0;                                             // list-price value given up, for the summary line
 
   const warnings = [];
@@ -2570,7 +2572,7 @@ function calcCI() {
     : 'No battery — set modules in at least one stack.';
 
   let s = '';
-  if (discSaved > 0) s += summaryRow('Sigenergy 25% discount on hybrid + modules (already in the BOM above, ex GST)', '&minus; ' + ciFmt(discSaved / 1.1));
+  if (discSaved > 0) s += summaryRow('Sigenergy ' + discPct + '% discount on hybrid + modules (already in the BOM above, ex GST)', '&minus; ' + ciFmt(discSaved / 1.1));
   if (solarStcValue > 0) s += summaryRow('Solar STCs (' + solarStcs + ' &times; $' + stcPrice + ')', '&minus; ' + ciFmt(solarStcValue));
   if (fedStcValue > 0) s += summaryRow('Federal battery STCs (' + fedStcs + ')', '&minus; ' + ciFmt(fedStcValue));
   if (prcs > 0) {
