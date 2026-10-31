@@ -169,7 +169,7 @@
   .tab-btn:hover:not(.active) { color: var(--doc-contrast); }
   .tab-btn:active { transform: scale(0.97); }
 
-  /* Six product tabs stay inside the screen, including on phones. */
+  /* Seven product tabs stay inside the screen, including on phones. */
   @media (max-width: 600px) {
     .tab-bar-wrap { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-radius: 18px; }
     .tab-btn { padding: 0.65rem 0.4rem; }
@@ -781,6 +781,7 @@
   <button class="tab-btn" id="tab-deye" onclick="switchTab('deye')">Deye C&amp;I</button>
   <button class="tab-btn" id="tab-gwci" onclick="switchTab('gwci')">GoodWe C&amp;I</button>
   <button class="tab-btn" id="tab-kstar" onclick="switchTab('kstar')">KSTAR C&amp;I</button>
+  <button class="tab-btn" id="tab-ev" onclick="switchTab('ev')">EnerVenue C&amp;I</button>
 </div>
 
 <!-- ============================================================ -->
@@ -1837,6 +1838,168 @@
   </div>
 </div>
 </div><!-- end #section-kstar -->
+
+<!-- ============================================================ -->
+<!-- ENERVENUE C&I (AMC METAL-HYDROGEN) SECTION                   -->
+<!-- ============================================================ -->
+<div id="section-ev" style="display:none;">
+<div class="container">
+  <div class="card brand-card-solar">
+    <div class="card-header">EnerVenue C&amp;I — Energy Rack ER8-P3 (USD FOB China, all totals INC GST)</div>
+    <div class="card-body">
+      <p class="margin-tier-hint" style="margin-top:0.5rem;">
+        <strong>Energy Rack ER8-P3</strong> &mdash; 150kWh nickel-hydrogen (Aqueous Metal Cell) DC block, 1,190V nominal
+        (<strong>1,075&ndash;1,500V DC</strong>), 0.33P, 100% depth of discharge, 30-year / 30,000-cycle design life, no thermal runaway.
+        Sold <strong>without a PCS or EMS</strong> &mdash; Ausave supplies the inverter (PCS model TBC) and does the install, civil and electrical works.
+        EnerVenue proposal <strong>OPP-26-10-001 rev 0</strong> (30 Oct 2026, indicative, valid 30 days): 6 racks / 900kWh / 300kW for
+        <strong>USD 180,000</strong> (USD 180/kWh) incl. BMS, commissioning and SAT; optional 20ft containers with HVAC (9kW), UPS and gas detection
+        <strong>USD 90,000</strong>. Both <strong>FOB China, ex GST and duties</strong>; paid 20% at PO / 70% at shipping / 10% at SAT, all in USD.
+        PO by 30 Nov 2026 for shipment 15 May 2027 (containers 14 Jun 2027). 10-year warranty, needs internet monitoring.
+        Round-trip efficiency <strong>83%</strong> at system level.
+      </p>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Energy Racks (150kWh each)</label>
+          <input type="number" id="ev-qty" min="1" max="60" step="1" value="6" oninput="calcEv()">
+        </div>
+        <div class="form-group">
+          <label>Battery Price (USD per kWh, FOB)</label>
+          <input type="number" id="ev-usdKwh" min="0" step="1" value="180" oninput="calcEv()">
+        </div>
+        <div class="form-group">
+          <label>Exchange Rate (USD per AUD 1)</label>
+          <input type="number" id="ev-fx" min="0.3" max="1.2" step="0.005" value="0.65" oninput="calcEv()">
+        </div>
+        <div class="form-group">
+          <label>EnerVenue Containers</label>
+          <select id="ev-container" onchange="calcEv()">
+            <option value="yes" selected>Include — USD 15,000 per rack (USD 90k for 6)</option>
+            <option value="no">Exclude — Ausave supplies the enclosure</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Customs Duty (% of FOB)</label>
+          <input type="number" id="ev-duty" min="0" max="20" step="0.5" value="0" oninput="calcEv()">
+        </div>
+        <div class="form-group">
+          <label>Freight, Insurance &amp; Clearance to Site ($ inc GST)</label>
+          <input type="number" id="ev-freight" min="0" step="500" placeholder="Enter forwarder quote" oninput="calcEv()">
+        </div>
+        <div class="form-group">
+          <label>PCS / Inverter (1,075&ndash;1,500V DC)</label>
+          <input type="text" id="ev-pcsName" placeholder="Model TBC" oninput="calcEv()">
+        </div>
+        <div class="form-group">
+          <label>PCS Total kW</label>
+          <input type="number" id="ev-pcsKw" min="0" step="10" value="300" oninput="calcEv()">
+        </div>
+        <div class="form-group">
+          <label>PCS Cost ($ inc GST, total)</label>
+          <input type="number" id="ev-pcsCost" min="0" step="500" placeholder="Enter PCS quote" oninput="calcEv()">
+        </div>
+        <div class="form-group">
+          <label>EMS / Meter / Comms ($ inc GST)</label>
+          <input type="number" id="ev-ems" min="0" step="500" value="0" oninput="calcEv()">
+        </div>
+        <div class="form-group">
+          <label>Number of Panels</label>
+          <input type="number" id="ev-numPanels" min="0" step="1" value="0" oninput="calcEv()">
+        </div>
+        <div class="form-group">
+          <label>Panel Type</label>
+          <select id="ev-panelType" onchange="calcEv()">
+            <option value="jinko475">Jinko 475W — $127.60</option>
+            <option value="jinko510">Jinko 510W N-Type — $117.81</option>
+            <option value="ja475">JA 475W — $130</option>
+            <option value="aiko475">AIKO 490W — $175</option>
+            <option value="aiko545" selected>AIKO 545W All Black — $150.70</option>
+            <option value="risen630">Risen 630W Bifacial — $152.46</option>
+            <option value="ja625">JA 625W — $137.50</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Roof Type</label>
+          <select id="ev-roofType" onchange="calcEv()">
+            <option value="tin">Tin / Metal Deck</option>
+            <option value="tile">Tile / Concrete</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Network (NLF)</label>
+          <select id="ev-network" onchange="calcEv()">
+            <option value="1.04" selected>Ausgrid (1.04)</option>
+            <option value="1.05">Endeavour (1.05)</option>
+            <option value="1.05e">Essential (1.05)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Install / Civil / Crane / Electrical ($ inc GST)</label>
+          <input type="number" id="ev-siteworks" min="0" step="500" value="0" oninput="calcEv()">
+        </div>
+        <div class="form-group">
+          <label>Target Margin (% of sale)</label>
+          <input type="number" id="ev-margin" min="0" max="90" step="1" value="35" oninput="calcEv()">
+        </div>
+        <div class="form-group">
+          <label>Sale Price ($ inc GST, optional)</label>
+          <input type="number" id="ev-salePrice" min="0" step="500" placeholder="Enter quoted price" oninput="calcEv()">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">Rebates — NSW PDRS PRCs + STCs</div>
+    <div class="card-body">
+      <p class="margin-tier-hint">
+        The ER8-P3 is <strong>not on the CEC approved battery list</strong>, so <strong>BESS4</strong> (&le;200kWh usable) earns nothing.
+        <strong>BESS5</strong> (&gt;200kWh usable &mdash; two racks or more) needs UL9540A: EnerVenue has it at <strong>cell level only</strong>,
+        system-level certification is &ldquo;in progress&rdquo; &mdash; get it confirmed before committing PRCs to a quote. Usable = 90% of
+        nominal per the PDRS Rule. Over 100kWh nominal, so <strong>no federal battery STCs</strong>. Certificates trade EX GST; defaults are inc-GST equivalents.
+      </p>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>PRC Activity</label>
+          <select id="ev-activity" onchange="calcEv()">
+            <option value="auto" selected>Auto (by usable kWh)</option>
+            <option value="bess4">BESS4 — &le;200kWh usable</option>
+            <option value="bess5">BESS5 — &gt;200kWh usable</option>
+            <option value="none">None</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Battery within 90 days of new solar</label>
+          <select id="ev-solar90" onchange="calcEv()">
+            <option value="yes" selected>Yes — high coefficient</option>
+            <option value="no">No — low coefficient</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>PRC Price ($ inc GST)</label>
+          <input type="number" id="ev-prcPrice" min="0" step="0.05" value="3.36" oninput="calcEv()">
+        </div>
+        <div class="form-group">
+          <label>ACP Fee (%)</label>
+          <input type="number" id="ev-acpFee" min="0" max="60" step="1" value="30" oninput="calcEv()">
+        </div>
+        <div class="form-group">
+          <label>STC Price ($ inc GST)</label>
+          <input type="number" id="ev-stcPrice" min="0" step="0.5" value="41.8" oninput="calcEv()">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="ev-results-card">
+    <div class="card-header">Bill of Materials &amp; Costing</div>
+    <div class="card-body">
+      <div id="ev-warnings"></div>
+      <table class="breakdown-table" id="ev-bom" style="width:100%;font-size:0.85rem;border-collapse:collapse;"></table>
+      <div id="ev-summary" style="margin-top:0.9rem;"></div>
+    </div>
+  </div>
+</div>
+</div><!-- end #section-ev -->
 
 
 
@@ -2973,6 +3136,184 @@ function calcKstar() {
 }
 
 // ================================================================
+// ENERVENUE C&I — Energy Rack ER8-P3 (150kWh AMC nickel-hydrogen DC block)
+// Proposal OPP-26-10-001 rev 0, 30 Oct 2026 (Boris Cicero), indicative, valid 30 days.
+// Base: USD 180/kWh FOB China incl. BMS + commissioning/SAT; containers USD 90,000
+// for the 6-rack / 900kWh job (pro-rated per rack here). Ex GST and duties, paid in USD.
+// No PCS, EMS, install, civil, electrical, unloading or BoP — those are Ausave's.
+// ================================================================
+const EV_RACK_KWH = 150;
+const EV_CONTAINER_USD_PER_RACK = 90000 / 6;
+const EV_BAT_CEC = false;   // flip when an EnerVenue product reaches the CEC approved battery list
+
+function calcEv() {
+  const v = id => document.getElementById(id);
+  const qty       = Math.max(1, Math.min(60, parseInt(v('ev-qty').value) || 1));
+  const usdKwh    = parseFloat(v('ev-usdKwh').value) || 0;
+  const fx        = parseFloat(v('ev-fx').value) || 0;
+  const container = v('ev-container').value === 'yes';
+  const dutyPct   = (parseFloat(v('ev-duty').value) || 0) / 100;
+  const freight   = parseFloat(v('ev-freight').value) || 0;
+  const pcsName   = v('ev-pcsName').value.trim();
+  const pcsKw     = parseFloat(v('ev-pcsKw').value) || 0;
+  const pcsCost   = parseFloat(v('ev-pcsCost').value) || 0;
+  const ems       = parseFloat(v('ev-ems').value) || 0;
+  const numPanels = parseInt(v('ev-numPanels').value) || 0;
+  const panelType = v('ev-panelType').value;
+  const roofType  = v('ev-roofType').value;
+  const nlf       = parseFloat(v('ev-network').value) || 1.04;
+  const siteworks = parseFloat(v('ev-siteworks').value) || 0;
+  const marginPct = (parseFloat(v('ev-margin').value) || 0) / 100;
+  const salePrice = v('ev-salePrice').value ? parseFloat(v('ev-salePrice').value) : null;
+  const activitySel = v('ev-activity').value;
+  const solar90   = v('ev-solar90').value === 'yes';
+  const prcPrice  = parseFloat(v('ev-prcPrice').value) || 0;
+  const acpFee    = (parseFloat(v('ev-acpFee').value) || 0) / 100;
+  const stcPrice  = parseFloat(v('ev-stcPrice').value) || 0;
+
+  const warnings = [];
+  const rows = [];
+  let equip = 0;
+  function add(desc, q, unitPrice) { const t = q * unitPrice; rows.push([desc, q, unitPrice, t]); equip += t; }
+
+  const watts = PANEL_WATTS[panelType] || 475;
+  const pvKw = numPanels * watts / 1000;
+  const nominal = qty * EV_RACK_KWH;
+  const usable = 0.9 * nominal;                 // PDRS Rule clause 10
+  const invKw = pcsKw;
+
+  // USD FOB -> AUD inc GST: / fx, + duty on FOB, x1.1 (import GST is claimed back like any other GST)
+  const toAudInc = usd => fx > 0 ? usd / fx * (1 + dutyPct) * 1.1 : 0;
+  const rackUsd = usdKwh * EV_RACK_KWH;
+  add('EnerVenue Energy Rack ER8-P3 150kWh (USD ' + rackUsd.toLocaleString('en-AU') + ' FOB @ ' + fx + (dutyPct > 0 ? ' + ' + (dutyPct * 100) + '% duty' : '') + ')', qty, toAudInc(rackUsd));
+  if (container) add('EnerVenue 20ft container share — HVAC, UPS, gas detection (USD ' + EV_CONTAINER_USD_PER_RACK.toLocaleString('en-AU') + ' per rack)', qty, toAudInc(EV_CONTAINER_USD_PER_RACK));
+  if (freight > 0) add('Sea freight, insurance, customs clearance &amp; cartage to site', 1, freight);
+  add((pcsName || 'PCS / inverter (model TBC)') + ' — ' + pcsKw + 'kW' + (pcsCost > 0 ? '' : ' — price not entered'), 1, pcsCost);
+  if (ems > 0) add('EMS / grid meter / comms', 1, ems);
+  if (numPanels > 0) add(PANEL_LABELS[panelType], numPanels, PANEL_PRICES[panelType]);
+
+  const missing = [];
+  if (!(fx > 0)) { missing.push('exchange rate'); warnings.push('Enter the USD/AUD exchange rate — the battery is priced in USD.'); }
+  if (freight <= 0) { missing.push('freight'); warnings.push('Freight not entered — the price is FOB China; sea freight, insurance, customs clearance and cartage to site are Ausave\'s cost. Unloading at site is excluded by EnerVenue too.'); }
+  if (pcsCost <= 0) { missing.push('PCS'); warnings.push('PCS cost not entered — EnerVenue supplies no inverter. It must take a 1,075–1,500V DC battery (1,190V nominal), so standard 48V/low-HV C&I hybrids won\'t work; EnerVenue isn\'t liable for third-party PCS integration.'); }
+  if (siteworks <= 0) warnings.push('Install / civil / crane / electrical is $0 — EnerVenue supervises only; foundations, positioning, unloading, LV cabling and BoP are excluded from their offer.');
+
+  // configuration checks
+  if (fx > 0 && (fx < 0.5 || fx > 0.85)) warnings.push('Exchange rate ' + fx + ' looks off — enter USD per 1 AUD (e.g. 0.65).');
+  if (pcsKw > 0 && pcsKw > 0.55 * nominal * 1.0001)
+    warnings.push('PCS ' + pcsKw + 'kW is above the racks\' 0.55C maximum (' + (0.55 * nominal).toFixed(0) + 'kW) — battery charge/discharge is limited to that.');
+  if (pcsKw > 0 && pcsKw < nominal / 24)
+    warnings.push('PCS ' + pcsKw + 'kW is below the C/24 minimum rate (' + (nominal / 24).toFixed(1) + 'kW).');
+  if (pcsKw > 0 && Math.abs(pcsKw - nominal / 3) > 1)
+    warnings.push('EnerVenue rates the ER8-P3 at 0.33P (' + (nominal / 3).toFixed(0) + 'kW for ' + nominal + 'kWh, a 3-hour discharge) — the PCS is ' + pcsKw + 'kW.');
+  if (qty !== 6)
+    warnings.push('EnerVenue quoted 6 racks (900kWh). USD/kWh and the container cost are pro-rated here for ' + qty + ' racks — get the price re-quoted before it goes to a customer.');
+  warnings.push('Offer is indicative and non-binding, valid to 29 Nov 2026; EnerVenue can re-price at PO for FX, commodities or tariffs. 20% of the USD price is due within 5 days of PO, 70% at shipping (FOB China), 10% at SAT.');
+  warnings.push('Proposal text is inconsistent on enclosures — "2 x 20ft containerised DC block" vs "12 x 20ft containers" for the USD 90,000 — confirm with EnerVenue. Integrating the racks into the containers is also excluded.');
+
+  let bos = 0;
+  if (numPanels > 0) {
+    bos += numPanels * (MOUNTING[roofType] + RAIL_PER_PANEL + DC_CABLE_PER_PANEL);
+    bos += (650 + 30 + 75 + 100);
+  }
+  bos += (192 + 90);                            // 3-phase electrical allowance
+  const gross = equip + bos + siteworks;
+
+  // solar STCs
+  let solarStcs = 0, solarStcValue = 0;
+  if (numPanels > 0) {
+    if (pvKw > 1000) {
+      warnings.push('Solar ' + pvKw.toFixed(1) + 'kW is over 1MW — not eligible for STCs at all (large-scale scheme / LGCs). No STCs counted.');
+    } else {
+      solarStcs = solarStcCount(pvKw * 1000);
+      solarStcValue = solarStcs * stcPrice;
+      if (pvKw > 100)
+        warnings.push('Solar ' + pvKw.toFixed(1) + 'kW is mid-scale (100kW–1MW): STCs only for systems installed ON/AFTER 1 OCTOBER 2026, ' +
+          'with a fixed 5-year deeming period (CER); STC applications open mid–late November 2026.');
+    }
+  }
+  warnings.push('Federal battery STCs: not applicable — ' + nominal.toFixed(1) + 'kWh nominal exceeds the 100kWh program cap.');
+
+  // PDRS PRCs — BESS4/5, same rules as the KSTAR tab
+  let activity = activitySel;
+  if (activity === 'auto') activity = usable > 200 ? 'bess5' : 'bess4';
+  let prcs = 0, prcGross = 0, prcNet = 0, prcNote = '';
+  if (activity !== 'none') {
+    let eligible = true;
+    if (invKw <= 0) { eligible = false; warnings.push('PDRS: no PCS kW entered — no PRCs counted.'); }
+    else if (usable > 6 * invKw) { eligible = false; warnings.push('PDRS: usable exceeds 6 x inverter kW — ineligible.'); }
+    if (activity === 'bess4' && !EV_BAT_CEC) {
+      eligible = false;
+      warnings.push('BESS4 needs a battery on the CEC approved battery list — the EnerVenue ER8-P3 is not listed. No BESS4 PRCs counted for ' +
+        usable.toFixed(1) + 'kWh usable — BESS5 needs over 200kWh usable (two racks or more).');
+    }
+    const band = pdrsBandIssue(activity, usable, 0);
+    if (band && !(activity === 'bess4' && !EV_BAT_CEC)) { eligible = false; warnings.push(band); }
+    if (eligible) {
+      const high = pdrsHighRate(activity, solar90, pvKw, usable, warnings);
+      let counted = Math.min(usable, 4 * invKw);
+      let base = 0;
+      if (activity === 'bess4') {
+        const t1 = high ? 45 : 30.15, t2 = high ? 63 : 42.21, full = high ? 90 : 60.3;
+        base = counted <= 50 ? counted * t1
+             : counted <= 100 ? 50 * t1 + (counted - 50) * t2
+             : counted * full;
+      } else {
+        counted = Math.min(counted, 10000);
+        base = counted * (high ? 90 : 60.3);
+        warnings.push('BESS5: UL9540A fire test required — EnerVenue has UL9540A at CELL level only; system-level certification is "in progress". ' +
+          'Get the ACP to confirm the cell-level report is enough before committing PRCs to a quote. No minimum customer payment.');
+      }
+      prcs = Math.floor(base * nlf);
+      prcGross = prcs * prcPrice;
+      prcNet = prcGross * (1 - acpFee);
+      prcNote = counted.toFixed(1) + ' counted kWh (usable ' + usable.toFixed(1) + ' of ' + nominal.toFixed(1) + ' nominal)';
+      warnings.push('PRCs are payable only for installs ON/AFTER 1 SEPTEMBER 2026 — earlier installs earn none.');
+    }
+  }
+
+  const netCost = gross - solarStcValue - prcNet;
+  const recommended = marginPct < 1 ? netCost / (1 - marginPct) : 0;
+  const batAud = rows.slice(0, container ? 2 : 1).reduce((a, r) => a + r[3], 0);
+
+  let h = '<thead><tr><th style="text-align:left;">Item</th><th>Qty</th><th style="text-align:right;">Unit ex GST</th><th style="text-align:right;">Total ex GST</th></tr></thead><tbody>';
+  for (const [desc, q, unitPrice, tot] of rows)
+    h += '<tr><td>' + desc + '</td><td style="text-align:center;">' + q + '</td><td style="text-align:right;">' + ciFmt(unitPrice / 1.1) + '</td><td style="text-align:right;">' + ciFmt(tot / 1.1) + '</td></tr>';
+  h += '<tr><td>BoS allowance (mounting/rail/DC/electrical at resi rates)</td><td style="text-align:center;">1</td><td></td><td style="text-align:right;">' + ciFmt(bos / 1.1) + '</td></tr>';
+  if (siteworks > 0) h += '<tr><td>Install / civil / crane / electrical allowance</td><td style="text-align:center;">1</td><td></td><td style="text-align:right;">' + ciFmt(siteworks / 1.1) + '</td></tr>';
+  h += '<tr class="total-row"><td colspan="3"><strong>Gross Cost (ex GST)</strong></td><td style="text-align:right;"><strong>' + ciFmt(gross / 1.1) + '</strong></td></tr>'
+    + '<tr><td colspan="3" style="color:var(--muted);">Gross Cost (inc GST)</td><td style="text-align:right;color:var(--muted);">' + ciFmt(gross) + '</td></tr></tbody>';
+  document.getElementById('ev-bom').innerHTML = h;
+
+  let s = '';
+  if (missing.length) s += '<div class="margin-alert low">BOM incomplete — no price entered for ' + missing.join(', ') + '. The net cost and recommended sale below leave them out.</div>';
+  const usdTotal = qty * rackUsd + (container ? qty * EV_CONTAINER_USD_PER_RACK : 0);
+  s += summaryRow('EnerVenue supply (USD, FOB China, ex GST)', 'USD ' + Math.round(usdTotal).toLocaleString('en-AU'));
+  if (fx > 0) s += summaryRow('EnerVenue supply landed per kWh (ex GST, before freight)', ciFmt(batAud / 1.1 / nominal) + '/kWh');
+  if (solarStcValue > 0) s += summaryRow('Solar STCs (' + solarStcs + ' &times; $' + stcPrice + ')', '&minus; ' + ciFmt(solarStcValue));
+  if (prcs > 0) {
+    s += summaryRow('PRCs — ' + activity.toUpperCase() + ' (' + prcs.toLocaleString('en-AU') + ' &times; $' + prcPrice.toFixed(2) + ')', ciFmt(prcGross) + ' gross');
+    s += summaryRow('PRC net of ' + Math.round(acpFee * 100) + '% ACP fee — ' + prcNote, '&minus; ' + ciFmt(prcNet));
+  }
+  s += '<div class="recommended-row"><span class="label">Net Cost after rebates (ex GST)</span><span class="value">' + ciFmt(netCost / 1.1) + '</span></div>';
+  s += '<div class="recommended-row"><span class="label">Net Cost after rebates (inc GST)</span><span class="value">' + ciFmt(netCost) + '</span></div>';
+  s += '<div class="recommended-row"><span class="label">Recommended Sale (' + Math.round(marginPct * 100) + '% margin, inc GST)</span><span class="value">' + ciFmt(recommended) + '</span></div>';
+  if (salePrice !== null && !isNaN(salePrice)) {
+    const gp = salePrice - netCost;
+    const pct = salePrice > 0 ? (100 * gp / salePrice) : 0;
+    s += summaryRow('Gross Profit at ' + ciFmt(salePrice) + ' (inc GST)', ciFmt(gp) + ' (' + pct.toFixed(1) + '%)');
+    s += summaryRow('Gross Profit (ex GST)', ciFmt(gp / 1.1));
+    if (pct < 20) s += '<div class="margin-alert low">Margin below 20% — review before quoting</div>';
+  }
+  document.getElementById('ev-summary').innerHTML = s;
+
+  document.getElementById('ev-warnings').innerHTML = warnings.length
+    ? '<div style="background:var(--brand-yellow-tint);border-radius:8px;padding:0.6rem 0.8rem;margin-bottom:0.7rem;font-size:0.82rem;line-height:1.45;">' +
+      warnings.map(w => '&#9888; ' + w).join('<br>') + '</div>'
+    : '';
+}
+
+// ================================================================
 // TAB SWITCHER
 // ================================================================
 // ================================================================
@@ -3229,6 +3570,8 @@ function switchTab(tab) {
   document.getElementById('section-gwci').style.display = (tab === 'gwci') ? '' : 'none';
   document.getElementById('section-kstar').style.display = (tab === 'kstar') ? '' : 'none';
   document.getElementById('tab-kstar').classList.toggle('active', tab === 'kstar');
+  document.getElementById('section-ev').style.display = (tab === 'ev') ? '' : 'none';
+  document.getElementById('tab-ev').classList.toggle('active', tab === 'ev');
   document.getElementById('tab-sig').classList.toggle('active',  tab === 'sig');
   document.getElementById('tab-gw').classList.toggle('active',   tab === 'gw');
   document.getElementById('tab-ci').classList.toggle('active',   tab === 'ci');
@@ -3995,6 +4338,7 @@ calcCI();
 calcDeye();
 calcGwci();
 calcKstar();
+calcEv();
 </script>
 </body>
 </html>
