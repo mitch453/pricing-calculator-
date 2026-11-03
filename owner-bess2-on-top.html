@@ -1857,6 +1857,7 @@
         <strong>USD 90,000</strong>. Both <strong>FOB China, ex GST and duties</strong>; paid 20% at PO / 70% at shipping / 10% at SAT, all in USD.
         PO by 30 Nov 2026 for shipment 15 May 2027 (containers 14 Jun 2027). 10-year warranty, needs internet monitoring.
         Round-trip efficiency <strong>83%</strong> at system level.
+        <strong>This calc uses USD 150/kWh</strong> (owner, 4 Nov 2026), not the proposal's USD 180/kWh.
       </p>
       <div class="form-grid">
         <div class="form-group">
@@ -1865,7 +1866,7 @@
         </div>
         <div class="form-group">
           <label>Battery Price (USD per kWh, FOB)</label>
-          <input type="number" id="ev-usdKwh" min="0" step="1" value="180" oninput="calcEv()">
+          <input type="number" id="ev-usdKwh" min="0" step="1" value="150" oninput="calcEv()">
         </div>
         <div class="form-group">
           <label>Exchange Rate (USD per AUD 1)</label>
@@ -3148,6 +3149,7 @@ function calcKstar() {
 // Proposal OPP-26-10-001 rev 0, 30 Oct 2026 (Boris Cicero), indicative, valid 30 days.
 // Base: USD 180/kWh FOB China incl. BMS + commissioning/SAT; containers USD 90,000
 // for the 6-rack / 900kWh job (pro-rated per rack here). Ex GST and duties, paid in USD.
+// Battery price input defaults to USD 150/kWh (owner, 4 Nov 2026), below the proposal's USD 180/kWh.
 // No PCS, EMS, install, civil, electrical, unloading or BoP — those are Ausave's.
 // ================================================================
 const EV_RACK_KWH = 150;
