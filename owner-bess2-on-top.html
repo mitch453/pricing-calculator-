@@ -169,8 +169,8 @@
   .tab-btn:hover:not(.active) { color: var(--doc-contrast); }
   .tab-btn:active { transform: scale(0.97); }
 
-  /* Seven product tabs stay inside the screen, including on phones. */
-  @media (max-width: 600px) {
+  /* Eight product tabs stay inside the screen, including on phones. */
+  @media (max-width: 800px) {
     .tab-bar-wrap { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-radius: 18px; }
     .tab-btn { padding: 0.65rem 0.4rem; }
   }
@@ -779,6 +779,7 @@
   <button class="tab-btn active" id="tab-sig" onclick="switchTab('sig')">Sigenergy</button>
   <button class="tab-btn" id="tab-gw" onclick="switchTab('gw')">GoodWe ESA</button>
   <button class="tab-btn" id="tab-ci" onclick="switchTab('ci')">Sigen C&amp;I</button>
+  <button class="tab-btn" id="tab-cube" onclick="switchTab('cube')">SigenCube C&amp;I</button>
   <button class="tab-btn" id="tab-deye" onclick="switchTab('deye')">Deye C&amp;I</button>
   <button class="tab-btn" id="tab-gwci" onclick="switchTab('gwci')">GoodWe C&amp;I</button>
   <button class="tab-btn" id="tab-kstar" onclick="switchTab('kstar')">KSTAR C&amp;I</button>
@@ -2117,6 +2118,176 @@
   </div>
 </div>
 </div><!-- end #section-ev -->
+<div id="section-cube" style="display:none;">
+<div class="container">
+  <div class="card brand-card-solar">
+    <div class="card-header">SigenCube C&amp;I — All-in-One BESS (list prices ex GST, available Q1 2027, all totals INC GST)</div>
+    <div class="card-body">
+      <p class="margin-tier-hint" style="margin-top:0.5rem;">
+        <strong>All-in-one C&amp;I BESS</strong> &mdash; LFP battery, PCS, HV box and distribution in one liquid-cooled outdoor cabinet (IP55, up to 60dB).
+        EMS built in, up to 100 units in parallel with no data logger. <strong>ES261:</strong> 261kWh, 940 &times; 2,380 &times; 1,325mm, 2,500kg.
+        <strong>ES401:</strong> 401kWh, 1,100 &times; 2,450 &times; 1,650mm, 4,000kg. The spec sheet shows <strong>no PV input</strong>, so solar needs a separate PV inverter.
+        Backup needs a <strong>Sigen Energy Gateway</strong> (no price supplied &mdash; enter it below). Prices are the list supplied 6 Nov 2026, taken as ex GST (same pattern as the SigenStack list), <strong>available Q1 2027</strong>;
+        specs are from the brochure dated 23 Sep 2026, marked preliminary.
+      </p>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>SigenCube Model</label>
+          <select id="cu-unit" onchange="calcCube()">
+            <option value="es261a1" selected>ES261-2H-A1-AU — 99.99kW / 261kWh ($67,045 ex)</option>
+            <option value="es261">ES261-2H-AU — 125kW / 261kWh ($68,195 ex)</option>
+            <option value="es4014h">ES401-4H-AU — 99.99kW / 401kWh ($97,175 ex)</option>
+            <option value="es4012h">ES401-2H-AU — 199.99kW / 401kWh ($99,475 ex)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Units (1&ndash;100)</label>
+          <input type="number" id="cu-qty" min="1" max="100" step="1" value="1" oninput="calcCube()">
+        </div>
+        <div class="form-group">
+          <label>PV Inverter</label>
+          <select id="cu-pvinv" onchange="calcCube()">
+            <option value="none">— none —</option>
+            <option value="pv50">PV 50kW — $4,428</option>
+            <option value="pv100">PV 99.9kW — $7,211</option>
+            <option value="pv110">PV 110kW — $7,401</option>
+            <option value="pv125">PV 125kW — $7,843</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>PV Inverter Qty</label>
+          <input type="number" id="cu-pvinvQty" min="0" max="100" step="1" value="1" oninput="calcCube()">
+        </div>
+        <div class="form-group">
+          <label>Sigen Energy Gateway ($ inc GST, backup only)</label>
+          <input type="number" id="cu-gateway" min="0" step="500" value="0" oninput="calcCube()">
+        </div>
+        <div class="form-group">
+          <label>Number of Panels</label>
+          <input type="number" id="cu-numPanels" min="0" step="1" value="0" oninput="calcCube()">
+        </div>
+        <div class="form-group">
+          <label>Panel Type</label>
+          <select id="cu-panelType" onchange="calcCube()">
+            <option value="jinko475">Jinko 475W — $127.60</option>
+            <option value="jinko510">Jinko 510W N-Type — $117.81</option>
+            <option value="ja475">JA 475W — $130</option>
+            <option value="aiko475">AIKO 490W — $175</option>
+            <option value="aiko545" selected>AIKO 545W All Black — $150.70</option>
+            <option value="risen630">Risen 630W Bifacial — $152.46</option>
+            <option value="ja625">JA 625W — $137.50</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Roof Type</label>
+          <select id="cu-roofType" onchange="calcCube()">
+            <option value="tin">Tin / Metal Deck</option>
+            <option value="tile">Tile / Concrete</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Network (NLF)</label>
+          <select id="cu-network" onchange="calcCube()">
+            <option value="1.04" selected>Ausgrid (1.04)</option>
+            <option value="1.05">Endeavour (1.05)</option>
+            <option value="1.05e">Essential (1.05)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Site Works / Labour ($ inc GST)</label>
+          <input type="number" id="cu-siteworks" min="0" step="500" value="0" oninput="calcCube()">
+        </div>
+        <div class="form-group" style="grid-column:1 / -1;font-size:0.78rem;color:var(--muted);margin-bottom:0;">
+          <strong>Job site costs</strong> &mdash; leave at 0 if not needed. These carry the target margin. Don't also count them in Site Works.
+        </div>
+        <div class="form-group">
+          <label>Slab ($ inc GST)</label>
+          <input type="number" id="cu-slab" min="0" step="500" value="0" oninput="calcCube()">
+        </div>
+        <div class="form-group">
+          <label>Distribution Board ($ inc GST)</label>
+          <input type="number" id="cu-distBoard" min="0" step="500" value="0" oninput="calcCube()">
+        </div>
+        <div class="form-group">
+          <label>Shed ($ inc GST)</label>
+          <input type="number" id="cu-shed" min="0" step="500" value="0" oninput="calcCube()">
+        </div>
+        <div class="form-group">
+          <label>Extra Large DC Cable ($ inc GST)</label>
+          <input type="number" id="cu-dcCable" min="0" step="500" value="0" oninput="calcCube()">
+        </div>
+        <div class="form-group">
+          <label>Underground Works ($ inc GST)</label>
+          <input type="number" id="cu-underground" min="0" step="500" value="0" oninput="calcCube()">
+        </div>
+        <div class="form-group">
+          <label>Target Margin (% of sale)</label>
+          <input type="number" id="cu-margin" min="0" max="90" step="1" value="35" oninput="calcCube()">
+        </div>
+        <div class="form-group">
+          <label>Sale Price ($ inc GST, optional)</label>
+          <input type="number" id="cu-salePrice" min="0" step="500" placeholder="Enter quoted price" oninput="calcCube()">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">Rebates — NSW PDRS PRCs + STCs</div>
+    <div class="card-body">
+      <p class="margin-tier-hint">
+        Every SigenCube is over 200kWh usable (90% of nominal per the PDRS Rule), so it falls under <strong>BESS5</strong>, which needs <strong>UL9540A</strong> rather than the CEC list.
+        <strong>The brochure lists no UL9540A report</strong> &mdash; get one from Sigenergy before relying on these PRCs. The higher rate needs the battery within 90 days of
+        <strong>new solar &ge; 25% of usable battery capacity</strong>; otherwise the lower rate applies. Every unit is over 100kWh nominal, so <strong>no federal battery STCs</strong>. Solar up to 100kW gets 4 years of STCs if installed in 2027 (5 in 2026); over 100kW is a fixed 5. Certificates trade EX GST; defaults are inc-GST equivalents.
+      </p>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>PRC Activity</label>
+          <select id="cu-activity" onchange="calcCube()">
+            <option value="bess5" selected>BESS5 — &gt;200kWh usable</option>
+            <option value="none">None</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Battery within 90 days of new solar</label>
+          <select id="cu-solar90" onchange="calcCube()">
+            <option value="yes" selected>Yes — high coefficient</option>
+            <option value="no">No — low coefficient</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>PRC Price ($ inc GST)</label>
+          <input type="number" id="cu-prcPrice" min="0" step="0.05" value="3.36" oninput="calcCube()">
+        </div>
+        <div class="form-group">
+          <label>ACP Fee (%)</label>
+          <input type="number" id="cu-acpFee" min="0" max="60" step="1" value="30" oninput="calcCube()">
+        </div>
+        <div class="form-group">
+          <label>STC Price ($ inc GST)</label>
+          <input type="number" id="cu-stcPrice" min="0" step="0.5" value="41.8" oninput="calcCube()">
+        </div>
+        <div class="form-group">
+          <label>Solar Install Year (STCs up to 100kW)</label>
+          <select id="cu-solarYear" onchange="calcCube()">
+            <option value="2027" selected>2027 — 4 years of STCs</option>
+            <option value="2026">2026 — 5 years of STCs</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="cu-results-card">
+    <div class="card-header">Bill of Materials &amp; Costing</div>
+    <div class="card-body">
+      <div id="cu-warnings"></div>
+      <table class="breakdown-table" id="cu-bom" style="width:100%;font-size:0.85rem;border-collapse:collapse;"></table>
+      <div id="cu-summary" style="margin-top:0.9rem;"></div>
+    </div>
+  </div>
+</div>
+</div><!-- end #section-cube -->
 
 
 
@@ -3285,6 +3456,143 @@ function calcKstar() {
 }
 
 // ================================================================
+// SIGENCUBE C&I — all-in-one C&I BESS (LFP battery + PCS + HV box + distribution in one cabinet)
+// Prices: owner's list, 6 Nov 2026, available Q1 2027. Taken as ex GST like the 27 Jul SigenStack list:
+//   every figure is a round base x 1.15, the same pattern (58,300 / 59,300 / 84,500 / 86,500).
+// Specs: brochure "SigenCube_AU 20260923 Preliminary". The spec sheet shows no PV input, the EMS is
+//   built in (max 100 units in parallel, no data logger), and backup needs a Sigen Energy Gateway.
+// Every unit is over 200kWh usable, so PDRS is always BESS5 (UL9540A, not the CEC list). The brochure
+//   lists no UL9540A report; PRCs are counted with a warning, like the KSTAR BC260DE2A and EnerVenue.
+// ================================================================
+const CUBE_UNITS = {   // ex-GST list prices; BOM converts x1.1
+  es261a1: { model: 'ES261-2H-A1-AU', kw: 99.99,  nominal: 261, ex: 67045 },
+  es261:   { model: 'ES261-2H-AU',    kw: 125,    nominal: 261, ex: 68195 },
+  es4014h: { model: 'ES401-4H-AU',    kw: 99.99,  nominal: 401, ex: 97175 },
+  es4012h: { model: 'ES401-2H-AU',    kw: 199.99, nominal: 401, ex: 99475 }
+};
+const CUBE_MAX_UNITS = 100;
+
+function calcCube() {
+  const v = id => document.getElementById(id);
+  const unit      = CUBE_UNITS[v('cu-unit').value];
+  const qtyTyped  = parseInt(v('cu-qty').value) || 1;
+  const qty       = Math.max(1, Math.min(CUBE_MAX_UNITS, qtyTyped));
+  const pvinv     = CI_PVINV[v('cu-pvinv').value];
+  const pvQty     = Math.max(0, parseInt(v('cu-pvinvQty').value) || 0);
+  const gateway   = parseFloat(v('cu-gateway').value) || 0;
+  const numPanels = Math.max(0, parseInt(v('cu-numPanels').value) || 0);
+  const panelType = v('cu-panelType').value;
+  const roofType  = v('cu-roofType').value;
+  const nlf       = parseFloat(v('cu-network').value) || 1.04;
+  const siteworks = parseFloat(v('cu-siteworks').value) || 0;
+  const siteItems = ciSiteItems('cu');
+  const marginPct = (parseFloat(v('cu-margin').value) || 0) / 100;
+  const salePrice = v('cu-salePrice').value ? parseFloat(v('cu-salePrice').value) : null;
+  const activity  = v('cu-activity').value;
+  const solar90   = v('cu-solar90').value === 'yes';
+  const prcPrice  = parseFloat(v('cu-prcPrice').value) || 0;
+  const acpFee    = (parseFloat(v('cu-acpFee').value) || 0) / 100;
+  const stcPrice  = parseFloat(v('cu-stcPrice').value) || 0;
+  const solarYear = v('cu-solarYear').value;
+
+  const warnings = [];
+  const rows = [];
+  let equip = 0;
+  function add(desc, q, unitPrice) { const t = q * unitPrice; rows.push([desc, q, unitPrice, t]); equip += t; }
+
+  const watts = PANEL_WATTS[panelType] || 475;
+  const pvKw = numPanels * watts / 1000;
+  const nominal = qty * unit.nominal;
+  const usable = 0.9 * nominal;                 // PDRS Rule clause 10
+  const invKw = qty * unit.kw;
+
+  add('SigenCube ' + unit.model + ' all-in-one BESS (' + unit.kw + 'kW / ' + unit.nominal + 'kWh)', qty, unit.ex * CI_GST);
+  if (pvQty > 0 && pvinv.price > 0) add(pvinv.label, pvQty, pvinv.price * CI_GST);
+  if (gateway > 0) add('Sigen Energy Gateway (backup)', 1, gateway);
+  if (numPanels > 0) add(PANEL_LABELS[panelType], numPanels, PANEL_PRICES[panelType]);
+
+  warnings.push('SigenCube is listed for Q1 2027 and the brochure specs are marked preliminary (23 Sep 2026) — confirm delivery and final specs with Sigenergy before quoting.');
+  if (qtyTyped > CUBE_MAX_UNITS)
+    warnings.push('The brochure allows at most ' + CUBE_MAX_UNITS + ' units in parallel — this is priced at ' + CUBE_MAX_UNITS + ', not ' + qtyTyped + '.');
+  if (numPanels > 0 && !(pvQty > 0 && pvinv.price > 0))
+    warnings.push('Solar needs its own PV inverter — the SigenCube spec sheet shows no PV input, so choose one above. The panels are priced without one.');
+
+  let bos = 0;
+  if (numPanels > 0) {
+    bos += numPanels * (MOUNTING[roofType] + RAIL_PER_PANEL + DC_CABLE_PER_PANEL);
+    bos += (650 + 30 + 75 + 100);
+  }
+  bos += (192 + 90);                            // 3-phase electrical allowance
+  const gross = equip + bos + siteworks + siteItems.total;
+
+  // solar STCs
+  let solarStcs = 0, solarStcValue = 0, solarDeem4 = false;
+  if (numPanels > 0) {
+    if (pvKw > 1000) {
+      warnings.push('Solar ' + pvKw.toFixed(1) + 'kW is over 1MW — not eligible for STCs at all (large-scale scheme / LGCs). No STCs counted.');
+    } else {
+      // up to 100kW deems by install year (CER): 2027 = 4 years, 1.382 x 4 = 5.528 STCs/kW; mid-scale stays a fixed 5 years
+      solarDeem4 = solarYear === '2027' && pvKw <= 100;
+      solarStcs = solarDeem4 ? Math.floor(Math.round(pvKw * 1000) * 5528 / 1000000) : solarStcCount(pvKw * 1000);
+      solarStcValue = solarStcs * stcPrice;
+      if (pvKw > 100)
+        warnings.push('Solar ' + pvKw.toFixed(1) + 'kW is mid-scale (100kW–1MW): STCs only for systems installed ON/AFTER 1 OCTOBER 2026, ' +
+          'with a fixed 5-year deeming period (CER); STC applications open mid–late November 2026.');
+    }
+  }
+  warnings.push('Federal battery STCs: not applicable — ' + nominal.toFixed(1) + 'kWh nominal exceeds the 100kWh program cap.');
+
+  // PDRS PRCs — BESS5 per consolidated Rule (1 Jul 2026) as amended from 7 Sep 2026
+  let prcs = 0, prcGross = 0, prcNet = 0, prcNote = '';
+  if (activity === 'bess5') {
+    const high = pdrsHighRate(activity, solar90, pvKw, usable, warnings);
+    const counted = Math.min(usable, 4 * invKw, 10000);
+    prcs = Math.floor(counted * (high ? 90 : 60.3) * nlf);
+    prcGross = prcs * prcPrice;
+    prcNet = prcGross * (1 - acpFee);
+    prcNote = counted.toFixed(1) + ' counted kWh (usable ' + usable.toFixed(1) + ' of ' + nominal.toFixed(1) + ' nominal)';
+    warnings.push('BESS5: UL9540A fire test required — the SigenCube brochure lists no UL9540A report (the Intertek report on file is for SigenStack). ' +
+      'Get one from Sigenergy before committing these PRCs to a quote. No minimum customer payment.');
+  }
+
+  const netCost = gross - solarStcValue - prcNet;
+  const recommended = marginPct < 1 ? netCost / (1 - marginPct) : 0;
+
+  let h = '<thead><tr><th style="text-align:left;">Item</th><th>Qty</th><th style="text-align:right;">Unit ex GST</th><th style="text-align:right;">Total ex GST</th></tr></thead><tbody>';
+  for (const [desc, q, unitPrice, tot] of rows)
+    h += '<tr><td>' + desc + '</td><td style="text-align:center;">' + q + '</td><td style="text-align:right;">' + ciFmt(unitPrice / 1.1) + '</td><td style="text-align:right;">' + ciFmt(tot / 1.1) + '</td></tr>';
+  h += '<tr><td>BoS allowance (mounting/rail/DC/electrical at resi rates)</td><td style="text-align:center;">1</td><td></td><td style="text-align:right;">' + ciFmt(bos / 1.1) + '</td></tr>';
+  if (siteworks > 0) h += '<tr><td>Site works / labour allowance</td><td style="text-align:center;">1</td><td></td><td style="text-align:right;">' + ciFmt(siteworks / 1.1) + '</td></tr>';
+  h += siteItems.rows;
+  h += '<tr class="total-row"><td colspan="3"><strong>Gross Cost (ex GST)</strong></td><td style="text-align:right;"><strong>' + ciFmt(gross / 1.1) + '</strong></td></tr>'
+    + '<tr><td colspan="3" style="color:var(--muted);">Gross Cost (inc GST)</td><td style="text-align:right;color:var(--muted);">' + ciFmt(gross) + '</td></tr></tbody>';
+  document.getElementById('cu-bom').innerHTML = h;
+
+  let s = summaryRow('System size', nominal.toLocaleString('en-AU') + 'kWh nominal &middot; ' + usable.toFixed(1) + 'kWh usable &middot; ' + (+invKw.toFixed(2)) + 'kW');
+  if (solarStcValue > 0) s += summaryRow('Solar STCs (' + solarStcs + ' &times; $' + stcPrice + (solarDeem4 ? ', 4-year deeming' : '') + ')', '&minus; ' + ciFmt(solarStcValue));
+  if (prcs > 0) {
+    s += summaryRow('PRCs — BESS5 (' + prcs.toLocaleString('en-AU') + ' &times; $' + prcPrice.toFixed(2) + ')', ciFmt(prcGross) + ' gross');
+    s += summaryRow('PRC net of ' + Math.round(acpFee * 100) + '% ACP fee — ' + prcNote, '&minus; ' + ciFmt(prcNet));
+  }
+  s += '<div class="recommended-row"><span class="label">Net Cost after rebates (ex GST)</span><span class="value">' + ciFmt(netCost / 1.1) + '</span></div>';
+  s += '<div class="recommended-row"><span class="label">Net Cost after rebates (inc GST)</span><span class="value">' + ciFmt(netCost) + '</span></div>';
+  s += '<div class="recommended-row"><span class="label">Recommended Sale (' + Math.round(marginPct * 100) + '% margin, inc GST)</span><span class="value">' + ciFmt(recommended) + '</span></div>';
+  if (salePrice !== null && !isNaN(salePrice)) {
+    const gp = salePrice - netCost;
+    const pct = salePrice > 0 ? (100 * gp / salePrice) : 0;
+    s += summaryRow('Gross Profit at ' + ciFmt(salePrice) + ' (inc GST)', ciFmt(gp) + ' (' + pct.toFixed(1) + '%)');
+    s += summaryRow('Gross Profit (ex GST)', ciFmt(gp / 1.1));
+    if (pct < 20) s += '<div class="margin-alert low">Margin below 20% — review before quoting</div>';
+  }
+  document.getElementById('cu-summary').innerHTML = s;
+
+  document.getElementById('cu-warnings').innerHTML = warnings.length
+    ? '<div style="background:var(--brand-yellow-tint);border-radius:8px;padding:0.6rem 0.8rem;margin-bottom:0.7rem;font-size:0.82rem;line-height:1.45;">' +
+      warnings.map(w => '&#9888; ' + w).join('<br>') + '</div>'
+    : '';
+}
+
+// ================================================================
 // ENERVENUE C&I — Energy Rack ER8-P3 (150kWh AMC nickel-hydrogen DC block)
 // Proposal OPP-26-10-001 rev 0, 30 Oct 2026 (Boris Cicero), indicative, valid 30 days.
 // Base: USD 180/kWh FOB China incl. BMS + commissioning/SAT; containers USD 90,000
@@ -3726,6 +4034,8 @@ function switchTab(tab) {
   document.getElementById('tab-kstar').classList.toggle('active', tab === 'kstar');
   document.getElementById('section-ev').style.display = (tab === 'ev') ? '' : 'none';
   document.getElementById('tab-ev').classList.toggle('active', tab === 'ev');
+  document.getElementById('section-cube').style.display = (tab === 'cube') ? '' : 'none';
+  document.getElementById('tab-cube').classList.toggle('active', tab === 'cube');
   document.getElementById('tab-sig').classList.toggle('active',  tab === 'sig');
   document.getElementById('tab-gw').classList.toggle('active',   tab === 'gw');
   document.getElementById('tab-ci').classList.toggle('active',   tab === 'ci');
@@ -4495,6 +4805,7 @@ calcDeye();
 calcGwci();
 calcKstar();
 calcEv();
+calcCube();
 </script>
 </body>
 </html>
