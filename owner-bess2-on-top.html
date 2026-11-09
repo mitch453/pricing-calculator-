@@ -773,7 +773,7 @@
   <h1>Pricing Calculator</h1>
   <span>Owner — BESS2 on top</span>
 </header>
-<div class="admin-only" style="background:#FFF6CC;border-bottom:1px solid #E8D27A;padding:8px 16px;font-size:0.82rem;line-height:1.4;"><strong>BESS2 on top version.</strong> On the Sigenergy tab the NSW VPP BESS2 rebate is <strong>not</strong> taken off the customer's price &mdash; it is Ausave income on top of the 15% net. Everything else is identical to the <a href="owner-combined.html">Owner calculator</a>.</div>
+<div class="admin-only" style="background:#FFF6CC;border-bottom:1px solid #E8D27A;padding:8px 16px;font-size:0.82rem;line-height:1.4;"><strong>BESS2 on top version.</strong> On the Sigenergy tab the NSW VPP BESS2 rebate is <strong>not</strong> taken off the customer's price &mdash; it is Ausave income on top of the 15% net. From 10 Nov 2026 the <a href="owner-combined.html">Owner calculator</a> treats BESS2 the same way, so both pages now give the same results.</div>
 
 <div class="tab-bar-wrap">
   <button class="tab-btn active" id="tab-sig" onclick="switchTab('sig')">Sigenergy</button>
@@ -2589,7 +2589,7 @@ function calcBess2(usableKwh) {
 }
 
 // BESS3/4/5 — PDRS commercial/strata activities (from 1 Sep 2026), mirrors the C&I tabs.
-// BESS2 ON TOP (owner, 2 Nov 2026 — this page only; the main owner/admin calcs still take it off the price):
+// BESS2 ON TOP (owner): first on the "BESS2 on top" page (2 Nov 2026), and on the main owner and admin calcs from 10 Nov 2026:
 // the rebate is paid to Ausave and counted as income in the margin; it is NOT deducted from net material
 // cost or the recommended price. Calibrated to $1,300 at the 28kWh-usable cap ($46.43 per usable kWh),
 // eligible 2-28kWh usable inclusive; over 28kWh there is no BESS2 (BESS3/4/5 are separate).
@@ -2682,7 +2682,7 @@ function calcBatterySTCs(batteryKwh, cap) {
 }
 
 function buildProfitHtml(isBatteryOnly, jobsPerDay, marginPerJob, labelExtra, noPriceMsg, basisPrice, onTopIncome = 0) {
-  // onTopIncome (inc GST) = income counted in marginPerJob that sits ON TOP of the net target (Sig BESS2 on this page).
+  // onTopIncome (inc GST) = income counted in marginPerJob that sits ON TOP of the net target (Sig BESS2).
   // The target figures (projected net vs target, price for target, jobs needed) are measured BEFORE it.
   if (noPriceMsg) {
     return `<div style="padding:0.5rem;color:var(--muted);font-size:0.85rem;text-align:center;">${noPriceMsg}</div>`;
@@ -4174,7 +4174,7 @@ function calcSig() {
   }
   const totalSTCvalue  = solarSTCvalue + batterySTCvalue;
 
-  // BESS3/4/5 PRCs — deducted from cost like STCs (owner, 26 Aug 2026); BESS2 is income on top of the price on this page (2 Nov 2026)
+  // BESS3/4/5 PRCs — deducted from cost like STCs (owner, 26 Aug 2026); BESS2 is income on top of the price, not deducted (owner, 10 Nov 2026)
   const sPdrsAct = (document.getElementById('s-pdrsActivity') || { value: 'auto' }).value;
   let sPdrsRes = null, sPdrsNet = 0;
   if (sPdrsAct !== 'auto' && sPdrsAct !== 'none' && hasBattery) {
@@ -4185,7 +4185,7 @@ function calcSig() {
     sPdrsRes = calcBessCommercial(sPdrsAct, 0.9 * batteryKwh, pInvKw, pPvKw, p90, pDw, BESS2_NLF);
     if (sPdrsRes) sPdrsNet = sPdrsRes.net;
   }
-  // BESS2 VPP PRCs — Sigenergy, $1,300 at 28kWh usable: Ausave income ON TOP of the price (this page, owner 2 Nov 2026).
+  // BESS2 VPP PRCs — Sigenergy, $1,300 at 28kWh usable: Ausave income ON TOP of the price (owner, 10 Nov 2026).
   // Not in netMaterialCost (so not in the recommended price); added to the margin and profit card as income.
   const sBess2 = (hasBattery && sPdrsAct === 'auto') ? calcBess2Sig(batteryKwh) : null;
   const sBess2Net = sBess2 ? sBess2.net : 0;
@@ -4259,7 +4259,7 @@ function calcSig() {
 
   sHtml += `<div class="recommended-row"><span class="label">Recommended Sale Price (inc GST)${extrasIncGst > 0 ? ' (+ extras)' : ''}${recLabelHtml}</span><span class="value">${fmt(recommendedPrice)}</span></div>`;
 
-  // NSW PDRS — BESS2 is income on top of the price on this page (not deducted); BESS3/4/5 are deducted from cost above
+  // NSW PDRS — BESS2 is income on top of the price (not deducted); BESS3/4/5 are deducted from cost above
   if (sPdrsAct === 'auto') {
     if (sBess2) {
       sHtml += `<div class="admin-only"><div class="bess2-rebate"><span class="label">${bess2Label(sBess2)} &mdash; Ausave income ON TOP of the price above (not deducted)</span><span class="value">+ ${fmt(sBess2Net)}</span></div></div>`;
@@ -4550,8 +4550,8 @@ function calcGW() {
   if (gPdrsAct === 'auto') {
     const gwBess2 = calcBess2(batteryKwh);
     if (gwBess2) {
-      sHtml += `<div class="bess2-rebate"><span class="label">NSW VPP Rebate (BESS2) &mdash; ${gwBess2.prcs} PRCs</span><span class="value">&minus; ${fmt(gwBess2.net)}</span></div>`;
-      sHtml += `<div class="bess2-note">${gwBess2.prcs} PRCs &times; $${BESS2_PRC_PRICE.toFixed(2)} &times; ${((1 - BESS2_ACP_FEE) * 100).toFixed(0)}% (net of ACP fee) &mdash; paid after VPP onboarding</div>`;
+      sHtml += `<div class="bess2-rebate"><span class="label">NSW VPP Rebate (BESS2) &mdash; ${gwBess2.prcs} PRCs &mdash; not taken off the price above</span><span class="value">${fmt(gwBess2.net)}</span></div>`;
+      sHtml += `<div class="bess2-note">${gwBess2.prcs} PRCs &times; $${BESS2_PRC_PRICE.toFixed(2)} &times; ${((1 - BESS2_ACP_FEE) * 100).toFixed(0)}% (net of ACP fee) &mdash; paid after VPP onboarding, not deducted from this price</div>`;
     }
   } else if (gPdrsRes) {
     for (const n of gPdrsRes.notes) sHtml += `<div class="bess2-note">&#9888; ${n}</div>`;
