@@ -169,9 +169,10 @@
   .tab-btn:hover:not(.active) { color: var(--doc-contrast); }
   .tab-btn:active { transform: scale(0.97); }
 
-  /* Eight product tabs stay inside the screen, including on phones. */
-  @media (max-width: 800px) {
-    .tab-bar-wrap { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-radius: 18px; }
+  /* Nine tabs no longer fit on one line: two rows of five on wide screens, rows of three below 900px. */
+  .tab-bar-wrap { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border-radius: 18px; }
+  @media (max-width: 900px) {
+    .tab-bar-wrap { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .tab-btn { padding: 0.65rem 0.4rem; }
   }
 
@@ -783,6 +784,7 @@
   <button class="tab-btn" id="tab-gwci" onclick="switchTab('gwci')">GoodWe C&amp;I</button>
   <button class="tab-btn" id="tab-kstar" onclick="switchTab('kstar')">KSTAR C&amp;I</button>
   <button class="tab-btn" id="tab-ev" onclick="switchTab('ev')">EnerVenue C&amp;I</button>
+  <button class="tab-btn" id="tab-da" onclick="switchTab('da')">DA Application</button>
 </div>
 
 <!-- ============================================================ -->
@@ -1310,6 +1312,10 @@
           <input type="number" id="ci-elecEng" min="0" step="500" value="0" oninput="calcCI()">
         </div>
         <div class="form-group">
+          <label>DA Application ($ inc GST)</label>
+          <input type="number" id="ci-da" min="0" step="500" value="0" oninput="calcCI()">
+        </div>
+        <div class="form-group">
           <label>Target Margin (% of sale)</label>
           <input type="number" id="ci-margin" min="0" max="90" step="1" value="35" oninput="calcCI()">
         </div>
@@ -1476,6 +1482,10 @@
         <div class="form-group">
           <label>Electrical Engineering ($ inc GST)</label>
           <input type="number" id="dy-elecEng" min="0" step="500" value="0" oninput="calcDeye()">
+        </div>
+        <div class="form-group">
+          <label>DA Application ($ inc GST)</label>
+          <input type="number" id="dy-da" min="0" step="500" value="0" oninput="calcDeye()">
         </div>
         <div class="form-group">
           <label>Target Margin (% of sale)</label>
@@ -1691,6 +1701,10 @@
           <input type="number" id="gc-elecEng" min="0" step="500" value="0" oninput="calcGwci()">
         </div>
         <div class="form-group">
+          <label>DA Application ($ inc GST)</label>
+          <input type="number" id="gc-da" min="0" step="500" value="0" oninput="calcGwci()">
+        </div>
+        <div class="form-group">
           <label>Target Margin (% of sale)</label>
           <input type="number" id="gc-margin" min="0" max="90" step="1" value="35" oninput="calcGwci()">
         </div>
@@ -1897,6 +1911,10 @@
           <input type="number" id="ks-elecEng" min="0" step="500" value="0" oninput="calcKstar()">
         </div>
         <div class="form-group">
+          <label>DA Application ($ inc GST)</label>
+          <input type="number" id="ks-da" min="0" step="500" value="0" oninput="calcKstar()">
+        </div>
+        <div class="form-group">
           <label>Target Margin (% of sale)</label>
           <input type="number" id="ks-margin" min="0" max="90" step="1" value="35" oninput="calcKstar()">
         </div>
@@ -2092,6 +2110,10 @@
           <input type="number" id="ev-elecEng" min="0" step="500" value="0" oninput="calcEv()">
         </div>
         <div class="form-group">
+          <label>DA Application ($ inc GST)</label>
+          <input type="number" id="ev-da" min="0" step="500" value="0" oninput="calcEv()">
+        </div>
+        <div class="form-group">
           <label>Target Margin (% of sale)</label>
           <input type="number" id="ev-margin" min="0" max="90" step="1" value="35" oninput="calcEv()">
         </div>
@@ -2266,6 +2288,10 @@
           <input type="number" id="cu-elecEng" min="0" step="500" value="0" oninput="calcCube()">
         </div>
         <div class="form-group">
+          <label>DA Application ($ inc GST)</label>
+          <input type="number" id="cu-da" min="0" step="500" value="0" oninput="calcCube()">
+        </div>
+        <div class="form-group">
           <label>Target Margin (% of sale)</label>
           <input type="number" id="cu-margin" min="0" max="90" step="1" value="35" oninput="calcCube()">
         </div>
@@ -2333,6 +2359,129 @@
   </div>
 </div>
 </div><!-- end #section-cube -->
+<div id="section-da" style="display:none;">
+<div class="container">
+  <div class="card">
+    <div class="card-header">DA Application — NSW development application costs (2026-27)</div>
+    <div class="card-body">
+      <p class="margin-tier-hint" style="margin-top:0.5rem;">
+        Works out what a development application costs on a commercial battery and solar job: the NSW DA fee, the council&rsquo;s
+        charges, the long service levy and the council&rsquo;s s7.12 levy, plus the planner, certifier and report quotes you type in.
+        A battery over <strong>200kWh</strong> (100kWh in a residential zone) needs a DA. Figures are the NSW 2026-27 maximums and each
+        council&rsquo;s 2026-27 fees and charges, checked 10 Nov 2026. <strong>Put total in</strong> at the bottom copies the total into a
+        commercial tab&rsquo;s DA Application box.
+      </p>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Council</label>
+          <select id="da-council" onchange="daCouncilChange()">
+            <option value="cc" selected>Central Coast</option>
+            <option value="lm">Lake Macquarie</option>
+            <option value="ncl">Newcastle (outside the city centre)</option>
+            <option value="nclcc">Newcastle city centre</option>
+            <option value="cess">Cessnock</option>
+            <option value="mait">Maitland</option>
+            <option value="other">Other council (NSW maximums)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Job Value ($ inc GST)</label>
+          <input type="number" id="da-jobValue" min="0" step="10000" placeholder="Contract price" oninput="calcDa()">
+        </div>
+        <div class="form-group">
+          <label>Battery Hardware ($ inc GST, Lake Macquarie levy only)</label>
+          <input type="number" id="da-batteryHw" min="0" step="10000" value="0" oninput="calcDa()">
+        </div>
+        <div class="form-group">
+          <label>Battery Size on Site (kWh)</label>
+          <input type="number" id="da-kwh" min="0" step="1" placeholder="Total kWh" oninput="calcDa()">
+        </div>
+        <div class="form-group">
+          <label>Zone</label>
+          <select id="da-zone" onchange="calcDa()">
+            <option value="other" selected>Commercial, industrial or rural</option>
+            <option value="res">Residential</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Battery Charges From</label>
+          <select id="da-charge" onchange="calcDa()">
+            <option value="solar" selected>Solar only</option>
+            <option value="grid">Solar and the grid</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Notification Fee ($)</label>
+          <input type="number" id="da-notice" min="0" step="1" value="1532" oninput="calcDa()">
+        </div>
+        <div class="form-group">
+          <label>Pre-lodgement Meeting</label>
+          <select id="da-prelodge" onchange="calcDa()">
+            <option value="yes" selected>Yes</option>
+            <option value="no">No</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>State Agency Referrals</label>
+          <input type="number" id="da-referrals" min="0" max="10" step="1" value="0" oninput="calcDa()">
+        </div>
+        <div class="form-group">
+          <label>Construction &amp; Occupation Certificates</label>
+          <select id="da-certs" onchange="calcDa()">
+            <option value="yes" selected>Needed (slab, plinths, shed)</option>
+            <option value="no">Not needed</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Certifier ($ inc GST, quote)</label>
+          <input type="number" id="da-certifier" min="0" step="100" value="0" oninput="calcDa()">
+        </div>
+        <div class="form-group">
+          <label>Town Planner ($ inc GST, quote)</label>
+          <input type="number" id="da-planner" min="0" step="500" value="0" oninput="calcDa()">
+        </div>
+        <div class="form-group">
+          <label>Cost Estimate Report ($ inc GST, quote)</label>
+          <input type="number" id="da-costReport" min="0" step="100" value="0" oninput="calcDa()">
+        </div>
+        <div class="form-group">
+          <label>Other Reports ($ inc GST, quotes)</label>
+          <input type="number" id="da-reports" min="0" step="500" value="0" oninput="calcDa()">
+        </div>
+        <div class="form-group" id="da-hints" style="grid-column:1 / -1;font-size:0.78rem;color:var(--muted);margin-bottom:0;line-height:1.45;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="da-results-card">
+    <div class="card-header">DA Costs</div>
+    <div class="card-body">
+      <div id="da-pathway"></div>
+      <div id="da-warnings"></div>
+      <table class="breakdown-table" id="da-table" style="width:100%;font-size:0.85rem;border-collapse:collapse;"></table>
+      <div id="da-summary" style="margin-top:0.9rem;"></div>
+      <div class="form-grid" style="margin-top:0.9rem;align-items:end;">
+        <div class="form-group">
+          <label>Put total in</label>
+          <select id="da-sendTo">
+            <option value="ci">Sigen C&amp;I</option>
+            <option value="cube">SigenCube C&amp;I</option>
+            <option value="deye">Deye C&amp;I</option>
+            <option value="gwci">GoodWe C&amp;I</option>
+            <option value="kstar">KSTAR C&amp;I</option>
+            <option value="ev">EnerVenue C&amp;I</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <button class="btn-calculate" onclick="daSendTotal()">Put total in the DA Application box</button>
+        </div>
+      </div>
+      <div id="da-sendMsg" style="font-size:0.82rem;color:var(--brand-red);"></div>
+      <div id="da-notes" style="font-size:0.78rem;color:var(--muted);margin-top:0.6rem;line-height:1.45;"></div>
+    </div>
+  </div>
+</div>
+</div><!-- end #section-da -->
 
 
 
@@ -2821,7 +2970,8 @@ const CI_SITE_ITEMS = [
   { id: 'dcCable',     label: 'Extra large DC cable' },
   { id: 'underground', label: 'Underground works' },
   { id: 'waste',       label: 'Waste disposal' },          // owner, 10 Nov 2026
-  { id: 'elecEng',     label: 'Electrical engineering' }   // owner, 10 Nov 2026
+  { id: 'elecEng',     label: 'Electrical engineering' },  // owner, 10 Nov 2026
+  { id: 'da',          label: 'DA application' }           // owner, 10 Nov 2026 — the DA tab can fill this
 ];
 function ciSiteItems(prefix) {
   const items = CI_SITE_ITEMS
@@ -4028,6 +4178,168 @@ function calcGwci() {
     : '';
 }
 
+// ================================================================
+// DA APPLICATION TAB (owner, 10 Nov 2026) — costs of a NSW development application for a commercial
+// battery / solar job. 2026-27 figures researched and fact-checked 10 Nov 2026:
+//  - DA fee: EP&A Regulation 2021 Sch 4 item 2.1 (DPHI 2026-27 schedule, fee unit $118.55) on estimated
+//    development cost INCLUDING GST; plant and equipment (cabinets, inverters, panels) count. These are the
+//    maximums councils may charge; the planning reform fee is already inside the rates (do not add it again).
+//  - Council charges: each council's adopted 2026-27 fees and charges (Cessnock's adoption not confirmed).
+//  - Referrals (DAs lodged from 1 Jul 2026): $194 to council plus $1,100 to the Development Coordination
+//    Authority for each referral.
+//  - Long service levy: 0.25% of the WHOLE cost inc GST once it is $250,000 or more (Long Service Corporation).
+//  - s7.12 levy: each council's contributions plan, whole-of-cost: nil to $100,000, 0.5% over $100,000 to
+//    $200,000, 1% over $200,000; Newcastle city centre 3% over $250,000; Lake Macquarie leaves battery
+//    hardware (batteries, control systems, inverters, HVAC, transformers) out of the base (Table 5 item 14).
+//  - Pathway: T&I SEPP s2.39(2C)-(2D) complying development for a solar battery system up to 200kWh
+//    (100kWh in residential zones) from 12 Dec 2025; exempt up to 20kWh (s2.41(5)).
+// Recheck every July: the fee unit and council charges change each financial year.
+// ================================================================
+const DA_FEE_BANDS = [   // rate is $ per $1,000 (or part) of cost above 'over'
+  { upTo: 5000,     base: 153,   rate: 0,    over: 0 },
+  { upTo: 50000,    base: 235,   rate: 3.00, over: 5000 },
+  { upTo: 250000,   base: 488,   rate: 3.64, over: 50000 },
+  { upTo: 500000,   base: 1608,  rate: 2.34, over: 250000 },
+  { upTo: 1000000,  base: 2420,  rate: 1.64, over: 500000 },
+  { upTo: 10000000, base: 3625,  rate: 1.44, over: 1000000 },
+  { upTo: Infinity, base: 22009, rate: 1.19, over: 10000000 }
+];
+function daFee(cost) {
+  if (!(cost > 0)) return 0;
+  const b = DA_FEE_BANDS.find(x => cost <= x.upTo);
+  return b.base + b.rate * Math.ceil((cost - b.over) / 1000);
+}
+function daLevy712(cityCentre, base) {
+  if (!(base > 100000)) return { rate: 0, amount: 0 };
+  let rate = base <= 200000 ? 0.005 : 0.01;
+  if (cityCentre && base > 250000) rate = 0.03;
+  return { rate, amount: base * rate };
+}
+const DA_NCL_HINT = "Newcastle: a cost summary report above $150,000 and a quantity surveyor's detailed report from $3M. " +
+  "Council as certifier: $450 plus 0.4% of the first $500,000 and 0.21% above that up to $2M (plus GST), a principal certifier fee " +
+  "of $4,250 for commercial work from $200,001 to $2M, and $495 for the occupation certificate. Over $2M is by quote.";
+const DA_NCL_PRE = c => c < 500000 ? 950 : c <= 1000000 ? 1950 : c <= 5000000 ? 2695 : 3480;
+const DA_COUNCILS = {
+  cc:    { name: 'Central Coast', notice: 1532, admin: [],
+           prelodge: c => c <= 1000000 ? 824 : c <= 5000000 ? 1475 : c <= 20000000 ? 1880 : 2795,
+           hint: "Central Coast prints two notification fees: $1,532 (community participation plan) and $395 plus $93 per extra advert " +
+                 "(development control plan). It doesn't say which a battery DA attracts, so $1,532 is used; ask council. " +
+                 "Cost estimate: an applicant's estimate or builder's quote under $500,000, a suitably qualified person from $500,000 to $1M, " +
+                 "a registered quantity surveyor over $1M. Council as certifier for a Class 10 structure (slab, plinths, shed) is $1,721.15 inc GST, " +
+                 "covering the construction certificate, inspections and occupation certificate." },
+  lm:    { name: 'Lake Macquarie', notice: 312, admin: [['Archival fee', 104], ['Planning Portal integration fee', 58]], prelodge: () => 834, battEx: true,
+           hint: "Lake Macquarie leaves battery hardware (batteries, control systems, inverters, HVAC, transformers) out of its s7.12 levy, so enter it above. " +
+                 "The pre-lodgement charge is its detailed planning advice meeting ($834 inc GST). Council prices certification per job. " +
+                 "Cost estimate: NSW rules, a suitably qualified person from $100,000 to $3M and a quantity surveyor's report recommended over $3M." },
+  ncl:   { name: 'Newcastle', notice: 822, admin: [], prelodge: DA_NCL_PRE, hint: DA_NCL_HINT },
+  nclcc: { name: 'Newcastle city centre', notice: 822, admin: [], prelodge: DA_NCL_PRE, cityCentre: true,
+           hint: 'The Newcastle city centre s7.12 levy is 3% of the whole cost over $250,000. ' + DA_NCL_HINT },
+  cess:  { name: 'Cessnock', notice: 290, admin: [['Electronic file management fee', 135]], prelodge: c => c <= 1000000 ? 774 : 1350,
+           hint: "Cessnock (2026-27 schedule; adoption not confirmed): a cost summary report under $1M and a registered quantity surveyor's report " +
+                 "from $1,000,001. Council prices commercial certification by quote." },
+  mait:  { name: 'Maitland', notice: 300, admin: [['Electronic file management fee', 140]], prelodge: c => c <= 1000000 ? 750 : c <= 5000000 ? 1050 : 1300,
+           hint: "Maitland: a cost summary report under $500,000 and a registered quantity surveyor's report from $500,000." },
+  other: { name: 'Other council', notice: 1532, admin: [], prelodge: null,
+           hint: "Other councils: the NSW maximum DA fee, the maximum notification fee ($1,532) and the standard s7.12 maximum (1% over $200,000) are used. " +
+                 "Check the council's own fees, pre-lodgement charge and contributions plan." }
+};
+const DA_TARGETS = { ci: 'ci', cube: 'cu', deye: 'dy', gwci: 'gc', kstar: 'ks', ev: 'ev' };
+let daLastTotal = 0;
+
+function daCouncilChange() {
+  document.getElementById('da-notice').value = DA_COUNCILS[document.getElementById('da-council').value].notice;
+  calcDa();
+}
+
+function calcDa() {
+  const v = id => document.getElementById(id);
+  const num = id => Math.max(0, parseFloat(v(id).value) || 0);
+  const co = DA_COUNCILS[v('da-council').value];
+  const C = num('da-jobValue'), hw = num('da-batteryHw'), kwh = num('da-kwh');
+  const certs = v('da-certs').value === 'yes';
+  const refs = Math.min(10, Math.floor(num('da-referrals')));
+  v('da-hints').innerHTML = '<strong>' + co.name + '</strong> &mdash; ' + co.hint;
+  v('da-sendMsg').textContent = '';
+
+  // Does the job need a DA at all?
+  let path = '';
+  if (kwh > 0) {
+    const limit = v('da-zone').value === 'res' ? 100 : 200;
+    const solarOnly = v('da-charge').value === 'solar';
+    if (kwh > limit)
+      path = `<div class="margin-alert ok">${kwh.toLocaleString('en-AU')}kWh is over ${limit}kWh, so a development application is needed.</div>`;
+    else if (!solarOnly)
+      path = `<div class="margin-alert low">${kwh.toLocaleString('en-AU')}kWh is within the ${limit}kWh complying development limit, but a battery that also charges from the grid may not count as a &ldquo;solar battery system&rdquo;, so a DA may still be needed. Check with a planner. The costs below assume a DA.</div>`;
+    else if (kwh <= 20)
+      path = `<div class="margin-alert low">${kwh.toLocaleString('en-AU')}kWh: one battery of up to 20kWh that stores only solar can be exempt development, with no DA or certificates. The costs below assume a DA.</div>`;
+    else
+      path = `<div class="margin-alert low">${kwh.toLocaleString('en-AU')}kWh is within the ${limit}kWh limit, so a battery that stores only solar can go through complying development (a CDC from a certifier) instead of a DA, which skips the DA fee and notification. The costs below assume a DA.</div>`;
+  }
+  v('da-pathway').innerHTML = path;
+
+  const warnings = [];
+  if (!(C > 0)) {
+    v('da-warnings').innerHTML = '<div class="margin-alert low">Enter the job value (the contract price inc GST) to work out the fees.</div>';
+    v('da-table').innerHTML = ''; v('da-summary').innerHTML = ''; v('da-notes').innerHTML = '';
+    daLastTotal = 0; return;
+  }
+
+  const gov = [], quotes = [];   // [item, basis, amount]
+  const money = n => '$' + Math.round(n).toLocaleString('en-AU');
+  gov.push(['DA fee', 'NSW scale on ' + money(C), daFee(C)]);
+  gov.push(['Notification', co.name + ' fee', num('da-notice')]);
+  if (v('da-prelodge').value === 'yes') {
+    if (co.prelodge) gov.push(['Pre-lodgement meeting', co.name + ', inc GST', co.prelodge(C)]);
+    else warnings.push("The pre-lodgement meeting charge isn't known for this council; add it under Other Reports if you book one.");
+  }
+  for (const [label, amt] of co.admin) gov.push([label, co.name, amt]);
+  if (refs > 0) gov.push(['State agency referrals', `${refs} &times; ($194 council + $1,100 DCA)`, refs * 1294]);
+  gov.push(['Long service levy', C >= 250000 ? '0.25% of ' + money(C) : 'nil under $250,000', C >= 250000 ? 0.0025 * C : 0]);
+  const levyBase = co.battEx ? Math.max(0, C - hw) : C;
+  const levy = daLevy712(!!co.cityCentre, levyBase);
+  gov.push(['Council s7.12 levy', levy.rate > 0 ? `${(levy.rate * 100).toFixed(1).replace('.0', '')}% of ${money(levyBase)}${co.battEx ? ' (job less battery hardware)' : ''}` : 'nil (' + money(levyBase) + ' is $100,000 or less)', levy.amount]);
+  if (certs) gov.push(['Planning Portal certificate fees', '$47 construction + $47 occupation certificate', 94]);
+  if (co.battEx && hw <= 0) warnings.push("Enter the battery hardware: Lake Macquarie leaves it out of the s7.12 levy, so the levy shown is too high.");
+  if (co.battEx && hw > C) warnings.push('Battery hardware is more than the job value; check both figures.');
+
+  if (certs) quotes.push(['Certifier', 'construction certificate, inspections, occupation certificate', num('da-certifier')]);
+  quotes.push(['Town planner', 'statement of environmental effects and lodging the DA', num('da-planner')]);
+  quotes.push(['Cost estimate report', 'required with the DA', num('da-costReport')]);
+  if (num('da-reports') > 0) quotes.push(['Other reports', 'bush fire, flood, noise, survey, engineering', num('da-reports')]);
+  if (certs && num('da-certifier') <= 0) warnings.push('Certifier not entered: get a quote (see the council note above for council prices).');
+  if (num('da-planner') <= 0) warnings.push('Town planner not entered: get a quote.');
+  if (num('da-costReport') <= 0 && C > 100000) warnings.push('Cost estimate report not entered: over $100,000 it must come from a suitably qualified person (see the council note above).');
+
+  const sum = rows => rows.reduce((a, r) => a + r[2], 0);
+  const sub1 = sum(gov), sub2 = sum(quotes), total = sub1 + sub2;
+  daLastTotal = total;
+  const row = r => `<tr><td>${r[0]}</td><td style="color:var(--muted);">${r[1]}</td><td style="text-align:right;">${fmt(r[2])}</td></tr>`;
+  v('da-table').innerHTML = '<thead><tr><th style="text-align:left;">Item</th><th style="text-align:left;">Basis</th><th style="text-align:right;">Amount</th></tr></thead><tbody>'
+    + '<tr class="section-header"><td colspan="3">Council and NSW Government (no GST unless shown)</td></tr>' + gov.map(row).join('')
+    + '<tr class="section-header"><td colspan="3">Consultants and certifier (quotes, inc GST)</td></tr>' + quotes.map(row).join('')
+    + '</tbody>';
+  v('da-warnings').innerHTML = warnings.map(w => `<div class="margin-alert low">${w}</div>`).join('');
+  v('da-summary').innerHTML = summaryRow('Council and NSW Government', fmt(sub1))
+    + summaryRow('Consultants and certifier', fmt(sub2))
+    + `<div class="recommended-row"><span class="label">DA total</span><span class="value">${fmt(total)}</span></div>`;
+  v('da-notes').innerHTML =
+    'Not in the total: refundable deposits a consent can ask for, such as Central Coast&rsquo;s security deposit for industrial development ' +
+    '(minimum $8,250 ex GST) or a bond of 5% of the works (minimum $2,500) for work in a public road. ' +
+    'The s7.12 levy is indexed to inflation when it is paid, and its base leaves out project management, finance and legal costs, so a cost report can lower it. ' +
+    'The long service levy is on the cost the certifier accepts; whether supplied battery hardware counts isn&rsquo;t confirmed (Long Service Corporation, 13 14 41). ' +
+    'Referrals are needed for State heritage items, some mine subsidence district work, and bush fire prone land unless a bush fire report shows the design complies. ' +
+    'Council fees and levies carry no GST, but the commercial tabs treat the DA Application box as inc GST and add the target margin, like the other job site costs.';
+}
+
+function daSendTotal() {
+  const tab = document.getElementById('da-sendTo').value, p = DA_TARGETS[tab];
+  if (!(daLastTotal > 0)) { document.getElementById('da-sendMsg').textContent = 'Enter the job value first.'; return; }
+  document.getElementById(p + '-da').value = (Math.round(daLastTotal * 100) / 100).toFixed(2);
+  ({ ci: calcCI, cube: calcCube, deye: calcDeye, gwci: calcGwci, kstar: calcKstar, ev: calcEv })[tab]();
+  switchTab(tab);
+  document.getElementById(p + '-da').scrollIntoView({ block: 'center' });
+}
+
 function switchTab(tab) {
   document.getElementById('section-sig').style.display  = (tab === 'sig')  ? '' : 'none';
   document.getElementById('section-gw').style.display   = (tab === 'gw')   ? '' : 'none';
@@ -4040,6 +4352,8 @@ function switchTab(tab) {
   document.getElementById('tab-ev').classList.toggle('active', tab === 'ev');
   document.getElementById('section-cube').style.display = (tab === 'cube') ? '' : 'none';
   document.getElementById('tab-cube').classList.toggle('active', tab === 'cube');
+  document.getElementById('section-da').style.display = (tab === 'da') ? '' : 'none';
+  document.getElementById('tab-da').classList.toggle('active', tab === 'da');
   document.getElementById('tab-sig').classList.toggle('active',  tab === 'sig');
   document.getElementById('tab-gw').classList.toggle('active',   tab === 'gw');
   document.getElementById('tab-ci').classList.toggle('active',   tab === 'ci');
@@ -4791,6 +5105,7 @@ calcGwci();
 calcKstar();
 calcEv();
 calcCube();
+calcDa();
 </script>
 </body>
 </html>
