@@ -2783,6 +2783,26 @@ function ciSiteItems(prefix) {
   };
 }
 
+// Panel BoS on the commercial tabs (owner, 10 Nov 2026): per panel only — roof feet, rail, and
+// "DC and earth" at $15 a panel inc GST (was DC cable $8). The flat residential items (6 RCBOs,
+// 2 three-phase breakers, conduit/isolators, MC4s, label kit, earth cable & lugs) are no longer
+// added, so a job with no panels has no BoS. Switchboard, AC cable and labour are typed per job
+// under Site Works and the job site costs. The residential tabs still use DC_CABLE_PER_PANEL.
+const CI_DC_EARTH_PER_PANEL = 15;
+function ciPanelBos(numPanels, roofType) {
+  if (!(numPanels > 0)) return { total: 0, rows: '' };
+  const items = [
+    { label: roofType === 'tile' ? 'Tile roof feet' : 'Tin roof feet', unit: MOUNTING[roofType] },
+    { label: 'Rail', unit: RAIL_PER_PANEL },
+    { label: 'DC and earth', unit: CI_DC_EARTH_PER_PANEL }
+  ];
+  return {
+    total: items.reduce((a, it) => a + numPanels * it.unit, 0),
+    rows: items.map(it => '<tr><td>' + it.label + '</td><td style="text-align:center;">' + numPanels + '</td><td style="text-align:right;">$' +
+      (it.unit / 1.1).toFixed(2) + '</td><td style="text-align:right;">' + ciFmt(numPanels * it.unit / 1.1) + '</td></tr>').join('')
+  };
+}
+
 // Per-stack module inputs (owner, 8 Sep 2026): one number input per SigenStack stack so stacks can
 // be sized independently. Inputs are only re-rendered when the stack COUNT changes (existing values
 // are kept, new stacks copy the last one), so typing in a stack box never loses focus.
@@ -2898,13 +2918,9 @@ function calcCI() {
     if (fixKits > 0) add('Fixation kit (7th module in tower)', fixKits, CI_P.fixKit * CI_GST);
   }
 
-  // ── BoS (residential-rate placeholder, inc GST like the rest of the gross) ──
-  let bos = 0;
-  if (numPanels > 0) {
-    bos += numPanels * (MOUNTING[roofType] + RAIL_PER_PANEL + DC_CABLE_PER_PANEL);
-    bos += (650 + 30 + 75 + 100);
-  }
-  bos += (192 + 90);
+  // ── Panel BoS (per panel only, inc GST like the rest of the gross) ──
+  const panelBos = ciPanelBos(numPanels, roofType);   // per panel only: roof feet, rail, DC and earth
+  const bos = panelBos.total;
 
   const gross = equip + bos + siteworks + siteItems.total;
 
@@ -2997,7 +3013,7 @@ function calcCI() {
   let h = '<thead><tr><th style="text-align:left;">Item</th><th>Qty</th><th style="text-align:right;">Unit ex GST</th><th style="text-align:right;">Total ex GST</th></tr></thead><tbody>';
   for (const [desc, qty, unit, tot] of rows)
     h += '<tr><td>' + desc + '</td><td style="text-align:center;">' + qty + '</td><td style="text-align:right;">' + ciFmt(unit / 1.1) + '</td><td style="text-align:right;">' + ciFmt(tot / 1.1) + '</td></tr>';
-  h += '<tr><td>BoS allowance (mounting/rail/DC/electrical at resi rates)</td><td style="text-align:center;">1</td><td></td><td style="text-align:right;">' + ciFmt(bos / 1.1) + '</td></tr>';
+  h += panelBos.rows;
   if (siteworks > 0) h += '<tr><td>Site works / labour allowance</td><td style="text-align:center;">1</td><td></td><td style="text-align:right;">' + ciFmt(siteworks / 1.1) + '</td></tr>';
   h += siteItems.rows;
   h += '<tr class="total-row"><td colspan="3"><strong>Gross Cost (ex GST)</strong></td><td style="text-align:right;"><strong>' + ciFmt(gross / 1.1) + '</strong></td></tr>'
@@ -3080,12 +3096,8 @@ function calcDeye() {
   add('Deye GE-F120-2H2 cabinet (122.8kWh + 50kW PCS, aircon, fire suppression)', qty, unitCost);
   if (numPanels > 0) add(PANEL_LABELS[panelType], numPanels, PANEL_PRICES[panelType]);
 
-  let bos = 0;
-  if (numPanels > 0) {
-    bos += numPanels * (MOUNTING[roofType] + RAIL_PER_PANEL + DC_CABLE_PER_PANEL);
-    bos += (650 + 30 + 75 + 100);
-  }
-  bos += (192 + 90);                            // 3-phase electrical allowance
+  const panelBos = ciPanelBos(numPanels, roofType);   // per panel only: roof feet, rail, DC and earth
+  const bos = panelBos.total;
   const gross = equip + bos + siteworks + siteItems.total;
 
   if (pvKw > DEYE_PV_MAX_KW * qty)
@@ -3151,7 +3163,7 @@ function calcDeye() {
   let h = '<thead><tr><th style="text-align:left;">Item</th><th>Qty</th><th style="text-align:right;">Unit ex GST</th><th style="text-align:right;">Total ex GST</th></tr></thead><tbody>';
   for (const [desc, q, unit, tot] of rows)
     h += '<tr><td>' + desc + '</td><td style="text-align:center;">' + q + '</td><td style="text-align:right;">' + ciFmt(unit / 1.1) + '</td><td style="text-align:right;">' + ciFmt(tot / 1.1) + '</td></tr>';
-  h += '<tr><td>BoS allowance (mounting/rail/DC/electrical at resi rates)</td><td style="text-align:center;">1</td><td></td><td style="text-align:right;">' + ciFmt(bos / 1.1) + '</td></tr>';
+  h += panelBos.rows;
   if (siteworks > 0) h += '<tr><td>Site works / labour allowance</td><td style="text-align:center;">1</td><td></td><td style="text-align:right;">' + ciFmt(siteworks / 1.1) + '</td></tr>';
   h += siteItems.rows;
   h += '<tr class="total-row"><td colspan="3"><strong>Gross Cost (ex GST)</strong></td><td style="text-align:right;"><strong>' + ciFmt(gross / 1.1) + '</strong></td></tr>'
@@ -3309,12 +3321,8 @@ function calcKstar() {
       warnings.push(pcs.model + ' is NOT on the CEC approved inverter list (KAC20–50DP2 are, from 3 Sep 2026) — confirm network connection approval with the DNSP before quoting.');
   }
 
-  let bos = 0;
-  if (numPanels > 0) {
-    bos += numPanels * (MOUNTING[roofType] + RAIL_PER_PANEL + DC_CABLE_PER_PANEL);
-    bos += (650 + 30 + 75 + 100);
-  }
-  bos += (192 + 90);                            // 3-phase electrical allowance
+  const panelBos = ciPanelBos(numPanels, roofType);   // per panel only: roof feet, rail, DC and earth
+  const bos = panelBos.total;
   const gross = equip + bos + siteworks + siteItems.total;
 
   // solar STCs
@@ -3381,7 +3389,7 @@ function calcKstar() {
   let h = '<thead><tr><th style="text-align:left;">Item</th><th>Qty</th><th style="text-align:right;">Unit ex GST</th><th style="text-align:right;">Total ex GST</th></tr></thead><tbody>';
   for (const [desc, q, unitPrice, tot] of rows)
     h += '<tr><td>' + desc + '</td><td style="text-align:center;">' + q + '</td><td style="text-align:right;">' + ciFmt(unitPrice / 1.1) + '</td><td style="text-align:right;">' + ciFmt(tot / 1.1) + '</td></tr>';
-  h += '<tr><td>BoS allowance (mounting/rail/DC/electrical at resi rates)</td><td style="text-align:center;">1</td><td></td><td style="text-align:right;">' + ciFmt(bos / 1.1) + '</td></tr>';
+  h += panelBos.rows;
   if (siteworks > 0) h += '<tr><td>Site works / labour allowance</td><td style="text-align:center;">1</td><td></td><td style="text-align:right;">' + ciFmt(siteworks / 1.1) + '</td></tr>';
   h += siteItems.rows;
   h += '<tr class="total-row"><td colspan="3"><strong>Gross Cost (ex GST)</strong></td><td style="text-align:right;"><strong>' + ciFmt(gross / 1.1) + '</strong></td></tr>'
@@ -3475,12 +3483,8 @@ function calcCube() {
   if (numPanels > 0 && !(pvQty > 0 && pvinv.price > 0))
     warnings.push('Solar needs its own PV inverter — the SigenCube spec sheet shows no PV input, so choose one above. The panels are priced without one.');
 
-  let bos = 0;
-  if (numPanels > 0) {
-    bos += numPanels * (MOUNTING[roofType] + RAIL_PER_PANEL + DC_CABLE_PER_PANEL);
-    bos += (650 + 30 + 75 + 100);
-  }
-  bos += (192 + 90);                            // 3-phase electrical allowance
+  const panelBos = ciPanelBos(numPanels, roofType);   // per panel only: roof feet, rail, DC and earth
+  const bos = panelBos.total;
   const gross = equip + bos + siteworks + siteItems.total;
 
   // solar STCs
@@ -3519,7 +3523,7 @@ function calcCube() {
   let h = '<thead><tr><th style="text-align:left;">Item</th><th>Qty</th><th style="text-align:right;">Unit ex GST</th><th style="text-align:right;">Total ex GST</th></tr></thead><tbody>';
   for (const [desc, q, unitPrice, tot] of rows)
     h += '<tr><td>' + desc + '</td><td style="text-align:center;">' + q + '</td><td style="text-align:right;">' + ciFmt(unitPrice / 1.1) + '</td><td style="text-align:right;">' + ciFmt(tot / 1.1) + '</td></tr>';
-  h += '<tr><td>BoS allowance (mounting/rail/DC/electrical at resi rates)</td><td style="text-align:center;">1</td><td></td><td style="text-align:right;">' + ciFmt(bos / 1.1) + '</td></tr>';
+  h += panelBos.rows;
   if (siteworks > 0) h += '<tr><td>Site works / labour allowance</td><td style="text-align:center;">1</td><td></td><td style="text-align:right;">' + ciFmt(siteworks / 1.1) + '</td></tr>';
   h += siteItems.rows;
   h += '<tr class="total-row"><td colspan="3"><strong>Gross Cost (ex GST)</strong></td><td style="text-align:right;"><strong>' + ciFmt(gross / 1.1) + '</strong></td></tr>'
@@ -3628,12 +3632,8 @@ function calcEv() {
   warnings.push('Offer is indicative and non-binding, valid to 29 Nov 2026; EnerVenue can re-price at PO for FX, commodities or tariffs. 20% of the USD price is due within 5 days of PO, 70% at shipping (FOB China), 10% at SAT.');
   warnings.push('Proposal text is inconsistent on enclosures — "2 x 20ft containerised DC block" vs "12 x 20ft containers" for the USD 90,000 — confirm with EnerVenue. Integrating the racks into the containers is also excluded.');
 
-  let bos = 0;
-  if (numPanels > 0) {
-    bos += numPanels * (MOUNTING[roofType] + RAIL_PER_PANEL + DC_CABLE_PER_PANEL);
-    bos += (650 + 30 + 75 + 100);
-  }
-  bos += (192 + 90);                            // 3-phase electrical allowance
+  const panelBos = ciPanelBos(numPanels, roofType);   // per panel only: roof feet, rail, DC and earth
+  const bos = panelBos.total;
   const gross = equip + bos + siteworks + siteItems.total;
 
   // solar STCs
@@ -3696,7 +3696,7 @@ function calcEv() {
   let h = '<thead><tr><th style="text-align:left;">Item</th><th>Qty</th><th style="text-align:right;">Unit ex GST</th><th style="text-align:right;">Total ex GST</th></tr></thead><tbody>';
   for (const [desc, q, unitPrice, tot] of rows)
     h += '<tr><td>' + desc + '</td><td style="text-align:center;">' + q + '</td><td style="text-align:right;">' + ciFmt(unitPrice / 1.1) + '</td><td style="text-align:right;">' + ciFmt(tot / 1.1) + '</td></tr>';
-  h += '<tr><td>BoS allowance (mounting/rail/DC/electrical at resi rates)</td><td style="text-align:center;">1</td><td></td><td style="text-align:right;">' + ciFmt(bos / 1.1) + '</td></tr>';
+  h += panelBos.rows;
   if (siteworks > 0) h += '<tr><td>Install / civil / crane / electrical allowance</td><td style="text-align:center;">1</td><td></td><td style="text-align:right;">' + ciFmt(siteworks / 1.1) + '</td></tr>';
   h += siteItems.rows;
   h += '<tr class="total-row"><td colspan="3"><strong>Gross Cost (ex GST)</strong></td><td style="text-align:right;"><strong>' + ciFmt(gross / 1.1) + '</strong></td></tr>'
@@ -3867,12 +3867,8 @@ function calcGwci() {
   if (inv.hybrid && invQty > 0 && parseInt(v('gc-sts').value) === 0)
     warnings.push('ET backup/off-grid needs the STS Box 125kW — none added (skip if backup is not required).');
 
-  let bos = 0;
-  if (numPanels > 0) {
-    bos += numPanels * (MOUNTING[roofType] + RAIL_PER_PANEL + DC_CABLE_PER_PANEL);
-    bos += (650 + 30 + 75 + 100);
-  }
-  bos += (192 + 90);                            // 3-phase electrical allowance
+  const panelBos = ciPanelBos(numPanels, roofType);   // per panel only: roof feet, rail, DC and earth
+  const bos = panelBos.total;
   const gross = equip + bos + siteworks + siteItems.total;
 
   // solar STCs
@@ -3949,7 +3945,7 @@ function calcGwci() {
   let h = '<thead><tr><th style="text-align:left;">Item</th><th>Qty</th><th style="text-align:right;">Unit ex GST</th><th style="text-align:right;">Total ex GST</th></tr></thead><tbody>';
   for (const [desc, q, unitPrice, tot] of rows)
     h += '<tr><td>' + desc + '</td><td style="text-align:center;">' + q + '</td><td style="text-align:right;">' + ciFmt(unitPrice / 1.1) + '</td><td style="text-align:right;">' + ciFmt(tot / 1.1) + '</td></tr>';
-  h += '<tr><td>BoS allowance (mounting/rail/DC/electrical at resi rates)</td><td style="text-align:center;">1</td><td></td><td style="text-align:right;">' + ciFmt(bos / 1.1) + '</td></tr>';
+  h += panelBos.rows;
   if (siteworks > 0) h += '<tr><td>Site works / labour allowance</td><td style="text-align:center;">1</td><td></td><td style="text-align:right;">' + ciFmt(siteworks / 1.1) + '</td></tr>';
   h += siteItems.rows;
   h += '<tr class="total-row"><td colspan="3"><strong>Gross Cost (ex GST)</strong></td><td style="text-align:right;"><strong>' + ciFmt(gross / 1.1) + '</strong></td></tr>'
