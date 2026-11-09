@@ -1302,6 +1302,14 @@
           <input type="number" id="ci-underground" min="0" step="500" value="0" oninput="calcCI()">
         </div>
         <div class="form-group">
+          <label>Waste Disposal ($ inc GST)</label>
+          <input type="number" id="ci-waste" min="0" step="500" value="0" oninput="calcCI()">
+        </div>
+        <div class="form-group">
+          <label>Electrical Engineering ($ inc GST)</label>
+          <input type="number" id="ci-elecEng" min="0" step="500" value="0" oninput="calcCI()">
+        </div>
+        <div class="form-group">
           <label>Target Margin (% of sale)</label>
           <input type="number" id="ci-margin" min="0" max="90" step="1" value="35" oninput="calcCI()">
         </div>
@@ -1460,6 +1468,14 @@
         <div class="form-group">
           <label>Underground Works ($ inc GST)</label>
           <input type="number" id="dy-underground" min="0" step="500" value="0" oninput="calcDeye()">
+        </div>
+        <div class="form-group">
+          <label>Waste Disposal ($ inc GST)</label>
+          <input type="number" id="dy-waste" min="0" step="500" value="0" oninput="calcDeye()">
+        </div>
+        <div class="form-group">
+          <label>Electrical Engineering ($ inc GST)</label>
+          <input type="number" id="dy-elecEng" min="0" step="500" value="0" oninput="calcDeye()">
         </div>
         <div class="form-group">
           <label>Target Margin (% of sale)</label>
@@ -1667,6 +1683,14 @@
           <input type="number" id="gc-underground" min="0" step="500" value="0" oninput="calcGwci()">
         </div>
         <div class="form-group">
+          <label>Waste Disposal ($ inc GST)</label>
+          <input type="number" id="gc-waste" min="0" step="500" value="0" oninput="calcGwci()">
+        </div>
+        <div class="form-group">
+          <label>Electrical Engineering ($ inc GST)</label>
+          <input type="number" id="gc-elecEng" min="0" step="500" value="0" oninput="calcGwci()">
+        </div>
+        <div class="form-group">
           <label>Target Margin (% of sale)</label>
           <input type="number" id="gc-margin" min="0" max="90" step="1" value="35" oninput="calcGwci()">
         </div>
@@ -1865,6 +1889,14 @@
           <input type="number" id="ks-underground" min="0" step="500" value="0" oninput="calcKstar()">
         </div>
         <div class="form-group">
+          <label>Waste Disposal ($ inc GST)</label>
+          <input type="number" id="ks-waste" min="0" step="500" value="0" oninput="calcKstar()">
+        </div>
+        <div class="form-group">
+          <label>Electrical Engineering ($ inc GST)</label>
+          <input type="number" id="ks-elecEng" min="0" step="500" value="0" oninput="calcKstar()">
+        </div>
+        <div class="form-group">
           <label>Target Margin (% of sale)</label>
           <input type="number" id="ks-margin" min="0" max="90" step="1" value="35" oninput="calcKstar()">
         </div>
@@ -2052,6 +2084,14 @@
           <input type="number" id="ev-underground" min="0" step="500" value="0" oninput="calcEv()">
         </div>
         <div class="form-group">
+          <label>Waste Disposal ($ inc GST)</label>
+          <input type="number" id="ev-waste" min="0" step="500" value="0" oninput="calcEv()">
+        </div>
+        <div class="form-group">
+          <label>Electrical Engineering ($ inc GST)</label>
+          <input type="number" id="ev-elecEng" min="0" step="500" value="0" oninput="calcEv()">
+        </div>
+        <div class="form-group">
           <label>Target Margin (% of sale)</label>
           <input type="number" id="ev-margin" min="0" max="90" step="1" value="35" oninput="calcEv()">
         </div>
@@ -2216,6 +2256,14 @@
         <div class="form-group">
           <label>Underground Works ($ inc GST)</label>
           <input type="number" id="cu-underground" min="0" step="500" value="0" oninput="calcCube()">
+        </div>
+        <div class="form-group">
+          <label>Waste Disposal ($ inc GST)</label>
+          <input type="number" id="cu-waste" min="0" step="500" value="0" oninput="calcCube()">
+        </div>
+        <div class="form-group">
+          <label>Electrical Engineering ($ inc GST)</label>
+          <input type="number" id="cu-elecEng" min="0" step="500" value="0" oninput="calcCube()">
         </div>
         <div class="form-group">
           <label>Target Margin (% of sale)</label>
@@ -2771,7 +2819,9 @@ const CI_SITE_ITEMS = [
   { id: 'distBoard',   label: 'Distribution board' },
   { id: 'shed',        label: 'Shed' },
   { id: 'dcCable',     label: 'Extra large DC cable' },
-  { id: 'underground', label: 'Underground works' }
+  { id: 'underground', label: 'Underground works' },
+  { id: 'waste',       label: 'Waste disposal' },          // owner, 10 Nov 2026
+  { id: 'elecEng',     label: 'Electrical engineering' }   // owner, 10 Nov 2026
 ];
 function ciSiteItems(prefix) {
   const items = CI_SITE_ITEMS
