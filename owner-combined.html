@@ -156,10 +156,10 @@
   .tab-btn:hover { color: var(--text); background: var(--surface-2); }
   .tab-btn.active { background: var(--green-tint); color: var(--text); box-shadow: inset 0 -3px 0 var(--green); }
   @media (pointer: coarse) { .tab-btn { min-height: 44px; } }
-  @media (min-width: 1420px) { .tabs { margin-left: auto; flex-wrap: nowrap; } }   /* measured: title + nine grouped buttons need ~1390px */
+  @media (min-width: 1420px) { .tabs { margin-left: auto; flex-wrap: nowrap; } .tab-group-label { display: none; } }   /* measured 10 Nov 2026: title + ten grouped buttons need ~1500px with the group labels, ~1235px without; the 1400px page cap leaves 1368px */
   @media (max-width: 1419px) { .tabs { flex: 1 1 100%; } }
   /* 1024-1199px: the nine buttons must stay on one row beside the pane, so the group labels go and the buttons tighten */
-  @media (min-width: 1024px) and (max-width: 1199px) { .tab-group-label { display: none; } .tab-btn { padding: 0 10px; } .tabs { gap: var(--sp-1); } }
+  @media (min-width: 1024px) and (max-width: 1279px) { .tab-group-label { display: none; } .tab-btn { padding: 0 10px; } .tabs { gap: var(--sp-1); } }
   @media (max-width: 1023px) {
     .brand { min-height: 48px; }
     .brand h1 { font-size: 1.05rem; }
@@ -759,7 +759,60 @@
   /* ================================================================
      14. PRINT
      ================================================================ */
+  /* ── Saved quotes / compare (owner, 10 Nov 2026) ── */
+  .btn-save { margin-left: auto; display: inline-flex; align-items: center; min-height: 32px; padding: 0 var(--sp-3); border: 1px solid var(--line-strong); border-radius: var(--r-sm); background: var(--surface); color: var(--text); font: 600 var(--fs-sm) var(--font-body); letter-spacing: 0; text-transform: none; cursor: pointer; }
+  .btn-save:hover { background: var(--green-tint); border-color: var(--green); }
+  .tab-count { display: inline-block; min-width: 18px; padding: 0 6px; margin-left: 6px; border-radius: 999px; background: var(--green); color: var(--text); font: 700 var(--fs-xs)/18px var(--font-body); text-align: center; vertical-align: middle; }
+  .toast { position: fixed; left: 50%; bottom: calc(84px + env(safe-area-inset-bottom)); transform: translate(-50%, 8px); z-index: 120; width: max-content; max-width: min(92vw, 520px); padding: 10px 14px; border-radius: var(--r-md); background: var(--text); color: var(--text-inverse); font: 500 var(--fs-base)/1.35 var(--font-body); box-shadow: 0 6px 20px rgba(0,0,0,.18); opacity: 0; pointer-events: none; transition: opacity .18s, transform .18s; }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+  .toast.clickable { cursor: pointer; text-decoration: underline; text-decoration-color: rgba(255,255,255,.45); }
+  .quote-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: var(--sp-2); margin: var(--sp-2) 0 var(--sp-3); }
+  .quote-chip { display: grid; grid-template-columns: auto 1fr; column-gap: var(--sp-2); align-items: start; padding: var(--sp-2) var(--sp-3); border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); cursor: pointer; }
+  .quote-chip.on { border-color: var(--green); background: var(--green-tint); }
+  .quote-chip input { grid-row: 1 / span 3; margin: 3px 0 0; width: 18px; height: 18px; accent-color: var(--green-deep); }
+  .quote-name { font: 600 var(--fs-base)/1.3 var(--font-body); color: var(--text); overflow-wrap: anywhere; }
+  .quote-meta { font-size: var(--fs-sm); color: var(--text-2); }
+  .quote-actions { display: flex; align-items: center; gap: var(--sp-2); font-size: var(--fs-sm); }
+  .btn-link.danger { color: var(--red-text); }
+  .compare-toolbar { display: flex; justify-content: space-between; align-items: center; gap: var(--sp-3); flex-wrap: wrap; margin-bottom: var(--sp-2); }
+  .compare-toolbar .hint { margin: 0; }
+  .compare-table th, .compare-table td { vertical-align: top; }
+  .compare-table th:first-child, .compare-table td:first-child { position: sticky; left: 0; z-index: 1; background: var(--surface); min-width: 150px; max-width: 260px; }
+  .compare-table tr.section-header td:first-child, .compare-table tr.total-row td:first-child { background: var(--surface-2); }
+  .compare-table th:nth-child(n+2), .compare-table td:nth-child(n+2) { text-align: left; white-space: normal; min-width: 170px; }
+  .compare-table td.num { text-align: right; white-space: normal; font-variant-numeric: tabular-nums; }
+  .compare-table td.num .fig { white-space: nowrap; }
+  .compare-table td.muted, .compare-table td .qty { color: var(--text-3); }
+  .compare-table td .qty { font-size: var(--fs-sm); margin-right: 8px; white-space: normal; }
+  .compare-table td .sub { font-size: var(--fs-sm); line-height: 1.3; color: var(--text-3); white-space: normal; font-weight: 400; font-family: var(--font-body); }
+  .compare-table tr.compare-hero td { font: 700 1.3rem/1.2 var(--font-display); padding-top: var(--sp-3); padding-bottom: var(--sp-3); }
+  .compare-table tr.compare-hero td:first-child { font: 600 var(--fs-base)/1.3 var(--font-body); }
+  .compare-table td.best { background: var(--green-tint); color: var(--green-text); }
+  .compare-table td.invalid, .compare-table td.incomplete { color: var(--text-2); }
+  .compare-table td.danger { color: var(--red-text); } .compare-table td.ok { color: var(--green-text); }
+  .compare-table td .tag { display: inline-block; margin-left: 8px; padding: 1px 8px; border-radius: 999px; background: var(--green); color: var(--text); font: 700 var(--fs-xs)/18px var(--font-body); vertical-align: middle; }
+  .compare-table .q-name { font: 600 var(--fs-base)/1.3 var(--font-display); text-transform: none; letter-spacing: 0; color: var(--text); overflow-wrap: anywhere; }
+  .compare-table .q-meta { font: 400 var(--fs-sm)/1.3 var(--font-body); text-transform: none; letter-spacing: 0; color: var(--text-2); margin-top: 2px; }
+  .compare-table .q-actions { margin-top: 4px; font: 500 var(--fs-sm) var(--font-body); text-transform: none; letter-spacing: 0; }
+  .compare-table .q-repeat { font: 600 var(--fs-sm)/1.3 var(--font-body); text-transform: none; letter-spacing: 0; color: var(--text-2); }
+  .compare-table td .tag.warn { background: var(--yellow-tint); color: var(--amber-text); }
+  .compare-table tbody tr:hover td.best { background: var(--green-tint); }
+  /* touch targets: 24px minimum, 44px on coarse pointers as the tabs already do */
+  .quote-actions .btn-link, .q-actions .btn-link, .compare-toolbar .btn-link { display: inline-flex; align-items: center; min-height: 32px; padding: 0 var(--sp-2); }
+  .quote-actions .btn-link:first-child, .q-actions .btn-link { margin-left: calc(-1 * var(--sp-2)); }
+  .quote-actions .btn-link.danger { margin-left: auto; margin-right: calc(-1 * var(--sp-2)); }
+  .compare-toolbar .btn-link { margin-right: calc(-1 * var(--sp-2)); }
+  @media (pointer: coarse) { .quote-actions .btn-link, .q-actions .btn-link, .compare-toolbar .btn-link, .btn-save { min-height: 44px; } }
+  @media (min-width: 1024px) { .toast { bottom: 24px; } #section-compare > .container { display: block; } }
+  @media (max-width: 600px) {
+    .compare-table { min-width: 0; }
+    .compare-table th:first-child, .compare-table td:first-child { min-width: 104px; font-size: var(--fs-sm); padding-left: 10px; padding-right: 8px; }
+    .compare-table th:nth-child(n+2), .compare-table td:nth-child(n+2) { min-width: 150px; padding-left: 10px; padding-right: 10px; }
+    .compare-table tr.compare-hero td { font-size: 1.1rem; }
+  }
+
   @media print {
+    .btn-save, .quote-actions, .q-actions, .compare-toolbar, .toast { display: none !important; }
     .topbar, .price-bar, .btn-primary, #overhead-section, #commission-section, .card-notes { display: none !important; }
     .results-pane { position: static; max-height: none; overflow: visible; }
     [id^="section-"] > .container { display: block; }
@@ -787,6 +840,7 @@
     </div>
     <div class="tab-group"><span class="tab-group-label" aria-hidden="true">Tools</span>
       <button type="button" class="tab-btn" id="tab-da" role="tab" aria-selected="false" aria-controls="section-da" tabindex="-1" onclick="switchTab('da')">DA Application</button>
+      <button type="button" class="tab-btn" id="tab-compare" role="tab" aria-selected="false" aria-controls="section-compare" tabindex="-1" onclick="switchTab('compare')">Compare <span class="tab-count" id="compare-count" hidden>0</span></button>
     </div>
   </nav>
 </div></div>
@@ -1015,7 +1069,7 @@
     <!-- RESULTS PANE -->
     <aside class="results-pane" tabindex="0" role="region" aria-label="Summary">
       <div class="card summary-card" id="s-summary-card">
-        <h2 class="card-header">Summary</h2>
+        <h2 class="card-header">Summary <button type="button" class="btn-save" onclick="saveQuote('sig')" title="Save this quote to compare">Save quote</button></h2>
         <div class="card-body" id="s-summary"></div>
       </div>
     </aside>
@@ -1261,7 +1315,7 @@
     <!-- SUMMARY (sticky pane on desktop) -->
     <aside class="results-pane" tabindex="0" role="region" aria-label="Summary">
       <div class="card summary-card" id="g-summary-card">
-        <h2 class="card-header">Summary</h2>
+        <h2 class="card-header">Summary <button type="button" class="btn-save" onclick="saveQuote('gw')" title="Save this quote to compare">Save quote</button></h2>
         <div class="card-body" id="g-summary"></div>
       </div>
     </aside>
@@ -1646,7 +1700,7 @@
 
   <aside class="results-pane" tabindex="0" role="region" aria-label="Summary">
     <div class="card" id="ci-results-card">
-      <h2 class="card-header">Summary</h2>
+      <h2 class="card-header">Summary <button type="button" class="btn-save" onclick="saveQuote('ci')" title="Save this quote to compare">Save quote</button></h2>
       <div class="card-body">
         <div id="ci-summary"></div>
         <div id="ci-warnings"></div>
@@ -1912,7 +1966,7 @@
 
   <aside class="results-pane" tabindex="0" role="region" aria-label="Summary">
     <div class="card" id="dy-results-card">
-      <h2 class="card-header">Summary</h2>
+      <h2 class="card-header">Summary <button type="button" class="btn-save" onclick="saveQuote('deye')" title="Save this quote to compare">Save quote</button></h2>
       <div class="card-body">
         <div id="dy-summary"></div>
         <div id="dy-warnings"></div>
@@ -2267,7 +2321,7 @@
 
   <aside class="results-pane" tabindex="0" role="region" aria-label="Summary">
     <div class="card" id="gc-results-card">
-      <h2 class="card-header">Summary</h2>
+      <h2 class="card-header">Summary <button type="button" class="btn-save" onclick="saveQuote('gwci')" title="Save this quote to compare">Save quote</button></h2>
       <div class="card-body">
         <div id="gc-summary"></div>
         <div id="gc-warnings"></div>
@@ -2587,7 +2641,7 @@
 
   <aside class="results-pane" tabindex="0" role="region" aria-label="Summary">
     <div class="card" id="ks-results-card">
-      <h2 class="card-header">Summary</h2>
+      <h2 class="card-header">Summary <button type="button" class="btn-save" onclick="saveQuote('kstar')" title="Save this quote to compare">Save quote</button></h2>
       <div class="card-body">
         <div id="ks-summary"></div>
         <div id="ks-warnings"></div>
@@ -2914,7 +2968,7 @@
 
   <aside class="results-pane" tabindex="0" role="region" aria-label="Summary">
     <div class="card" id="ev-results-card">
-      <h2 class="card-header">Summary</h2>
+      <h2 class="card-header">Summary <button type="button" class="btn-save" onclick="saveQuote('ev')" title="Save this quote to compare">Save quote</button></h2>
       <div class="card-body">
         <div id="ev-summary"></div>
         <div id="ev-warnings"></div>
@@ -3205,7 +3259,7 @@
 
   <aside class="results-pane" tabindex="0" role="region" aria-label="Summary">
     <div class="card" id="cu-results-card">
-      <h2 class="card-header">Summary</h2>
+      <h2 class="card-header">Summary <button type="button" class="btn-save" onclick="saveQuote('cube')" title="Save this quote to compare">Save quote</button></h2>
       <div class="card-body">
         <div id="cu-summary"></div>
         <div id="cu-warnings"></div>
@@ -3405,6 +3459,22 @@
   </aside>
 </div>
 </div><!-- end #section-da -->
+
+
+<!-- ============================================================ -->
+<!-- COMPARE SAVED QUOTES (owner, 10 Nov 2026)                    -->
+<!-- ============================================================ -->
+<div id="section-compare" style="display:none;" role="tabpanel" aria-labelledby="tab-compare">
+  <div class="container">
+    <div class="card">
+      <h2 class="card-header">Saved quotes <span class="basis">side by side</span></h2>
+      <div class="card-body">
+        <p class="margin-tier-hint">Press <strong>Save quote</strong> in any calculator&rsquo;s Summary to add the job here. A quote keeps the components and prices as they were when it was saved, and stays in this browser. <strong>Open in calculator</strong> puts its inputs back so you can change it and save it again.</p>
+        <div id="compare-root"></div>
+      </div>
+    </div>
+  </div>
+</div><!-- end #section-compare -->
 
 
 
@@ -4201,6 +4271,7 @@ function calcCI() {
     if (pct < 20) s += '<div class="margin-alert low">Margin below 20% — review before quoting</div>';
     else if (pct + 1e-9 >= marginPct * 100) s += '<div class="margin-alert ok">Price is acceptable</div>';
   }
+  QUOTE_FACTS.ci = { nominal, usable, invKw, pvKw, netCost, recommended, marginPct, salePrice };   // size facts for the Compare tab (read only)
   document.getElementById('ci-summary').innerHTML = s;
 
   document.getElementById('ci-warnings').innerHTML = warnBlock(warnings);
@@ -4344,6 +4415,7 @@ function calcDeye() {
     if (pct < 20) s += '<div class="margin-alert low">Margin below 20% — review before quoting</div>';
     else if (pct + 1e-9 >= marginPct * 100) s += '<div class="margin-alert ok">Price is acceptable</div>';
   }
+  QUOTE_FACTS.deye = { nominal, usable, invKw, pvKw, netCost, recommended, marginPct, salePrice };   // size facts for the Compare tab (read only)
   document.getElementById('dy-summary').innerHTML = s;
 
   document.getElementById('dy-warnings').innerHTML = warnBlock(warnings);
@@ -4568,6 +4640,7 @@ function calcKstar() {
     if (pct < 20) s += '<div class="margin-alert low">Margin below 20% — review before quoting</div>';
     else if (pct + 1e-9 >= marginPct * 100) s += '<div class="margin-alert ok">Price is acceptable</div>';
   }
+  QUOTE_FACTS.kstar = { nominal, usable, invKw, pvKw, netCost, recommended, marginPct, salePrice };   // size facts for the Compare tab (read only)
   document.getElementById('ks-summary').innerHTML = s;
 
   document.getElementById('ks-warnings').innerHTML = warnBlock(warnings);
@@ -4699,6 +4772,7 @@ function calcCube() {
     if (pct < 20) s += '<div class="margin-alert low">Margin below 20% — review before quoting</div>';
     else if (pct + 1e-9 >= marginPct * 100) s += '<div class="margin-alert ok">Price is acceptable</div>';
   }
+  QUOTE_FACTS.cube = { nominal, usable, invKw, pvKw, netCost, recommended, marginPct, salePrice };   // size facts for the Compare tab (read only)
   document.getElementById('cu-summary').innerHTML = s;
 
   document.getElementById('cu-warnings').innerHTML = warnBlock(warnings);
@@ -4874,6 +4948,7 @@ function calcEv() {
     if (pct < 20) s += '<div class="margin-alert low">Margin below 20% — review before quoting</div>';
     else if (pct + 1e-9 >= marginPct * 100) s += '<div class="margin-alert ok">Price is acceptable</div>';
   }
+  QUOTE_FACTS.ev = { nominal, usable, invKw, pvKw, netCost, recommended, marginPct, salePrice };   // size facts for the Compare tab (read only)
   document.getElementById('ev-summary').innerHTML = s;
 
   document.getElementById('ev-warnings').innerHTML = warnBlock(warnings);
@@ -5119,6 +5194,7 @@ function calcGwci() {
     if (pct < 20) s += '<div class="margin-alert low">Margin below 20% — review before quoting</div>';
     else if (pct + 1e-9 >= marginPct * 100) s += '<div class="margin-alert ok">Price is acceptable</div>';
   }
+  QUOTE_FACTS.gwci = { nominal, usable, invKw, pvKw, netCost, recommended, marginPct, salePrice };   // size facts for the Compare tab (read only)
   document.getElementById('gc-summary').innerHTML = s;
 
   document.getElementById('gc-warnings').innerHTML = warnBlock(warnings);
@@ -5299,8 +5375,8 @@ function daSendTotal() {
 // TAB SWITCHER + UI CHROME (UX rebuild, 10 Nov 2026) — display only, no pricing.
 // Defined above the INIT block so switchTab can run at load.
 // ================================================================
-const TABS = ['sig', 'gw', 'ci', 'cube', 'deye', 'gwci', 'kstar', 'ev', 'da'];
-const TAB_TITLES = { sig: 'Sigenergy', gw: 'GoodWe ESA', ci: 'Sigen C&I', cube: 'SigenCube C&I', deye: 'Deye C&I', gwci: 'GoodWe C&I', kstar: 'KSTAR C&I', ev: 'EnerVenue C&I', da: 'DA Application' };
+const TABS = ['sig', 'gw', 'ci', 'cube', 'deye', 'gwci', 'kstar', 'ev', 'da', 'compare'];
+const TAB_TITLES = { sig: 'Sigenergy', gw: 'GoodWe ESA', ci: 'Sigen C&I', cube: 'SigenCube C&I', deye: 'Deye C&I', gwci: 'GoodWe C&I', kstar: 'KSTAR C&I', ev: 'EnerVenue C&I', da: 'DA Application', compare: 'Compare quotes' };
 const COMMERCIAL_TABS = ['ci', 'cube', 'deye', 'gwci', 'kstar', 'ev'];
 let lastCommercialTab = null;
 
@@ -5313,6 +5389,7 @@ function switchTab(tab) {
     if (btn) { btn.classList.toggle('active', on); btn.setAttribute('aria-selected', on ? 'true' : 'false'); btn.tabIndex = on ? 0 : -1; }
   });
   document.body.dataset.tab = tab;
+  if (tab === 'compare' && typeof renderCompare === 'function') renderCompare();
   const resi = (tab === 'sig' || tab === 'gw');
   ['overhead-section', 'commission-section'].forEach(id => { const el = document.getElementById(id); if (el) el.hidden = !resi; });
   if (COMMERCIAL_TABS.includes(tab)) lastCommercialTab = tab;
@@ -5328,6 +5405,342 @@ function switchTab(tab) {
   syncPriceBar();
 }
 
+// ================================================================
+// SAVED QUOTES + COMPARE (owner, 10 Nov 2026)
+// A quote is a snapshot of one tab: every input, the bill of materials, every summary row, the hero price and the
+// size facts the calc used, as rendered at the time. Quotes live in this browser's localStorage. "Open in calculator"
+// puts the inputs back. Nothing here changes a calculation.
+// ================================================================
+const QUOTES_KEY = 'ausave-owner-quotes-v1';
+const QUOTE_FACTS = {};   // size facts per tab, set by each calc right before it writes its summary (no DOM, no arithmetic)
+const QUOTE_TABS = {
+  sig:   { bom: 's-breakdown', summary: 's-summary',  calc: 'calcSig',   extras: 's-extra-cb' },
+  gw:    { bom: 'g-breakdown', summary: 'g-summary',  calc: 'calcGW',    extras: 'g-extra-cb' },
+  ci:    { bom: 'ci-bom',      summary: 'ci-summary', calc: 'calcCI',    warnings: 'ci-warnings' },
+  cube:  { bom: 'cu-bom',      summary: 'cu-summary', calc: 'calcCube',  warnings: 'cu-warnings' },
+  deye:  { bom: 'dy-bom',      summary: 'dy-summary', calc: 'calcDeye',  warnings: 'dy-warnings' },
+  gwci:  { bom: 'gc-bom',      summary: 'gc-summary', calc: 'calcGwci',  warnings: 'gc-warnings' },
+  kstar: { bom: 'ks-bom',      summary: 'ks-summary', calc: 'calcKstar', warnings: 'ks-warnings' },
+  ev:    { bom: 'ev-bom',      summary: 'ev-summary', calc: 'calcEv',    warnings: 'ev-warnings' }
+};
+function loadQuotes() { try { const a = JSON.parse(localStorage.getItem(QUOTES_KEY) || '[]'); return Array.isArray(a) ? a.filter(q => q && typeof q === 'object' && q.id && QUOTE_TABS[q.tab]) : []; } catch (e) { return []; } }
+function storeQuotes(list) {
+  try { localStorage.setItem(QUOTES_KEY, JSON.stringify(list)); return true; }
+  catch (e) { toast('Could not save in this browser (storage full or blocked).'); return false; }
+}
+const qText = el => el ? el.textContent.replace(/\s+/g, ' ').trim() : '';
+const qEsc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function qMoney(s) { const m = String(s || '').replace(/,/g, '').match(/(−|-)?\s*\$\s*(\d+(?:\.\d+)?)/); if (!m) return null; const v = parseFloat(m[2]); return m[1] ? -v : v; }
+function qWhen(iso) { const d = new Date(iso); return isNaN(d) ? '' : d.toLocaleString('en-AU', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }); }
+let toastTimer = null;
+function toast(msg, onClick) {
+  let el = document.getElementById('toast');
+  if (!el) { el = document.createElement('div'); el.id = 'toast'; el.className = 'toast'; el.setAttribute('role', 'status'); document.body.appendChild(el); }
+  el.textContent = msg; el.onclick = onClick || null; el.classList.toggle('clickable', !!onClick); el.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove('show'), onClick ? 7000 : 3200);
+}
+function updateCompareCount() {
+  const n = loadQuotes().length, b = document.getElementById('compare-count');
+  if (b) { b.textContent = n; b.hidden = n === 0; }
+}
+const extraLabelOf = cb => qText(cb.parentElement && cb.parentElement.querySelector('span'));
+
+function captureQuote(tab) {
+  const cfg = QUOTE_TABS[tab], sec = document.getElementById('section-' + tab);
+  if (!cfg || !sec) return null;
+  // every control, by id (the per-stack boxes and quantity selects have ids)
+  const inputs = {};
+  sec.querySelectorAll('input[id], select[id]').forEach(e => { inputs[e.id] = e.type === 'checkbox' ? !!e.checked : e.value; });
+  // the extras by label, with the quantity the calc used (per-panel ones × panels, quantity ones × their select)
+  const panels = cfg.extras ? parseInt((sec.querySelector('input[id$="-numPanels"]') || {}).value) || 0 : 0;
+  const extras = cfg.extras ? [...sec.querySelectorAll('input.' + cfg.extras)].map(cb => {
+    const unit = parseFloat(cb.dataset.price) || 0;
+    const qty = cb.dataset.perPanel === 'true' ? panels : cb.dataset.qtySelect ? (parseInt((document.getElementById(cb.dataset.qtySelect) || {}).value) || 1) : 1;
+    return { label: extraLabelOf(cb), on: !!cb.checked, perPanel: cb.dataset.perPanel === 'true', qty, unit, total: unit * qty };
+  }) : null;
+  // the configuration, label -> what the owner sees in the field (every card in the form column)
+  const system = [];
+  sec.querySelectorAll('.container > .card .field').forEach(f => {
+    const lab = f.querySelector('.field-label'), ctl = f.querySelector('.field-control input, .field-control select');
+    if (!lab || !ctl) return;
+    if (f.closest('.field-set--money') && !(parseFloat(ctl.value) > 0)) return;   // job-site boxes left at 0 say nothing
+    let val;
+    if (ctl.tagName === 'SELECT') val = ctl.selectedOptions && ctl.selectedOptions[0] ? ctl.selectedOptions[0].textContent.trim() : ctl.value;
+    else if (ctl.type === 'checkbox') val = ctl.checked ? 'Yes' : 'No';
+    else {
+      const pre = f.querySelector('.field-affix--pre'), post = f.querySelector('.field-affix:not(.field-affix--pre)');
+      const shown = (pre && qText(pre) === '$' && ctl.value !== '' && !isNaN(parseFloat(ctl.value))) ? parseFloat(ctl.value).toLocaleString('en-AU', { maximumFractionDigits: 2 }) : ctl.value;
+      val = ctl.value === '' ? '' : (pre ? qText(pre) : '') + shown + (post ? ' ' + qText(post) : '');
+    }
+    system.push({ label: qText(lab).replace(/\s*work it out$/i, ''), value: val === '' ? '—' : val });
+  });
+  if (tab === 'ci') { const st = document.getElementById('ci-stack-total'); if (st && qText(st)) system.push({ label: 'Stacks', value: qText(st) }); }
+  if (extras) system.push({ label: 'Extras', value: extras.filter(e => e.on).map(e => e.label + (e.perPanel ? ' × ' + e.qty + ' panels' : e.qty > 1 ? ' × ' + e.qty : '')).join(', ') || '—' });
+  // bill of materials, as rendered (ex GST figures)
+  const bom = []; let section = '';
+  const table = document.getElementById(cfg.bom);
+  if (table) table.querySelectorAll('tr').forEach(tr => {
+    if (tr.querySelector('th')) return;
+    const cells = [...tr.children].map(qText);
+    if (!cells.length) return;
+    if (tr.classList.contains('section-header')) { section = cells[0]; return; }
+    if (cells.length >= 4) bom.push({ section, item: cells[0], qty: cells[1], unit: cells[2], total: cells[3] });
+    else if (cells.length === 2) bom.push({ item: cells[0], total: cells[1], kind: 'total' });
+  });
+  // ticked extras as component rows (ex GST, as the calc prices them) so they sit in the Components comparison
+  if (extras && typeof fmt === 'function') extras.filter(e => e.on).forEach(e => bom.push({ section: 'Extras', item: 'Extra: ' + e.label, qty: String(e.qty), unit: fmt(e.unit), total: fmt(e.total) }));
+  // summary: hero, rows, verdicts; notes counted across the whole results pane
+  const summary = []; let hero = null, notes = 0;
+  const sum = document.getElementById(cfg.summary);
+  if (sum) sum.querySelectorAll('.recommended-row, .summary-row, .margin-alert').forEach(el => {
+    if (el.matches('.recommended-row')) {
+      const h = { label: typeof firstTextOf === 'function' ? firstTextOf(el.querySelector('.label')) : qText(el.querySelector('.label')), value: qText(el.querySelector('.value')), sub: qText(el.querySelector('.sub')), cls: el.className.replace('recommended-row', '').trim() };
+      if (!hero) hero = h; else summary.push({ label: h.label, value: h.value, cls: '' });
+      return;
+    }
+    if (el.matches('.margin-alert')) {
+      summary.push({ label: el.classList.contains('incomplete') ? 'BOM status' : 'Verdict', value: typeof firstTextOf === 'function' ? firstTextOf(el) : qText(el),
+        cls: el.classList.contains('low') ? 'danger' : el.classList.contains('ok') ? 'ok' : el.classList.contains('incomplete') ? 'incomplete' : '' });
+      return;
+    }
+    summary.push({ label: qText(el.querySelector('.label')), value: qText(el.querySelector('.value')), cls: el.classList.contains('danger') ? 'danger' : el.classList.contains('ok') ? 'ok' : '' });
+  });
+  const countNotes = root => root ? root.querySelectorAll('ul.notes > li:not(.more), li.more li').length : 0;
+  notes += countNotes(sum) + (cfg.warnings ? countNotes(document.getElementById(cfg.warnings)) : 0);
+  const settings = (tab === 'sig' || tab === 'gw') && typeof OVERHEAD !== 'undefined'
+    ? { weekly: OVERHEAD.weekly, days: OVERHEAD.days, targetNet: OVERHEAD.targetNet, commission: (typeof COMM !== 'undefined' ? { ...COMM } : null) } : null;
+  return { id: 'q' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), name: '', tab, tabTitle: TAB_TITLES[tab], savedAt: new Date().toISOString(), selected: true,
+    inputs, extras, system, bom, summary, hero, notes, settings, facts: QUOTE_FACTS[tab] ? { ...QUOTE_FACTS[tab] } : null };
+}
+
+function saveQuote(tab) {
+  const q = captureQuote(tab);
+  if (!q) return;
+  if (!q.hero || !q.hero.value) { toast('Nothing to save yet — this tab has no price.'); return; }
+  if (/\binvalid\b/.test(q.hero.cls || '')) { toast('Not a price yet — this is the bare cost. Set Installs Per Week above 0, then save.'); return; }
+  const def = q.tabTitle + ' — ' + q.hero.value;
+  let name = def;
+  if (typeof window.prompt === 'function') { name = window.prompt('Name this quote', def); if (name === null) return; }
+  q.name = (String(name || '').trim() || def).slice(0, 80);
+  const list = loadQuotes(); list.unshift(q);
+  if (!storeQuotes(list)) return;
+  updateCompareCount();
+  if (document.body.dataset.tab === 'compare') renderCompare();
+  toast('Saved "' + q.name + '". ' + list.length + ' quote' + (list.length !== 1 ? 's' : '') + ' to compare — tap to open.', () => switchTab('compare'));
+}
+function toggleQuote(id, on) { const list = loadQuotes(); const q = list.find(x => x.id === id); if (!q) return; q.selected = !!on; storeQuotes(list); renderCompare(); }
+function renameQuote(id) {
+  const list = loadQuotes(); const q = list.find(x => x.id === id); if (!q) return;
+  const name = typeof window.prompt === 'function' ? window.prompt('Rename this quote', q.name) : null;
+  if (name === null || name === undefined || !String(name).trim()) return;
+  q.name = String(name).trim().slice(0, 80); storeQuotes(list); renderCompare();
+}
+function deleteQuote(id) {
+  const list = loadQuotes(); const q = list.find(x => x.id === id); if (!q) return;
+  if (typeof window.confirm === 'function' && !window.confirm('Delete the quote "' + q.name + '"?')) return;
+  storeQuotes(list.filter(x => x.id !== id)); updateCompareCount(); renderCompare();
+}
+function clearQuotes() {
+  const n = loadQuotes().length; if (!n) return;
+  if (typeof window.confirm === 'function' && !window.confirm('Delete all ' + n + ' saved quotes?')) return;
+  storeQuotes([]); updateCompareCount(); renderCompare();
+}
+function openQuote(id) {
+  const q = loadQuotes().find(x => x.id === id); if (!q || !q.inputs) return;
+  const cfg = QUOTE_TABS[q.tab], sec = document.getElementById('section-' + q.tab); if (!cfg || !sec) return;
+  switchTab(q.tab);
+  let missing = [];
+  const apply = () => {
+    let pending = 0; missing = [];
+    sec.querySelectorAll('input[id], select[id]').forEach(e => {
+      if (!(e.id in q.inputs)) return;
+      const want = q.inputs[e.id];
+      if (e.type === 'checkbox') { if (!!e.checked !== !!want) { e.checked = !!want; e.dispatchEvent(new Event('change', { bubbles: true })); } return; }
+      if (String(e.value) === String(want)) return;
+      // never set a value the list does not have: the option is either not built yet (GoodWe kWh list — next pass)
+      // or gone from the price list (reported after the final pass); the select keeps its current, valid value
+      if (e.tagName === 'SELECT' && !Array.prototype.some.call(e.options, o => o.value === String(want))) { missing.push(e); pending++; return; }
+      e.value = want;
+      if (String(e.value) !== String(want)) pending++;
+      e.dispatchEvent(new Event(e.tagName === 'SELECT' ? 'change' : 'input', { bubbles: true }));
+    });
+    if (cfg.extras && Array.isArray(q.extras)) {
+      const byLabel = q.extras.some(x => x && typeof x === 'object');   // older quotes hold true/false by position
+      [...sec.querySelectorAll('input.' + cfg.extras)].forEach((e, i) => {
+        const saved = byLabel ? q.extras.find(x => x && x.label === extraLabelOf(e)) : null;
+        const want = byLabel ? !!(saved && saved.on) : !!q.extras[i];
+        if (!!e.checked !== want) { e.checked = want; e.dispatchEvent(new Event('change', { bubbles: true })); }
+      });
+    }
+    return pending;
+  };
+  // pass 1 creates dependent controls (per-stack boxes, kWh options); pass 2 fills them; pass 3 is a safety net
+  for (let pass = 0; pass < 3; pass++) { const pending = apply(); if (pass > 0 && pending === 0) break; }
+  let calcError = null;
+  const fn = window[cfg.calc]; if (typeof fn === 'function') { try { fn(); } catch (err) { calcError = err; } }
+  // what has moved since the quote was saved: list changes that drive its price (not restored on purpose) and the price itself
+  const changed = [];
+  if (q.settings && typeof OVERHEAD !== 'undefined') {
+    const s = q.settings, money = v => typeof fmt === 'function' ? fmt(v) : '$' + v;
+    if (s.weekly !== OVERHEAD.weekly) changed.push('weekly overhead ' + money(s.weekly) + ' → ' + money(OVERHEAD.weekly));
+    if (s.targetNet !== OVERHEAD.targetNet) changed.push('net target ' + s.targetNet + '% → ' + OVERHEAD.targetNet + '%');
+    if (s.days !== OVERHEAD.days) changed.push('working days ' + s.days + ' → ' + OVERHEAD.days);
+    const c = s.commission, rep = q.inputs[(q.tab === 'sig' ? 's' : 'g') + '-repType'];
+    if (c && typeof COMM !== 'undefined') {
+      if (rep === 'onbooks' && c.perPanel !== COMM.perPanel) changed.push('commission per panel $' + c.perPanel + ' → $' + COMM.perPanel);
+      if (rep === 'onbooks' && c.perBattery !== COMM.perBattery) changed.push('commission per battery $' + c.perBattery + ' → $' + COMM.perBattery);
+      if (rep === 'commsonly' && c.flat !== COMM.flat) changed.push('flat commission $' + c.flat + ' → $' + COMM.flat);
+    }
+  }
+  const lost = missing.map(e => {
+    const lab = sec.querySelector('label[for="' + e.id + '"]'), name = lab ? qText(lab).replace(/\s*work it out$/i, '') : e.id;
+    const sys = (q.system || []).find(s => s.label === name);
+    return name + ' "' + (sys ? sys.value : q.inputs[e.id]) + '"';
+  });
+  const sum = document.getElementById(cfg.summary);
+  const heroNow = sum ? qText(sum.querySelector('.recommended-row .value')) : '';
+  const repriced = !!(q.hero && q.hero.value && heroNow && heroNow !== q.hero.value);
+  let msg = 'Opened "' + q.name + '" in ' + q.tabTitle + '.';
+  if (lost.length) msg += ' Not restored — no longer on the list: ' + lost.join('; ') + '. Pick a replacement before quoting.';
+  if (repriced || changed.length) {
+    msg += ' The price has moved since it was saved (' + (q.hero ? q.hero.value : '—') + ' → ' + heroNow + ')' + (changed.length ? ': ' + changed.join('; ') : '') + '.';
+    if (sum) {   // a durable note at the top of the Summary until the next recalculation replaces it
+      const n = document.createElement('div'); n.className = 'note';
+      n.textContent = 'Saved at ' + (q.hero ? q.hero.value : '—') + ', now ' + (heroNow || '—') + '. ' + (changed.length ? 'Changed since: ' + changed.join('; ') + '.' : 'Prices or settings have changed since it was saved.');
+      sum.insertBefore(n, sum.firstChild);
+    }
+  } else if (calcError) msg += ' The calculator could not reprice it — check the inputs.';
+  toast(msg, (lost.length || repriced || changed.length || calcError) ? () => switchTab('compare') : null);
+  if (typeof window.scrollTo === 'function') { try { window.scrollTo(0, 0); } catch (e) {} }
+}
+
+// ── Compare table helpers: the same line must line up across quotes although its label carries that quote's figures ──
+const ROW_ALIAS = {   // the same quantity worded differently on different tabs
+  'Site works / labour allowance': 'Site works / labour',
+  'Install / Civil / Crane / Electrical': 'Site works / labour',
+  'Net Material Cost (ex GST)': 'Net Cost after rebates (ex GST)',
+  'Net Material Cost (inc GST)': 'Net Cost after rebates (inc GST)',
+  'Gross Material Total (ex GST)': 'Gross Cost (ex GST)',
+  'Gross Material Total (inc GST)': 'Gross Cost (inc GST)',
+  'Gross Margin (ex GST)': 'Gross Profit (ex GST)'
+};
+const canonLabel = l => ROW_ALIAS[l] || l;
+// key = label with money amounts, bracketed counts/specs, a trailing " — detail" and installs/wk or % figures blanked;
+// "(ex GST)" / "(inc GST)" carry no digit so they stay distinct
+const rowKey = l => canonLabel(String(l || '')).replace(/\$\s?[\d,]+(?:\.\d+)?/g, '…').replace(/\s*\([^)]*\d[^)]*\)/g, '').replace(/\s+[—–]\s.*$/, '').replace(/\d+(?:\.\d+)?\s*(installs\/wk|%)/g, '… $1').replace(/\s+/g, ' ').trim() || String(l || '');
+// components: key on the product; the configuration the item name carries ("— 8 + 8 across 2 stacks — 25% off", "(1 per stack)", "(USD … FOB @ 0.65)") shows under the figure
+const bomKey = s => canonLabel(String(s == null ? '' : s)).replace(/\s+[—–].*$/, '').replace(/\s*\((1 per stack|USD [^)]*|[\d.]+kW \/ [\d.]+kWh)\)\s*$/, '').trim();
+const bomSub = s => { s = String(s == null ? '' : s); let rest = s.slice(bomKey(s).length).trim().replace(/^[—–]\s*/, ''); if (/^\(.*\)$/.test(rest)) rest = rest.slice(1, -1); return rest; };
+// one row per key, merged in order rather than first-come: a line only a later quote has goes in beside the lines it shares
+// with the quotes before it, so each quote's run stays together; a quote that shares nothing is appended whole
+function mergeKeys(lists, key) {
+  const out = [];
+  lists.forEach(l => {
+    const mine = new Set(l.map(key)); let pos = -1, held = [];
+    l.forEach(r => {
+      const k = key(r), at = out.indexOf(k);
+      if (at >= 0) { if (held.length) { out.splice(at, 0, ...held); pos = at + held.length; held = []; } else pos = at; return; }
+      if (pos < 0) { if (held.indexOf(k) < 0) held.push(k); return; }
+      if (out.indexOf(k) >= 0) return;
+      while (pos + 1 < out.length && !mine.has(out[pos + 1])) pos++;
+      out.splice(++pos, 0, k);
+    });
+    held.forEach(k => { if (out.indexOf(k) < 0) out.push(k); });
+  });
+  return out;
+}
+
+function renderCompare() {
+  const root = document.getElementById('compare-root'); if (!root) return;
+  // keep keyboard focus through the rebuild (a tick, rename or delete destroys the control that was pressed)
+  const ae = document.activeElement, inRoot = !!(ae && root.contains(ae)), chip = inRoot ? ae.closest('.quote-chip') : null;
+  const keep = inRoot ? { id: chip ? chip.dataset.qid : null, pos: chip ? [...chip.parentNode.children].indexOf(chip) : 0, ctl: chip ? [...chip.querySelectorAll('input, button')].indexOf(ae) : 0 } : null;
+  const paint = html => {
+    root.innerHTML = html;
+    if (!keep) return;
+    const chips = [...root.querySelectorAll('.quote-chip')];
+    const c = chips.find(x => x.dataset.qid === keep.id) || chips[Math.min(keep.pos, chips.length - 1)];
+    const ctls = c ? c.querySelectorAll('input, button') : [];
+    const el = ctls[keep.ctl] || ctls[0] || root.querySelector('button') || document.getElementById('tab-compare');
+    if (el && typeof el.focus === 'function') el.focus({ preventScroll: true });
+  };
+  const list = loadQuotes();
+  if (!list.length) { paint('<div class="note">No saved quotes yet. Build a job on any calculator tab and press <strong>Save quote</strong> in its Summary — it will appear here.</div>'); return; }
+  let h = '<div class="quote-list">' + list.map(q =>
+    `<label class="quote-chip${q.selected === false ? '' : ' on'}" data-qid="${q.id}"><input type="checkbox"${q.selected === false ? '' : ' checked'} onchange="toggleQuote('${q.id}', this.checked)" aria-label="Compare ${qEsc(q.name)}">` +
+    `<span class="quote-name">${qEsc(q.name)}</span><span class="quote-meta">${qEsc(q.tabTitle)} · ${qEsc(qWhen(q.savedAt))}${q.hero ? ' · ' + qEsc(q.hero.value) : ''}</span>` +
+    `<span class="quote-actions"><button type="button" class="btn-link" onclick="openQuote('${q.id}')">Open</button><button type="button" class="btn-link" onclick="renameQuote('${q.id}')">Rename</button><button type="button" class="btn-link danger" onclick="deleteQuote('${q.id}')">Delete</button></span></label>`).join('') + '</div>';
+  h += `<div class="compare-toolbar"><span class="hint">${list.length} saved · tick the quotes to compare · kept in this browser only</span><button type="button" class="btn-link danger" onclick="clearQuotes()">Delete all</button></div>`;
+  const sel = list.filter(q => q.selected !== false);
+  if (!sel.length) { paint(h + '<div class="note">Tick at least one quote to compare.</div>'); return; }
+  const prices = sel.map(q => q.hero ? qMoney(q.hero.value) : null);
+  // a hero the calculator flagged invalid (bare cost, installs/wk 0) or incomplete (BOM lines with no price) is shown, never the benchmark
+  const isPrice = q => !!q.hero && !/\b(invalid|incomplete)\b/.test(q.hero.cls || '');
+  const flagWord = q => /\binvalid\b/.test((q.hero && q.hero.cls) || '') ? 'not a price' : 'BOM incomplete';
+  const valid = prices.filter((p, i) => p != null && p > 0 && isPrice(sel[i]));
+  const best = valid.length > 1 ? Math.min(...valid) : null;
+  const cell = (v, cls) => `<td class="${cls || ''}">${v}</td>`;
+  const withDetail = (v, full, key) => full && full !== key ? v + `<div class="sub">${qEsc(full)}</div>` : v;
+  const secRow = (name, repeat) => '<tr class="section-header"><td>' + name + '</td>' + sel.map(q => '<td>' + (repeat ? '<div class="q-repeat">' + qEsc(q.name) + '</div>' : '') + '</td>').join('') + '</tr>';
+  let t = '<div class="table-scroll"><table class="breakdown-table compare-table"><thead><tr><th scope="col">Quote</th>' +
+    sel.map(q => `<th scope="col"><div class="q-name">${qEsc(q.name)}</div><div class="q-meta">${qEsc(q.tabTitle)} · ${qEsc(qWhen(q.savedAt))}</div><div class="q-actions"><button type="button" class="btn-link" onclick="openQuote('${q.id}')">Open in calculator</button></div></th>`).join('') + '</tr></thead><tbody>';
+  // ── price
+  t += secRow('Price');
+  t += '<tr class="compare-hero"><td>Recommended price (inc GST)</td>' + sel.map((q, i) => {
+    const p = prices[i], isBest = best != null && p === best && isPrice(q);
+    const state = q.hero && q.hero.cls ? ' ' + qEsc(q.hero.cls) : '';
+    const tag = isBest ? '<span class="tag">lowest</span>' : (q.hero && !isPrice(q) ? '<span class="tag warn">' + flagWord(q) + '</span>' : '');
+    return `<td class="num${isBest ? ' best' : ''}${state}"><span class="fig">${q.hero ? qEsc(q.hero.value) : '—'}</span>${tag}` +
+      (q.hero && q.hero.label && q.hero.label !== 'Recommended price (inc GST)' ? `<div class="sub">${qEsc(q.hero.label)}</div>` : '') +
+      (q.hero && q.hero.sub ? `<div class="sub">${qEsc(q.hero.sub)}</div>` : '') + '</td>';
+  }).join('') + '</tr>';
+  if (best != null) t += '<tr><td>Difference to the lowest</td>' + sel.map((q, i) => { const p = prices[i]; if (!isPrice(q)) return cell(q.hero ? flagWord(q) : '—', 'num muted'); if (p == null) return cell('—', 'num muted'); return cell(p === best ? '—' : '+ $' + Math.round(p - best).toLocaleString('en-AU'), 'num' + (p === best ? ' muted' : '')); }).join('') + '</tr>';
+  // ── size (facts the calcs recorded)
+  const facts = sel.map(q => q.facts || null);
+  if (facts.some(f => f && (f.nominal > 0 || f.invKw > 0 || f.pvKw > 0))) {
+    const num = (v, dp) => (v == null || isNaN(v)) ? null : (+v).toLocaleString('en-AU', { maximumFractionDigits: dp });
+    const sizeRow = (label, fn) => '<tr><td>' + label + '</td>' + facts.map((f, i) => { const v = f ? fn(f, i) : null; return cell(v == null ? '—' : v, 'num' + (v == null ? ' muted' : '')); }).join('') + '</tr>';
+    t += secRow('Size', true);
+    t += sizeRow('Battery (kWh nominal / usable)', f => f.nominal > 0 ? num(f.nominal, 1) + (f.usable > 0 ? ' / ' + num(f.usable, 1) : '') : null);
+    t += sizeRow('Battery inverter / PCS (kW)', f => f.invKw > 0 ? num(f.invKw, 2) : null);
+    t += sizeRow('Solar (kW)', f => f.pvKw > 0 ? num(f.pvKw, 2) : null);
+    t += sizeRow('Recommended price per usable kWh (inc GST)', (f, i) => prices[i] > 0 && f.usable > 0 && isPrice(sel[i]) ? '$' + num(prices[i] / f.usable, 0) : null);
+    t += sizeRow('Net cost per usable kWh (inc GST)', f => f.netCost > 0 && f.usable > 0 ? '$' + num(f.netCost / f.usable, 0) : null);
+  }
+  // ── costs, rebates and margin (the residential gross total already sits with the component totals)
+  const sumRows = q => (q.summary || []).filter(r => !/^Gross Material Total \((ex|inc) GST\)$/.test(r.label));
+  const verdictKey = k => /^(Verdict|BOM status)$/.test(k);
+  let sumKeys = mergeKeys(sel.map(sumRows), r => rowKey(r.label));
+  sumKeys = sumKeys.filter(k => !verdictKey(k)).concat(sumKeys.filter(verdictKey));
+  if (sumKeys.length) {
+    t += secRow('Costs, rebates and margin', true);
+    sumKeys.forEach(key => { t += '<tr><td>' + qEsc(key) + '</td>' + sel.map(q => {
+      const rs = sumRows(q).filter(x => rowKey(x.label) === key);
+      if (!rs.length) return cell('—', 'num muted');
+      const cls = rs.some(r => r.cls === 'danger') ? 'danger' : rs.some(r => r.cls === 'ok') ? 'ok' : rs.some(r => r.cls === 'incomplete') ? 'incomplete' : '';
+      return cell(rs.map(r => withDetail(qEsc(r.value), canonLabel(r.label), key)).join('<div class="sub">·</div>'), 'num' + (cls ? ' ' + cls : ''));
+    }).join('') + '</tr>'; });
+  }
+  // ── system (rows every quote leaves empty are dropped)
+  const sysKeys = mergeKeys(sel.map(q => q.system || []), r => canonLabel(r.label));
+  const emptyish = v => !v || /^(—|0|\$0|0 %|none|— none —|no)$/i.test(String(v).trim());
+  const sysRows = sysKeys.map(key => ({ key, cells: sel.map(q => (q.system || []).find(x => canonLabel(x.label) === key) || null) })).filter(r => r.cells.some(c => c && !emptyish(c.value)));
+  if (sysRows.length) {
+    t += secRow('System', true);
+    sysRows.forEach(r => { t += '<tr><td>' + qEsc(r.key) + '</td>' + r.cells.map(c => cell(c ? qEsc(c.value) : '—', 'txt' + (!c || emptyish(c.value) ? ' muted' : ''))).join('') + '</tr>'; });
+  }
+  // ── components
+  const items = mergeKeys(sel.map(q => (q.bom || []).filter(r => r.kind !== 'total')), r => bomKey(r.item));
+  if (items.length) {
+    t += secRow('Components (ex GST)', true);
+    items.forEach(key => { t += '<tr><td>' + qEsc(key) + '</td>' + sel.map(q => { const r = (q.bom || []).find(x => x.kind !== 'total' && bomKey(x.item) === key); if (!r) return cell('—', 'num muted'); const sub = bomSub(r.item); return cell(`<span class="qty">${qEsc(r.qty)}${r.unit ? ' × ' + qEsc(r.unit) : ''}</span><span class="fig">${qEsc(r.total)}</span>` + (sub ? `<div class="sub">${qEsc(sub)}</div>` : ''), 'num'); }).join('') + '</tr>'; });
+    const totals = mergeKeys(sel.map(q => (q.bom || []).filter(r => r.kind === 'total')), r => canonLabel(r.item));
+    totals.forEach(key => { t += '<tr class="total-row"><td>' + qEsc(key) + '</td>' + sel.map(q => { const r = (q.bom || []).find(x => x.kind === 'total' && canonLabel(x.item) === key); return cell(r ? qEsc(r.total) : '—', 'num'); }).join('') + '</tr>'; });
+  }
+  t += '<tr><td>Notes on the quote</td>' + sel.map(q => cell(q.notes ? q.notes + ' note' + (q.notes !== 1 ? 's' : '') : '—', 'num muted')).join('') + '</tr>';
+  t += '</tbody></table></div>';
+  paint(h + t);
+}
 const SCROLL_BEHAVIOR = (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) ? 'auto' : 'smooth';
 function openSettings() {
   if (typeof adminMode !== 'undefined' && !adminMode) return;   // sales view hides the settings cards
@@ -5654,6 +6067,7 @@ function calcSig() {
     }
   }
 
+  QUOTE_FACTS.sig = { nominal: batteryKwh, usable: batteryKwh, invKw: null, pvKw: numPanels * (PANEL_WATTS[panelType] || 475) / 1000, netCost: netMaterialCost, recommended: recommendedPrice, jobsPerWeek };   // size facts for the Compare tab (read only)
   document.getElementById('s-summary').innerHTML = sHtml;
   document.getElementById('s-summary-card').style.display = '';
   if (!adminMode) document.querySelectorAll('.admin-only').forEach(el => { el.style.display = 'none'; });
@@ -5926,6 +6340,7 @@ function calcGW() {
       : `<div class="margin-alert ok">Price is acceptable<span class="admin-only"> (margin ${cpMarginPct.toFixed(1)}%; at or above the ${gwFloorLabel.toLowerCase()})</span></div>`;
   }
 
+  QUOTE_FACTS.gw = { nominal: batteryKwh, usable: hasBattery ? batteryModules * batMod.usable : 0, invKw: null, pvKw: numPanels * (PANEL_WATTS[panelType] || 475) / 1000, netCost: netMaterialCost, recommended: recommendedPrice, jobsPerWeek };   // size facts for the Compare tab (read only)
   document.getElementById('g-summary').innerHTML = sHtml;
   document.getElementById('g-summary-card').style.display = '';
   if (!adminMode) document.querySelectorAll('.admin-only').forEach(el => { el.style.display = 'none'; });
@@ -6156,6 +6571,7 @@ calcDa();
     try { const saved = localStorage.getItem('ausave-owner-tab'); if (TABS.includes(saved)) start = saved; } catch (e) {}
   }
   switchTab(start || 'sig');
+  updateCompareCount();
   window.addEventListener('hashchange', () => {
     const t = (location.hash || '').slice(1);
     if (TABS.includes(t) && t !== document.body.dataset.tab) switchTab(t);
