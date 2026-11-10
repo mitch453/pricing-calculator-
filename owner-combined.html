@@ -2854,6 +2854,11 @@ function calcBessCommercial(activity, usable, invKw, pvKw, solar90, dwellings, n
 function solarStcCount(watts) {
   return Math.floor(Math.round(watts) * 691 / 100000);
 }
+// 2027 installs deem 4 years (CER: the deeming period ends with 2030) -> 1.382 x 4 = 5.528 STCs/kW.
+// The Sigenergy and GoodWe ESA tabs price on this (owner, 10 Nov 2026); the commercial tabs keep solarStcCount.
+function solarStcCount2027(watts) {
+  return Math.floor(Math.round(watts) * 5528 / 1000000);
+}
 
 function calcBatterySTCs(batteryKwh, cap) {
   const cappedKwh = Math.min(batteryKwh, cap);
@@ -4532,7 +4537,7 @@ function calcSig() {
   // STC Rebates
   let solarSTCs = 0, solarSTCvalue = 0;
   if (hasPanels) {
-    solarSTCs = solarStcCount(numPanels * PANEL_WATTS[panelType]);
+    solarSTCs = solarStcCount2027(numPanels * PANEL_WATTS[panelType]);   // 2027 deeming, 4 years (owner, 10 Nov 2026)
     solarSTCvalue = solarSTCs * STC_PRICE;
   }
   let batterySTCs = 0, batterySTCvalue = 0;
@@ -4602,7 +4607,7 @@ function calcSig() {
   sHtml += summaryRow('Gross Material Total (inc GST)', fmt(grossTotal));
   sHtml += '</div>';
   sHtml += '<div class="summary-divider"></div>';
-  if (hasPanels)  sHtml += summaryRow(`Solar STCs (${solarSTCs} &times; $${STC_PRICE})`, '&minus; ' + fmt(solarSTCvalue));
+  if (hasPanels)  sHtml += summaryRow(`Solar STCs (${solarSTCs} &times; $${STC_PRICE}, 2027 &mdash; 4 years)`, '&minus; ' + fmt(solarSTCvalue));
   if (hasBattery) sHtml += batteryKwh > BATTERY_STC_MAX_NOMINAL
     ? summaryRow('Battery STCs — none: over 100kWh nominal is not eligible (CER)', fmt(0))
     : summaryRow(`Battery STCs (${batterySTCs} &times; $${STC_PRICE})`, '&minus; ' + fmt(batterySTCvalue));
@@ -4810,7 +4815,7 @@ function calcGW() {
   // STC Rebates
   let solarSTCs = 0, solarSTCvalue = 0;
   if (hasPanels) {
-    solarSTCs = solarStcCount(numPanels * PANEL_WATTS[panelType]);
+    solarSTCs = solarStcCount2027(numPanels * PANEL_WATTS[panelType]);   // 2027 deeming, 4 years (owner, 10 Nov 2026)
     solarSTCvalue = solarSTCs * STC_PRICE;
   }
   let batterySTCs = 0, batterySTCvalue = 0;
@@ -4880,7 +4885,7 @@ function calcGW() {
   sHtml += summaryRow('Gross Material Total (inc GST)', fmt(grossTotal));
   sHtml += '</div>';
   sHtml += '<div class="summary-divider"></div>';
-  if (hasPanels)  sHtml += summaryRow(`Solar STCs (${solarSTCs} &times; $${STC_PRICE})`, '&minus; ' + fmt(solarSTCvalue));
+  if (hasPanels)  sHtml += summaryRow(`Solar STCs (${solarSTCs} &times; $${STC_PRICE}, 2027 &mdash; 4 years)`, '&minus; ' + fmt(solarSTCvalue));
   if (hasBattery) sHtml += batteryKwh > BATTERY_STC_MAX_NOMINAL
     ? summaryRow('Battery STCs — none: over 100kWh nominal is not eligible (CER)', fmt(0))
     : summaryRow(`Battery STCs (${batterySTCs} &times; $${STC_PRICE})`, '&minus; ' + fmt(batterySTCvalue));
