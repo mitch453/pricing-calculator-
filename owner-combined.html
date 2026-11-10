@@ -3667,6 +3667,7 @@ const SIG_STC_BATTERY_CAP = 50;
 const DEFAULT_OVERHEAD = { weekly: 145000, days: 5, targetNet: 15 };
 let OVERHEAD = { ...DEFAULT_OVERHEAD };
 const OVERHEAD_STORAGE_KEY = 'ausave-overhead-v1';
+const OVERHEAD_PRESET_KEY = 'ausave-overhead-preset-145k';   // one-time reset marker, shared by the owner and admin pages
 function dailyOverhead() { return OVERHEAD.weekly / OVERHEAD.days; }
 function netTargetFrac() { return (OVERHEAD.targetNet || 0) / 100; }
 // Floor sale price (inc GST) for the net target at J jobs/week.
@@ -6457,6 +6458,12 @@ function resetSolarRate() {
 function loadOverhead() {
   try {
     const saved = JSON.parse(localStorage.getItem(OVERHEAD_STORAGE_KEY) || '{}');
+    // 11 Nov 2026 (owner): weekly overhead pre-set to $145,000. A weekly figure saved in this browser before then is
+    // dropped once (working days and the net target are kept); anything typed afterwards persists as before.
+    if (!localStorage.getItem(OVERHEAD_PRESET_KEY)) {
+      if ('weekly' in saved) { delete saved.weekly; localStorage.setItem(OVERHEAD_STORAGE_KEY, JSON.stringify(saved)); }
+      localStorage.setItem(OVERHEAD_PRESET_KEY, '1');
+    }
     // saved 104000 was the stale pre-Aug-2026 default — migrate those browsers to $145k
     if (typeof saved.weekly === 'number' && saved.weekly >= 0 && saved.weekly !== 104000) OVERHEAD.weekly = saved.weekly;
     if (typeof saved.days === 'number' && saved.days >= 1 && saved.days <= 7) OVERHEAD.days = saved.days;
