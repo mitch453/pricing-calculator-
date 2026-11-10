@@ -1246,6 +1246,32 @@
           <label>SigenStack Stacks (1&ndash;20)</label>
           <input type="number" id="ci-systems" min="1" max="20" step="1" value="1" oninput="calcCI()">
         </div>
+        <div class="form-group">
+          <label>Stacks per Hybrid Inverter</label>
+          <select id="ci-stacksPerInv" onchange="calcCI()">
+            <option value="1" selected>1 &mdash; one hybrid per stack</option>
+            <option value="2">Up to 2 stacks per hybrid</option>
+            <option value="3">Up to 3 stacks per hybrid</option>
+            <option value="4">Up to 4 stacks per hybrid</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Combiner Box ($2,600 + GST each)</label>
+          <select id="ci-combiner" onchange="calcCI()">
+            <option value="auto" selected>Auto &mdash; 1 per shared hybrid</option>
+            <option value="0">None</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+          </select>
+        </div>
         <div class="form-group" style="grid-column:1 / -1;">
           <label>Battery Modules per Stack (BAT 12.0, 4&ndash;21 each &mdash; size each stack separately)</label>
           <div id="ci-stack-mods" style="display:flex;flex-wrap:wrap;gap:0.5rem 0.75rem;"></div>
@@ -2956,7 +2982,8 @@ const CI_PVINV = {
 };
 const CI_P = { bat: 3732, batKwh: 12.06, bc05: 4025, bc05bst: 5175, bc1bst: 8050,
   cover: 316, baseMain05: 948, baseSub05: 948, baseMain1: 1137, baseSub1: 1137,
-  base4s: 3792, cables: 316, fixKit: 23 };
+  base4s: 3792, cables: 316, fixKit: 23,
+  combiner: 2600 };   // combiner box, $2,600 ex GST (owner, 10 Nov 2026) — puts 2-4 stacks on one hybrid
 const CI_GST = 1.1;   // supplier C&I list prices are ex GST; this tab shows inc GST
 
 function ciFmt(n) { return '$' + Math.round(n).toLocaleString('en-AU'); }
@@ -3040,6 +3067,8 @@ function calcCI() {
   const stackList = stackMods.map((m, i) => ({ m, n: i + 1 })).filter(x => x.m > 0);   // keep the on-screen stack number
   const activeStacks = stackList.map(x => x.m);
   const mods      = activeStacks.reduce((a, b) => a + b, 0);   // TOTAL modules across all stacks
+  const perInv    = Math.max(1, Math.min(4, parseInt(v('ci-stacksPerInv').value) || 1));   // stacks one hybrid can take (owner, 10 Nov 2026)
+  const combSel   = v('ci-combiner').value;                     // 'auto', or a fixed count 0-10
   const bcChoice  = v('ci-bc').value;
   const nlf       = parseFloat(v('ci-network').value) || 1.04;
   const siteworks = parseFloat(v('ci-siteworks').value) || 0;
@@ -3071,8 +3100,15 @@ function calcCI() {
 
   // ── panels + PV inverters ──
   if (numPanels > 0) add(PANEL_LABELS[panelType], numPanels, PANEL_PRICES[panelType]);
-  const hybQty = hasBat ? nStacks : 1;                           // one hybrid per stack
-  if (hyb.price > 0) { add(hyb.label + discTag, hybQty, hyb.price * CI_GST * (1 - disc)); discSaved += hybQty * hyb.price * CI_GST * disc; }
+  // Hybrids: one per stack by default; up to 4 stacks can share one hybrid through a combiner box (owner, 10 Nov 2026).
+  // Stacks fill each hybrid in turn (e.g. 5 stacks at 4 a hybrid = 4 + 1), which needs the fewest combiner boxes.
+  const hybQty = hasBat ? Math.ceil(nStacks / perInv) : 1;
+  const invLoads = [];                                           // stacks on each hybrid
+  if (hasBat) for (let left = nStacks; left > 0; left -= perInv) invLoads.push(Math.min(perInv, left));
+  const combNeed = invLoads.filter(k => k >= 2).length;          // hybrids sharing stacks — one combiner box each
+  const combQty  = combSel === 'auto' ? combNeed : (parseInt(combSel) || 0);
+  const shareTag = combNeed > 0 ? ' — ' + invLoads.join(' + ') + ' stacks' : '';
+  if (hyb.price > 0) { add(hyb.label + shareTag + discTag, hybQty, hyb.price * CI_GST * (1 - disc)); discSaved += hybQty * hyb.price * CI_GST * disc; }
   if (pvQty > 0 && pvinv.price > 0) add(pvinv.label, pvQty, pvinv.price * CI_GST);
 
   // ── SigenStack battery bank — one controller / base set / cable set per stack, sized per stack ──
@@ -3117,6 +3153,16 @@ function calcCI() {
     add('BC Cables 4m set', nStacks, CI_P.cables * CI_GST);
     if (fixKits > 0) add('Fixation kit (7th module in tower)', fixKits, CI_P.fixKit * CI_GST);
   }
+  if (combQty > 0) add('Combiner box (2-4 stacks into one hybrid)', combQty, CI_P.combiner * CI_GST);   // not in the Sigenergy discount
+  if (combQty < combNeed)
+    warnings.push(combNeed + ' hybrid' + (combNeed !== 1 ? 's carry' : ' carries') + ' more than one stack (' + invLoads.join(' + ') + ' stacks) but ' +
+      (combQty ? 'only ' + combQty + ' combiner box' + (combQty !== 1 ? 'es are' : ' is') : 'no combiner box is') + ' selected &mdash; each hybrid sharing stacks needs one.');
+  if (combSel !== 'auto' && combQty > combNeed)
+    warnings.push(combQty + ' combiner box' + (combQty !== 1 ? 'es' : '') + ' selected but ' + (combNeed ? 'only ' + combNeed : 'no') +
+      ' hybrid' + (combNeed !== 1 ? 's share' : ' shares') + ' stacks &mdash; check the count.');
+  if (combQty > 0)
+    warnings.push('Combiner box: Sigenergy\'s SigenStack DC combiner (BC CMB-4) takes up to 4 battery controllers into one hybrid and, per its release notice, ' +
+      'works only with the new controller models (11142000 / 11142001) &mdash; confirm the controllers ordered are those and that their price matches this tab.');
 
   // ── Panel BoS (per panel only, inc GST like the rest of the gross) ──
   const panelBos = ciPanelBos(numPanels, roofType);   // per panel only: roof feet, rail, DC and earth
@@ -3196,6 +3242,9 @@ function calcCI() {
       if (activity === 'bess3' || activity === 'bess4')
         warnings.push('WARRANTY: Sigenergy\'s AU C&I warranty guarantees 60% capacity at 10 years, but ' + activity.toUpperCase() +
           ' Equipment Requirement ' + (activity === 'bess3' ? 5 : 6) + ' needs at least 70% at 10 years — get a written 70% guarantee from Sigenergy before counting these PRCs.');
+      if (combNeed > 0 && usable > 4 * invKw)
+        warnings.push('Shared hybrids: PRCs count at most 4 &times; inverter kW (' + (4 * invKw).toFixed(0) + 'kWh across ' + hybQty + ' hybrid' + (hybQty !== 1 ? 's' : '') +
+          '), so ' + (usable - 4 * invKw).toFixed(0) + 'kWh of the usable battery earns no PRCs &mdash; fewer stacks per hybrid lifts the cap.');
       prcs = Math.floor(base * nlf);
       prcGross = prcs * prcPrice;
       prcNet = prcGross * (1 - acpFee);
@@ -3221,7 +3270,8 @@ function calcCI() {
   document.getElementById('ci-bom').innerHTML = h;
   document.getElementById('ci-stack-total').innerHTML = hasBat
     ? '<strong>' + mods + ' modules</strong> in ' + nStacks + ' stack' + (nStacks !== 1 ? 's' : '') + ' (' + activeStacks.join(' + ') + ') &middot; ' +
-      nominal.toFixed(1) + 'kWh nominal &middot; ' + usable.toFixed(1) + 'kWh usable &middot; ' + (hyb.kw > 0 ? hybQty + ' hybrid inverter' + (hybQty !== 1 ? 's' : '') : '<span style="color:#c0392b;">no hybrid inverter selected</span>')
+      nominal.toFixed(1) + 'kWh nominal &middot; ' + usable.toFixed(1) + 'kWh usable &middot; ' + (hyb.kw > 0 ? hybQty + ' hybrid inverter' + (hybQty !== 1 ? 's' : '') + (combNeed > 0 ? ' (' + invLoads.join(' + ') + ' stacks)' : '') : '<span style="color:#c0392b;">no hybrid inverter selected</span>') +
+      (combQty > 0 ? ' &middot; ' + combQty + ' combiner box' + (combQty !== 1 ? 'es' : '') : '')
     : 'No battery — set modules in at least one stack.';
 
   let s = '';
