@@ -1460,12 +1460,12 @@
             <label class="field-label" for="ci-discount">Sigenergy discount</label>
             <div class="field-control">
               <select id="ci-discount" onchange="calcCI()" aria-describedby="ci-discount-hint">
-                <option value="off" selected>Off &mdash; list price</option>
-                <option value="25">25% off hybrid inverter and battery modules</option>
-                <option value="50">50% off hybrid inverter and battery modules</option>
+                <option value="off">Off &mdash; list price</option>
+                <option value="25" selected>25% off the hybrid inverters</option>
+                <option value="50">50% off the hybrid inverters</option>
               </select>
             </div>
-            <span class="field-hint" id="ci-discount-hint">SigenStack hybrid + BAT 12.0 modules only</span>
+            <span class="field-hint" id="ci-discount-hint">SigenStack hybrid inverters only &middot; BAT 12.0 modules stay at $2,400 ex GST</span>
           </div>
           <div class="form-group field field--select">
             <label class="field-label" for="ci-bc">Battery controller</label>
@@ -4150,7 +4150,7 @@ function calcCI() {
   const acpFee    = (parseFloat(v('ci-acpFee').value) || 0) / 100;
   const stcPrice  = parseFloat(v('ci-stcPrice').value) || 0;
   const fedBat    = v('ci-fedBat').value === 'yes';
-  const disc      = { '25': 0.25, '50': 0.50 }[v('ci-discount').value] || 0;   // Sigenergy off SigenStack hybrid + BAT 12.0: 25% (owner, 8 Sep 2026) or 50% (owner, 30 Oct 2026)
+  const disc      = { '25': 0.25, '50': 0.50 }[v('ci-discount').value] || 0;   // Sigenergy off the SigenStack hybrid inverters only, 25% by default (owner, 12 Nov 2026: the BAT 12.0 module is now a flat $2,400 ex GST and takes no discount); 50% option from 30 Oct 2026
   const discPct   = Math.round(disc * 100);
   const discTag   = disc > 0 ? ' — ' + discPct + '% off' : '';
   let discSaved   = 0;                                             // list-price value given up, for the summary line
@@ -4212,8 +4212,7 @@ function calcCI() {
     });
     if (bstUpgraded) warnings.push('HYB backup inverter requires a BST controller — upgraded to M2-0.5C-BST.');
 
-    add('SigenStack BAT 12.0 (12.06kWh)' + (nStacks > 1 ? ' — ' + activeStacks.join(' + ') + ' across ' + nStacks + ' stacks' : '') + discTag, mods, CI_P.bat * CI_GST * (1 - disc));
-    discSaved += mods * CI_P.bat * CI_GST * disc;
+    add('SigenStack BAT 12.0 (12.06kWh)' + (nStacks > 1 ? ' — ' + activeStacks.join(' + ') + ' across ' + nStacks + ' stacks' : ''), mods, CI_P.bat * CI_GST);   // no Sigenergy discount on the modules (owner, 12 Nov 2026)
     for (const k of ['bc05', 'bc05bst', 'bc1bst']) if (ctr[k]) add(bcLabelOf[k] + (nStacks > 1 ? ' (1 per stack)' : ''), ctr[k], bcPriceOf[k] * CI_GST);
     const baseLabel = { base4s: 'Base 4S-0.5C (pre-cabled 4-tower)', baseMain05: 'Base MAIN-0.5C', baseMain1: 'Base MAIN-1C', baseSub05: 'Base SUB-0.5C', baseSub1: 'Base SUB-1C' };
     for (const k of ['base4s', 'baseMain05', 'baseMain1', 'baseSub05', 'baseSub1']) if (bases[k]) add(baseLabel[k], bases[k], CI_P[k] * CI_GST);
@@ -4343,7 +4342,7 @@ function calcCI() {
     : 'No battery — set modules in at least one stack.';
 
   let s = ciHero(marginPct, recommended, false);
-  if (discSaved > 0) s += summaryRow('Sigenergy ' + discPct + '% discount on hybrid + modules (already in the BOM above, ex GST)', '&minus; ' + ciFmt(discSaved / 1.1));
+  if (discSaved > 0) s += summaryRow('Sigenergy ' + discPct + '% discount on the hybrid inverters (already in the BOM above, ex GST)', '&minus; ' + ciFmt(discSaved / 1.1));
   if (solarStcValue > 0) s += summaryRow('Solar STCs (' + solarStcs + ' &times; $' + stcPrice + (pvKw <= 100 ? ', ' + solarDeemingLabel(STC_PERIOD) : ', mid-scale &mdash; fixed 5 years') + ')', '&minus; ' + ciFmt(solarStcValue));
   if (fedStcValue > 0) s += summaryRow('Federal battery STCs (' + fedStcs + ', ' + batteryRateLabel(STC_PERIOD) + ')', '&minus; ' + ciFmt(fedStcValue));
   if (prcs > 0) {
