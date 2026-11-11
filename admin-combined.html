@@ -1,894 +1,989 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-AU">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#FFFFFF">
-<title>Admin Combined Pricing Calculator</title>
+<title>Pricing Calculator — Admin</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   /* ================================================================
-     Site theme — Barlow display, Inter body,
-     white canvas, leaf green accent, solar yellow highlight
+     1. TOKENS — brand greens/red are fills and rules only; coloured
+        text uses --green-text / --red-text / --amber-text
      ================================================================ */
   :root {
-    /* surfaces */
-    --doc-bg:           #FFFFFF;      /* page background */
-    --doc-elevated:     #FFFFFF;      /* card surface */
-    --doc-subtle:       rgba(0,0,0,0.025);  /* faint zebra / section tint */
-    --doc-fill:         rgba(0,0,0,0.04);
-    --doc-fill-2:       rgba(0,0,0,0.025);
-
-    /* hairline borders */
-    --border-xsoft:     rgba(0,0,0,0.05);
-    --border-soft:      rgba(0,0,0,0.06);
-    --border:           rgba(0,0,0,0.10);
-    --border-strong:    rgba(0,0,0,0.15);
-
-    /* text */
-    --doc-text:         #111827;      /* primary text */
-    --doc-text-2:       rgba(17,24,39,0.62);
-    --doc-text-3:       rgba(17,24,39,0.38);
-    --doc-text-4:       rgba(17,24,39,0.20);
-    --doc-contrast:     #0D0D0D;      /* near-black */
-
-    /* palette */
-    --brand-green:      #80BC68;      /* primary leaf green */
-    --brand-green-2:    #4CAF78;      /* deeper secondary */
-    --brand-green-tint: rgba(128,188,104,0.12);
-    --brand-yellow:     #FFDD00;      /* solar sun */
-    --brand-yellow-tint:rgba(255,221,0,0.16);
-    --brand-red:        #E8003D;      /* alert / BESS2 */
-    --brand-red-tint:   rgba(232,0,61,0.10);
-
-    /* Legacy iOS-named tokens still referenced in the stylesheet — point them at brand equivalents */
-    --ios-bg:           var(--doc-bg);
-    --ios-bg-elevated:  var(--doc-elevated);
-    --ios-bg-tertiary:  var(--doc-elevated);
-    --ios-fill:         var(--doc-fill);
-    --ios-fill-2:       var(--doc-fill-2);
-    --ios-separator:    var(--border);
-    --ios-separator-opaque: rgba(0,0,0,0.18);
-    --ios-label:        var(--doc-text);
-    --ios-label-2:      var(--doc-text-2);
-    --ios-label-3:      var(--doc-text-3);
-    --ios-label-4:      var(--doc-text-4);
-    --ios-blue:         var(--brand-green-2);
-    --ios-green:        var(--brand-green);
-    --ios-red:          var(--brand-red);
-    --ios-orange:       #E05A44;
-    --ios-yellow:       var(--brand-yellow);
-    --ios-purple:       #AF52DE;
-
-    /* Backwards-compat aliases for inline-styled HTML still referencing old vars */
-    --dark-green: var(--brand-green);
-    --mid-green:  var(--ios-green);
-    --light-green:#E8F5E9;
-    --accent:     var(--ios-green);
-    --white:      #ffffff;
-    --off-white:  #fafafa;
-    --border:     var(--ios-separator);
-    --border-light: rgba(60,60,67,0.06);
-    --text:       var(--ios-label);
-    --text-secondary: var(--ios-label-2);
-    --muted:      var(--ios-label-2);
-    --danger:     var(--ios-red);
-    --danger-bg:  #FFF1F0;
-    --success-bg: #E8F8EC;
+    --surface: #FFFFFF; --surface-2: #F6F7F5; --surface-3: #EEF1EC;
+    --line: rgba(17,24,39,.10); --line-strong: rgba(17,24,39,.22); --line-input: #B9C0C9;
+    --text: #111827; --text-2: #4B5563; --text-3: #6B7280; --text-inverse: #FFFFFF;
+    --green: #80BC68; --green-deep: #4CAF78; --green-tint: rgba(128,188,104,.14); --green-text: #2E7D32;
+    --yellow: #FFDD00; --yellow-tint: rgba(255,221,0,.18); --amber-text: #8A6D00;
+    --red: #E8003D; --red-tint: rgba(232,0,61,.08); --red-text: #C50034;
+    --font-display: 'Barlow', sans-serif; --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --fs-xs: .72rem; --fs-sm: .8rem; --fs-base: .875rem; --fs-md: 1rem; --fs-lg: 1.15rem; --fs-xl: 1.5rem; --fs-hero: 2rem;
+    --r-sm: 6px; --r-md: 10px; --r-lg: 14px;
+    --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-5: 24px; --sp-6: 40px;
+    --shadow-card: 0 1px 2px rgba(0,0,0,.04); --focus-ring: 0 0 0 3px rgba(128,188,104,.35);
+    --page-max: 1400px; --gutter: 16px; --pane-w: clamp(360px, 36%, 520px); --topbar-h: 96px; /* --topbar-h is overwritten by JS */
+    /* legacy aliases: still referenced by inline styles in markup the JS emits — keep these four, nothing else from the old set */
+    --muted: var(--text-2); --brand-yellow-tint: var(--yellow-tint); --brand-red: var(--red); --dark-green: var(--green-text);
   }
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  html { -webkit-text-size-adjust: 100%; }
+  /* ================================================================
+     2. RESET AND BASE
+     ================================================================ */
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; scroll-padding-top: calc(var(--topbar-h) + 12px); }
   body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: var(--doc-bg);
-    color: var(--doc-text);
-    line-height: 1.45;
+    margin: 0;
+    font: 400 var(--fs-md)/1.45 var(--font-body);
+    background: var(--surface);
+    color: var(--text);
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    font-size: 16px;
-    letter-spacing: 0;
+  }
+  h1, h2, h3, h4, p, dl, dd { margin: 0; }
+  button, input, select, textarea { font: inherit; color: inherit; margin: 0; }
+  button { cursor: pointer; }
+  a { color: var(--green-text); }
+  fieldset { min-width: 0; }
+  table { border-collapse: collapse; }
+  input, select, .recommended-row { scroll-margin-top: calc(var(--topbar-h) + 12px); }
+
+  /* ================================================================
+     3. UTILITIES — eyebrow voice, hidden, sr-only, focus, motion
+     ================================================================ */
+  .eyebrow,
+  .tab-group-label,
+  .field-set legend,
+  .extras-section-label,
+  .breakdown-table th,
+  .breakdown-table tr.section-header td,
+  .profit-box h4 {
+    font: 600 var(--fs-xs)/1.2 var(--font-body);
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+  [hidden] { display: none !important; }
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+  button:focus-visible, select:focus-visible, input:focus-visible,
+  summary:focus-visible, a:focus-visible, [tabindex]:focus-visible {
+    outline: 2px solid var(--text);
+    outline-offset: 2px;
+  }
+  .hint { font-size: var(--fs-sm); color: var(--text-3); line-height: 1.45; margin-top: var(--sp-2); }
+  .hint:empty { display: none; }
+  .text-bad { color: var(--red-text); }
+  .flag-bad { color: var(--red-text); font-weight: 700; }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
   }
 
-  /* Brand headline treatment — Barlow, condensed editorial */
-  h1, h2, h3, h4, .headline, .card-header {
-    font-family: 'Barlow', sans-serif;
-  }
-
-  /* ── Brand Nav Bar (solid white, hairline border) ── */
-  header {
-    background: var(--doc-bg);
-    color: var(--doc-text);
-    padding: 1rem 1.5rem 0.95rem;
-    display: flex;
-    align-items: baseline;
-    gap: 0.75rem;
+  /* ================================================================
+     4. TOP BAR — sticky title + grouped tablist
+        ≥1360 one row · 1024–1359 tabs wrap under the title ·
+        <1024 one horizontally scrolling row
+     ================================================================ */
+  .topbar {
     position: sticky;
     top: 0;
     z-index: 100;
-    border-bottom: 0.5px solid var(--ios-separator);
+    background: var(--surface);
+    border-bottom: 1px solid var(--line);
   }
-  header h1 {
-    font-family: 'Barlow', sans-serif;
-    font-size: 1.65rem;
-    font-weight: 900;
-    letter-spacing: -0.01em;
-    text-transform: uppercase;
-    color: var(--doc-contrast);
-  }
-  header span {
-    font-family: 'Inter', sans-serif;
-    font-size: 0.85rem;
-    color: var(--doc-text-2);
-    font-weight: 400;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-  }
-
-  /* ── Brand Segmented Control ── */
-  .tab-bar-wrap {
-    max-width: 480px;
-    margin: 1rem auto 0;
-    background: var(--doc-fill-2);
-    border: 1px solid var(--border-soft);
-    border-radius: 999px;
-    padding: 3px;
+  .topbar-inner {
+    max-width: var(--page-max);
+    margin: 0 auto;
+    padding: 0 var(--gutter);
     display: flex;
-    justify-content: center;
-    gap: 0;
-    border-bottom: none;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: var(--sp-4);
+    row-gap: 0;
   }
-  .tab-btn {
-    flex: 1;
-    padding: 0.55rem 1.5rem;
-    font-family: 'Barlow', sans-serif;
-    font-size: 0.78rem;
-    font-weight: 700;
-    border: none;
-    border-radius: 999px;
-    cursor: pointer;
-    transition: all 0.18s ease;
-    background: transparent;
-    color: var(--doc-text-2);
-    letter-spacing: 0.12em;
+  .brand { display: flex; align-items: center; min-height: 56px; flex: 0 0 auto; }
+  .brand h1 {
+    font: 800 1.2rem/1.1 var(--font-display);
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    white-space: nowrap;
+  }
+  .edition {
+    display: inline-block;
+    font: 600 var(--fs-xs)/1 var(--font-body);
+    letter-spacing: .06em;
     text-transform: uppercase;
+    color: var(--green-text);
+    border: 1px solid currentColor;
+    border-radius: 4px;
+    padding: 3px 6px;
   }
-  .tab-btn.active {
-    background: var(--doc-contrast);
-    color: #ffffff;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  .tabs { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); min-width: 0; padding: 6px 0; }
+  .tab-group {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 3px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    flex: 0 0 auto;
   }
-  .tab-btn:hover:not(.active) { color: var(--doc-contrast); }
-  .tab-btn:active { transform: scale(0.97); }
+  .tab-group-label { padding: 0 8px; white-space: nowrap; }
+  .tab-btn {
+    font: 600 .88rem/1 var(--font-display);
+    text-transform: none;
+    letter-spacing: .01em;
+    padding: 0 12px;
+    min-height: 36px;
+    border: 0;
+    border-radius: var(--r-sm);
+    background: transparent;
+    color: var(--text-2);
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color .15s ease, color .15s ease, box-shadow .15s ease;
+  }
+  .tab-btn:hover { color: var(--text); background: var(--surface-2); }
+  .tab-btn.active { background: var(--green-tint); color: var(--text); box-shadow: inset 0 -3px 0 var(--green); }
+  @media (pointer: coarse) { .tab-btn { min-height: 44px; } }
+  @media (min-width: 1420px) { .tabs { margin-left: auto; flex-wrap: nowrap; } .tab-group-label { display: none; } }   /* measured 10 Nov 2026: title + ten grouped buttons need ~1500px with the group labels, ~1235px without; the 1400px page cap leaves 1368px */
+  @media (max-width: 1419px) { .tabs { flex: 1 1 100%; } }
+  /* 1024-1199px: the nine buttons must stay on one row beside the pane, so the group labels go and the buttons tighten */
+  @media (min-width: 1024px) and (max-width: 1279px) { .tab-group-label { display: none; } .tab-btn { padding: 0 10px; } .tabs { gap: var(--sp-1); } }
+  @media (max-width: 1023px) {
+    .brand { min-height: 48px; }
+    .brand h1 { font-size: 1.05rem; }
+    .tabs {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .tabs::-webkit-scrollbar { display: none; }
+  }
+  @media (max-height: 520px) { .topbar { position: static; } [id^="section-"] > .container > .results-pane { position: static; max-height: none; } }
 
-  /* ── Container ── */
+  /* ================================================================
+     5. PAGE GRID — form column + sticky results pane from 1024px
+     ================================================================ */
   .container {
-    max-width: 900px;
-    margin: 1rem auto 2.5rem;
-    padding: 0 1rem;
+    max-width: var(--page-max);
+    margin: var(--sp-4) auto var(--sp-6);
+    padding: 0 var(--gutter);
     display: flex;
     flex-direction: column;
-    gap: 1.1rem;
+    gap: var(--sp-4);
+  }
+  .container.settings { max-width: 960px; }
+  @media (min-width: 1024px) {
+    [id^="section-"] > .container {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) var(--pane-w);
+      column-gap: var(--sp-5);
+      row-gap: var(--sp-4);
+      align-items: start;
+    }
+    [id^="section-"] > .container > * { grid-column: 1; }
+    [id^="section-"] > .container > .results-pane {
+      grid-column: 2;
+      grid-row: 1 / span 3;
+      position: sticky;
+      top: calc(var(--topbar-h) + var(--sp-4));
+      max-height: calc(100vh - var(--topbar-h) - var(--sp-4) * 2);
+      overflow: auto;
+      display: flex;
+      flex-direction: column;
+      gap: var(--sp-4);
+    }
+    [id^="section-"] > .container > .results-pane > * { flex-shrink: 0; }   /* a tall pane scrolls; its cards never squash */
+    .price-bar { display: none !important; }
+  }
+  @media (max-width: 1023px) {
+    body { padding-bottom: calc(72px + env(safe-area-inset-bottom)); }
+    .results-pane { display: flex; flex-direction: column; gap: var(--sp-4); }
   }
 
-  /* ── Brand Cards (white on white, hairline border, no heavy shadow) ── */
+  /* ================================================================
+     6. CARDS
+     ================================================================ */
   .card {
-    background: var(--doc-elevated);
-    border-radius: 12px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow-card);
     overflow: hidden;
-    border: 1px solid var(--border-soft);
-    box-shadow: 0 1px 2px rgba(0,0,0,0.025);
   }
   .card-header {
-    background: transparent;
-    color: var(--doc-contrast);
-    padding: 1rem 1.1rem 0.5rem;
-    font-family: 'Barlow', sans-serif;
-    font-weight: 700;
-    font-size: 0.78rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-  }
-  .card-body { padding: 0.25rem 1rem 1rem; }
-
-  /* ── iOS Form Inputs ── */
-  .form-group { margin-bottom: 0.8rem; }
-  .form-group label {
-    display: block;
-    font-weight: 500;
-    font-size: 0.82rem;
-    margin-bottom: 0.35rem;
-    color: var(--ios-label-2);
+    font: 600 1.05rem/1.3 var(--font-display);
+    letter-spacing: 0;
     text-transform: none;
-    letter-spacing: -0.01em;
-  }
-  .form-group select,
-  .form-group input[type="number"],
-  .form-group input[type="text"] {
-    width: 100%;
-    padding: 0.65rem 0.85rem;
-    border: 0.5px solid var(--ios-separator-opaque);
-    border-radius: 10px;
-    font-size: 1rem;
-    font-family: inherit;
-    background: #ffffff;
-    color: var(--ios-label);
-    transition: all 0.15s ease;
-    appearance: none;
-    -webkit-appearance: none;
-    letter-spacing: -0.01em;
-  }
-  .form-group select {
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%238E8E93' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.8' d='M4 6l4 4 4-4'/%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right 0.7rem center;
-    background-size: 18px;
-    padding-right: 2.25rem;
-  }
-  .form-group select:hover,
-  .form-group input:hover { border-color: var(--ios-label-3); }
-  .form-group select:focus,
-  .form-group input:focus {
-    outline: none;
-    border-color: var(--ios-green);
-    box-shadow: 0 0 0 3px rgba(52,199,89,0.18);
-    background: #ffffff;
-  }
-
-  /* ── Form Grid ── */
-  .form-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.85rem 0.85rem;
-  }
-  @media (max-width: 900px) { .form-grid { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 500px) { .form-grid { grid-template-columns: 1fr; } }
-  .form-grid .form-group { margin-bottom: 0; }
-
-  .form-footer {
+    color: var(--text);
+    padding: var(--sp-4) var(--sp-4) var(--sp-2);
     display: flex;
-    gap: 0.85rem;
-    align-items: end;
+    align-items: baseline;
+    gap: var(--sp-3);
     flex-wrap: wrap;
-    margin-top: 1rem;
-    padding-top: 1rem;
-    border-top: 0.5px solid var(--ios-separator);
+    margin: 0;
   }
-  .form-footer .form-group { flex: 1; min-width: 200px; margin-bottom: 0; }
-
-  /* ── Extras (iOS-style chips) ── */
-  .extras-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.5rem;
-  }
-  @media (max-width: 900px) { .extras-grid { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 500px) { .extras-grid { grid-template-columns: 1fr; } }
-  .extras-grid label {
-    display: flex; align-items: center; gap: 0.55rem;
-    font-size: 0.92rem; font-weight: 400; color: var(--ios-label);
-    cursor: pointer; padding: 0.6rem 0.8rem;
-    border-radius: 10px;
-    border: 0.5px solid var(--ios-separator-opaque);
-    background: #ffffff;
-    transition: all 0.15s ease;
-    letter-spacing: -0.01em;
-  }
-  .extras-grid label:hover {
-    border-color: var(--ios-green);
-    background: rgba(52,199,89,0.05);
-  }
-  .extras-grid label:has(input:checked) {
-    background: rgba(52,199,89,0.10);
-    border-color: var(--ios-green);
-  }
-  .extras-grid input[type="checkbox"] {
-    accent-color: var(--ios-green);
-    width: 18px; height: 18px;
-    flex-shrink: 0;
-    cursor: pointer;
-  }
-  .extras-grid input[type="checkbox"]:checked + span {
-    color: var(--ios-label);
-    font-weight: 500;
-  }
-  .extras-grid .extra-price {
-    margin-left: auto;
-    color: var(--ios-label-2);
-    font-size: 0.85rem;
-    white-space: nowrap;
-    font-variant-numeric: tabular-nums;
-  }
-  .extras-grid .extra-select {
-    width: 64px;
-    padding: 0.3rem 0.4rem;
-    border: 0.5px solid var(--ios-separator-opaque);
-    border-radius: 7px;
-    font-size: 0.85rem;
-    font-family: inherit;
-    background: #ffffff;
-    margin-left: auto;
-    flex-shrink: 0;
-    appearance: none;
-    -webkit-appearance: none;
-  }
-  .extras-grid .per-panel-tag {
-    font-size: 0.72rem;
-    color: var(--ios-green);
-    font-weight: 600;
-    white-space: nowrap;
-    background: rgba(52,199,89,0.12);
-    padding: 0.1rem 0.4rem;
-    border-radius: 100px;
-  }
-  .extras-section-label {
-    font-weight: 600;
-    font-size: 0.74rem;
-    color: var(--ios-label-2);
+  .card-header .basis {
+    font: 500 var(--fs-xs)/1 var(--font-body);
+    letter-spacing: .04em;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
-    margin-bottom: 0.6rem;
-    margin-top: 0.4rem;
+    color: var(--text-3);
+    border: 1px solid var(--line);
+    border-radius: var(--r-sm);
+    padding: 3px 6px;
   }
-
-  /* ── iOS Primary Button ── */
-  .btn-calculate {
-    width: 100%;
-    padding: 0.95rem 1.5rem;
-    background: var(--doc-contrast);
-    color: #ffffff;
-    border: none;
-    border-radius: 999px;
-    font-family: 'Barlow', sans-serif;
-    font-size: 0.92rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    min-width: 150px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-  }
-  .btn-calculate:hover {
-    background: var(--brand-green);
-    color: var(--doc-contrast);
-    box-shadow: 0 4px 12px rgba(128,188,104,0.4);
-  }
-  .btn-calculate:active {
-    transform: scale(0.98);
-    background: var(--brand-green-2);
-  }
-
-  /* ── Output Grid ── */
-  .output-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1.1rem;
-    align-items: start;
-    max-width: 520px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-  body.admin-on .output-grid {
-    grid-template-columns: 1fr 380px;
-    max-width: none;
-  }
-  @media (max-width: 1200px) {
-    body.admin-on .output-grid { grid-template-columns: 1fr; }
-    .summary-card { margin-top: 0.5rem; }
-  }
-
-  /* ── Breakdown Table (iOS grouped list style) ── */
-  .breakdown-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.92rem;
-  }
-  .breakdown-table th {
-    text-align: left;
-    padding: 0.6rem 1rem;
-    background: transparent;
-    color: var(--ios-label-2);
-    font-weight: 600;
-    font-size: 0.72rem;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    border-bottom: 0.5px solid var(--ios-separator);
-  }
-  .breakdown-table th:last-child { text-align: right; }
-  .breakdown-table td {
-    padding: 0.55rem 1rem;
-    border-bottom: 0.5px solid var(--ios-separator);
-    color: var(--ios-label);
-  }
-  .breakdown-table tbody tr:last-child td { border-bottom: none; }
-  .breakdown-table tbody tr:hover { background: var(--ios-fill-2); }
-  .breakdown-table td:last-child {
-    text-align: right;
-    font-variant-numeric: tabular-nums;
-    font-weight: 500;
-    color: var(--ios-label);
-  }
-  .breakdown-table tr.section-header td {
-    background: var(--ios-bg);
-    font-weight: 600;
-    color: var(--ios-label-2);
-    font-size: 0.72rem;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    padding: 0.4rem 1rem;
-    border-bottom: 0.5px solid var(--ios-separator);
-  }
-  .breakdown-table tr.total-row td {
-    font-weight: 700;
-    font-size: 1rem;
-    border-top: 0.5px solid var(--ios-separator);
-    background: var(--ios-bg);
-    padding: 0.7rem 1rem;
-    color: var(--ios-label);
-  }
-
-  /* ── Summary Rows ── */
-  .summary-card { margin-top: 0; }
-  .summary-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.55rem 0;
-    border-bottom: 0.5px solid var(--ios-separator);
-    font-size: 0.95rem;
-    gap: 0.5rem;
-  }
-  .summary-row:last-child { border-bottom: none; }
-  .summary-row .label {
-    color: var(--ios-label-2);
-    font-weight: 400;
-    letter-spacing: -0.01em;
-  }
-  .summary-row .value {
-    font-weight: 600;
-    font-variant-numeric: tabular-nums;
-    white-space: nowrap;
-    color: var(--ios-label);
-  }
-  .summary-row.big { padding: 0.7rem 0; }
-  .summary-row.big .label { color: var(--ios-label); font-weight: 500; }
-  .summary-row.big .value { font-size: 1.15rem; color: var(--ios-label); font-weight: 700; }
-  .summary-row.danger .value { color: var(--ios-red); }
-  .summary-row.danger .label { color: var(--ios-red); }
-
-  .summary-divider {
-    height: 0.5px;
-    background: var(--ios-separator);
-    margin: 0.5rem 0;
-  }
-
-  /* ── iOS Alert Banner ── */
-  .margin-alert {
-    margin-top: 0.7rem;
-    padding: 0.7rem 0.95rem;
-    border-radius: 10px;
-    font-weight: 500;
-    font-size: 0.9rem;
-    display: none;
-    letter-spacing: 0;
-  }
-  .margin-alert.low {
-    display: block;
-    background: var(--brand-red-tint);
-    color: var(--brand-red);
-    border: 1px solid rgba(232,0,61,0.20);
-  }
-  .margin-alert.ok {
-    display: block;
-    background: var(--brand-green-tint);
-    color: var(--brand-green-2);
-    border: 1px solid rgba(128,188,104,0.30);
-  }
-
-  /* ── Hero Stat — Recommended Sale Price ── */
-  /* ── Hero stat: Recommended Sale Price (brand-green flat panel) ── */
-  .recommended-row {
-    background: var(--brand-green);
-    padding: 1.25rem 1.25rem;
-    border-radius: 14px;
-    margin: 0.85rem 0 0.4rem;
-    border: none;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.3rem;
-    box-shadow: 0 4px 14px rgba(128,188,104,0.32);
-    position: relative;
-    overflow: hidden;
-  }
-  .recommended-row::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background:
-      radial-gradient(circle at 90% -20%, rgba(255,221,0,0.22), transparent 50%),
-      radial-gradient(circle at 110% 120%, rgba(0,0,0,0.10), transparent 55%);
-    pointer-events: none;
-  }
-  .recommended-row .label {
-    color: rgba(13,13,13,0.78);
-    font-family: 'Barlow', sans-serif;
-    font-weight: 700;
-    font-size: 0.75rem;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    position: relative;
-  }
-  .recommended-row .value {
-    font-family: 'Barlow', sans-serif;
-    font-size: 2.25rem;
-    font-weight: 900;
-    color: var(--doc-contrast);
-    font-variant-numeric: tabular-nums;
-    letter-spacing: -0.02em;
-    line-height: 1.05;
-    position: relative;
-  }
-  .recommended-margin {
-    text-align: right;
-    font-size: 0.85rem;
-    color: var(--brand-green-2);
-    font-weight: 600;
-    padding: 0.1rem 0 0.5rem 0;
-  }
-
-  /* ── BESS2 VPP Rebate (brand red banner) ── */
-  .bess2-rebate {
-    background: var(--brand-red);
-    padding: 1rem 1.1rem;
-    border-radius: 12px;
-    margin: 0.6rem 0 0.1rem;
-    border: none;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.25rem;
-    box-shadow: 0 3px 12px rgba(232,0,61,0.30);
-  }
-  .bess2-rebate .label {
-    color: rgba(255,255,255,0.95);
-    font-family: 'Barlow', sans-serif;
-    font-weight: 700;
-    font-size: 0.72rem;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-  }
-  .bess2-rebate .value {
-    font-family: 'Barlow', sans-serif;
-    font-size: 1.65rem;
-    font-weight: 900;
-    color: #ffffff;
-    font-variant-numeric: tabular-nums;
-    letter-spacing: -0.02em;
-    line-height: 1.05;
-  }
-  .bess2-note {
-    font-size: 0.78rem;
-    color: var(--doc-text-2);
-    text-align: left;
-    font-style: normal;
-    padding: 0.4rem 0.1rem 0.2rem;
-    margin-top: 0;
-    letter-spacing: 0;
-  }
-
-  /* ── Profit Projection (iOS stat cards) ── */
-  .profit-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.85rem;
-  }
-  @media (max-width: 700px) { .profit-grid { grid-template-columns: 1fr; } }
-  .profit-box {
-    padding: 0.95rem 1.05rem;
-    border-radius: 10px;
-    border: 1px solid var(--border-soft);
-    background: var(--doc-subtle);
-  }
-  .profit-box h4 {
-    font-family: 'Barlow', sans-serif;
-    font-size: 0.78rem;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: var(--doc-contrast);
-    margin-bottom: 0.6rem;
-    font-weight: 700;
-  }
-  .profit-line {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.92rem;
-    padding: 0.25rem 0;
-    color: var(--ios-label);
-  }
-  .profit-line .label { color: var(--ios-label-2); }
-  .profit-line .value {
-    font-weight: 500;
-    font-variant-numeric: tabular-nums;
-    color: var(--ios-label);
-  }
-  .profit-line.net {
-    border-top: 0.5px solid var(--ios-separator);
-    padding-top: 0.5rem;
-    margin-top: 0.35rem;
-  }
-  .profit-line.net .label { color: var(--ios-label); font-weight: 600; }
-  .profit-line.net .value {
-    color: var(--ios-green);
-    font-weight: 700;
-    font-size: 1.1rem;
-    letter-spacing: -0.02em;
-  }
-  .profit-line.net.negative .label { color: var(--ios-red); }
-  .profit-line.net.negative .value { color: var(--ios-red); }
-
-  /* ── Smooth scroll on iOS ── */
-  body { -webkit-overflow-scrolling: touch; }
-
-  /* Brand accent: solar yellow top-rule on the Solar-Only Pricing card */
+  .card-body { padding: var(--sp-2) var(--sp-4) var(--sp-4); }
+  .card-body.flush { padding: 0; }
   .brand-card-solar { position: relative; }
   .brand-card-solar::before {
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0;
     height: 4px;
-    background: var(--brand-yellow);
+    background: var(--yellow);
   }
-  .brand-card-solar .card-header { padding-top: 1.15rem; }
-
-  /* ── Margin Tier Editor (admin) ── */
-  .margin-tier-hint {
-    font-size: 0.92rem;
-    color: var(--ios-label-2);
-    margin-bottom: 0.85rem;
-    line-height: 1.4;
-    letter-spacing: -0.01em;
-  }
-  .margin-tier-grid {
-    background: var(--ios-bg);
-    border-radius: 10px;
-    overflow: hidden;
-    margin-bottom: 0.9rem;
-  }
-  .margin-tier-row {
-    display: grid;
-    grid-template-columns: 1.1fr 1fr 1fr;
-    gap: 0.5rem;
-    padding: 0.55rem 0.85rem;
-    align-items: center;
-    background: #ffffff;
-    border-top: 0.5px solid var(--ios-separator);
-  }
-  .margin-tier-row:first-child { border-top: none; }
-  .margin-tier-row.margin-tier-head {
-    background: var(--ios-bg);
-    padding: 0.5rem 0.85rem;
-  }
-  .margin-tier-row.margin-tier-head .mt-label,
-  .margin-tier-row.margin-tier-head .mt-col-label {
-    font-size: 0.72rem;
-    font-weight: 600;
-    color: var(--ios-label-2);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-  }
-  .mt-col-label { text-align: center; }
-  .mt-label {
-    font-size: 0.95rem;
-    color: var(--ios-label);
-    font-weight: 500;
-    letter-spacing: -0.01em;
-  }
-  .mt-input-wrap {
+  .card-notes { margin-top: var(--sp-3); }
+  .card-notes summary {
+    cursor: pointer;
+    list-style: none;
     display: flex;
     align-items: center;
-    gap: 0.3rem;
-    justify-content: flex-end;
+    gap: var(--sp-2);
+    font: 600 var(--fs-sm)/1.4 var(--font-body);
+    color: var(--green-text);
   }
-  .mt-input-wrap input {
-    width: 70px;
-    padding: 0.4rem 0.55rem;
-    border: 0.5px solid var(--ios-separator-opaque);
-    border-radius: 8px;
-    font-size: 0.95rem;
-    font-family: inherit;
-    background: #ffffff;
-    color: var(--ios-label);
+  .card-notes summary::-webkit-details-marker { display: none; }
+  .card-notes summary::before { content: '\25B8'; font-size: .9em; }
+  .card-notes[open] summary::before { content: '\25BE'; }
+  .card-notes p { margin: var(--sp-2) 0 0; font-size: var(--fs-sm); color: var(--text-2); line-height: 1.5; }
+
+  /* ================================================================
+     7. FORMS — six-column grid, .field pattern, fieldsets
+     ================================================================ */
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: var(--sp-3) var(--sp-4);
+    align-items: start;
+  }
+  .field { grid-column: span 2; display: flex; flex-direction: column; gap: var(--sp-1); min-width: 0; margin: 0; }
+  @media (max-width: 1199px) { .field { grid-column: span 3; } }
+  @media (min-width: 768px) and (max-width: 1023px) { .field { grid-column: span 2; } }
+  .field--wide { grid-column: span 3; }
+  @media (max-width: 1199px) { .field--wide { grid-column: 1 / -1; } }
+  @media (min-width: 768px) and (max-width: 1023px) { .field--wide { grid-column: span 3; } }
+  @media (max-width: 479px) { .field--wide, .field--select { grid-column: 1 / -1; } }
+  .field--full { grid-column: 1 / -1; }
+
+  .field-label { font: 500 var(--fs-sm)/1.3 var(--font-body); color: var(--text); display: block; }
+  .field-control {
+    display: flex;
+    align-items: stretch;
+    min-height: 40px;
+    border: 1px solid var(--line-input);
+    border-radius: var(--r-sm);
+    background: var(--surface);
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+  .field-control:hover { border-color: var(--line-strong); }
+  .field-control:focus-within { border-color: var(--green-deep); box-shadow: var(--focus-ring); }
+  .field-control input,
+  .field-control select {
+    flex: 1 1 auto;
+    min-width: 0;
+    width: 100%;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    padding: 0 var(--sp-3);
+    height: 38px;
+    font: 400 var(--fs-md)/1 var(--font-body);
+    color: var(--text);
+    border-radius: var(--r-sm);
+    appearance: none;
+    -webkit-appearance: none;
+  }
+  .field-control input:focus-visible,
+  .field-control select:focus-visible { outline: 0; }
+  .field-control input[type="number"] {
     text-align: right;
     font-variant-numeric: tabular-nums;
-    appearance: textfield;
     -moz-appearance: textfield;
-    transition: all 0.15s ease;
   }
-  .mt-input-wrap input::-webkit-inner-spin-button,
-  .mt-input-wrap input::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    appearance: none;
+  .field-control input[type="number"]::-webkit-inner-spin-button,
+  .field-control input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  .field-control select {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%234B5563' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.8' d='M4 6l4 4 4-4'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 16px;
+    padding-right: 2rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .field-control input:disabled,
+  .field-control select:disabled { color: var(--text-3); }
+  .field-affix {
+    display: flex;
+    align-items: center;
+    padding: 0 var(--sp-3);
+    font-size: var(--fs-sm);
+    color: var(--text-3);
+    white-space: nowrap;
+    border-left: 1px solid var(--line);
+  }
+  .field-affix--pre { order: -1; border-left: 0; border-right: 1px solid var(--line); }
+  .field-hint { font-size: var(--fs-sm); line-height: 1.3; color: var(--text-3); }
+  .field--highlight .field-control { border-color: var(--green-deep); }
+  .field-link { font: 500 var(--fs-sm) var(--font-body); color: var(--green-text); margin-left: var(--sp-2); }
+  .field-note { font-size: var(--fs-sm); color: var(--text-2); margin-top: var(--sp-1); }
+  .field-note:empty { display: none; }
+  .form-note { grid-column: 1 / -1; font-size: var(--fs-sm); color: var(--text-3); }
+  .form-note:empty { display: none; }
+  .input-row { display: flex; gap: var(--sp-2); }
+  .input-row > * { flex: 1 1 0; min-width: 0; }
+
+  /* Fallback for a .form-group that has not been given the .field pattern (retired cards) */
+  .form-group { margin: 0; }
+  .form-group:not(.field) > label { display: block; font: 500 var(--fs-sm)/1.3 var(--font-body); color: var(--text); margin-bottom: var(--sp-1); }
+  .form-group:not(.field) > input, .form-group:not(.field) > select {
+    width: 100%;
+    min-height: 40px;
+    padding: 0 var(--sp-3);
+    border: 1px solid var(--line-input);
+    border-radius: var(--r-sm);
+    background: var(--surface);
+    font: 400 var(--fs-md)/1 var(--font-body);
+    color: var(--text);
+  }
+
+  /* Fieldsets */
+  .field-set { border: 0; padding: 0; margin: 0 0 var(--sp-4); min-width: 0; }
+  .field-set legend {
+    width: 100%;
+    padding: 0 0 var(--sp-2);
+    border-bottom: 1px solid var(--line);
+    margin-bottom: var(--sp-3);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--sp-3);
+    flex-wrap: wrap;
+  }
+  .field-set legend small { text-transform: none; letter-spacing: 0; font-weight: 400; color: var(--text-3); font-size: var(--fs-sm); }
+  .field-set--money .form-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .field-set--money .field { grid-column: span 1; }
+  @media (max-width: 767px) { .field-set--money .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .field-set .field-set { margin-top: var(--sp-3); margin-bottom: 0; }
+
+  /* Sigen C&I per-stack module boxes */
+  .stack-row { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-3); }
+  .stack-field { display: flex; flex-direction: column; gap: 2px; font: 600 var(--fs-xs)/1.2 var(--font-body); color: var(--text-2); }
+  .stack-field input {
+    width: 4.6rem;
+    height: 36px;
+    padding: 0 var(--sp-2);
+    text-align: center;
+    border: 1px solid var(--line-input);
+    border-radius: var(--r-sm);
+    background: var(--surface);
+    color: var(--text);
+    font: 400 var(--fs-md) var(--font-body);
+    font-variant-numeric: tabular-nums;
+    -moz-appearance: textfield;
+  }
+  .stack-field input::-webkit-inner-spin-button,
+  .stack-field input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  .stack-field input:focus { outline: 0; border-color: var(--green-deep); box-shadow: var(--focus-ring); }
+
+  /* ================================================================
+     8. EXTRAS GRID — markup unchanged; 3 → 2 → 1 (divider list)
+     ================================================================ */
+  .extras-section-label { margin: var(--sp-2) 0; }
+  .extras-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-auto-flow: dense; gap: var(--sp-2); }
+  .extras-grid label.extra--qty { grid-column: span 2; }   /* chips with a quantity select need the room */
+  @media (max-width: 1199px) { .extras-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (min-width: 768px) and (max-width: 1023px) { .extras-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @media (max-width: 767px) { .extras-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .extras-grid label {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    min-height: 44px;
+    padding: var(--sp-2) var(--sp-3);
+    border: 1px solid var(--line);
+    border-radius: var(--r-sm);
+    background: var(--surface);
+    font-size: var(--fs-base);
+    color: var(--text);
+    cursor: pointer;
+    transition: background-color .15s ease, border-color .15s ease;
+  }
+  .extras-grid label:hover { border-color: var(--line-strong); background: var(--surface-2); }
+  .extras-grid label:has(input:checked) { background: var(--green-tint); border-color: var(--green); }
+  .extras-grid input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 auto;
     margin: 0;
+    accent-color: var(--green-deep);
+    cursor: pointer;
   }
-  .mt-input-wrap input:focus {
-    outline: none;
-    border-color: var(--ios-green);
-    box-shadow: 0 0 0 3px rgba(52,199,89,0.18);
+  .extras-grid input[type="checkbox"] + span { flex: 1 1 auto; min-width: 0; overflow-wrap: break-word; line-height: 1.25; }
+  .extras-grid input[type="checkbox"]:checked + span { font-weight: 600; }
+  .extras-grid .extra-price {
+    color: var(--text-2);
+    font-size: var(--fs-sm);
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
   }
-  .mt-pct {
-    color: var(--ios-label-2);
-    font-size: 0.95rem;
-    font-weight: 500;
+  .extras-grid .per-panel-tag { font-size: var(--fs-sm); color: var(--text-3); white-space: nowrap; }
+  .extras-grid .extra-select {
+    width: 76px;
+    height: 36px;
+    flex: 0 0 auto;
+    padding: 0 1.5rem 0 var(--sp-2);
+    border: 1px solid var(--line-input);
+    border-radius: var(--r-sm);
+    background: var(--surface) url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%234B5563' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.8' d='M4 6l4 4 4-4'/%3e%3c/svg%3e") no-repeat right 6px center / 14px;
+    font: 400 var(--fs-md) var(--font-body);
+    color: var(--text);
+    appearance: none;
+    -webkit-appearance: none;
+  }
+  .extras-grid .extra-select:focus { outline: 0; border-color: var(--green-deep); box-shadow: var(--focus-ring); }
+  @media (max-width: 479px) {
+    .extras-grid { grid-template-columns: 1fr; gap: 0; }
+    .extras-grid label.extra--qty { grid-column: auto; }
+    .extras-grid label { border: 0; border-bottom: 1px solid var(--line); border-radius: 0; padding: var(--sp-2) 0; background: transparent; }
+    .extras-grid label:hover, .extras-grid label:has(input:checked) { background: transparent; border-color: var(--line); }
+    .extras-grid label:last-child { border-bottom: 0; }
+  }
+
+  /* ================================================================
+     9. SETTINGS CARDS (Overheads, Rep Commission) + retired tier editor
+     ================================================================ */
+  .settings-card summary {
+    cursor: pointer;
+    list-style: none;
+    padding-bottom: var(--sp-4);
+  }
+  .settings-card summary::-webkit-details-marker { display: none; }
+  .settings-card summary::after {
+    content: 'Show';
+    margin-left: auto;
+    font: 600 var(--fs-sm)/1 var(--font-body);
+    letter-spacing: 0;
+    color: var(--green-text);
+  }
+  .settings-card[open] summary::after { content: 'Hide'; }
+  .settings-card[open] summary { padding-bottom: var(--sp-2); }
+  .margin-tier-hint { font-size: .8rem; color: var(--text-2); line-height: 1.5; margin: 0 0 var(--sp-3); }
+  .margin-tier-grid { border: 1px solid var(--line); border-radius: var(--r-md); overflow: hidden; margin: 0 0 var(--sp-3); }
+  .setting-row, .margin-tier-row {
+    display: grid;
+    grid-template-columns: 1.1fr 2fr;
+    gap: var(--sp-3);
+    align-items: center;
+    padding: var(--sp-2) var(--sp-3);
+    border-top: 1px solid var(--line);
+    background: var(--surface);
+  }
+  .margin-tier-row { grid-template-columns: 1.1fr 1fr 1fr; }
+  .setting-row:first-child, .margin-tier-row:first-child { border-top: 0; }
+  .setting-label, .mt-label { font: 500 var(--fs-base)/1.3 var(--font-body); color: var(--text); }
+  .setting-input, .mt-input-wrap { display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap; }
+  .setting-input input, .mt-input-wrap input {
+    width: 110px;
+    height: 38px;
+    padding: 0 var(--sp-2);
+    border: 1px solid var(--line-input);
+    border-radius: var(--r-sm);
+    background: var(--surface);
+    color: var(--text);
+    text-align: right;
+    font: 400 var(--fs-md) var(--font-body);
+    font-variant-numeric: tabular-nums;
+    -moz-appearance: textfield;
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+  .setting-input input::-webkit-inner-spin-button, .setting-input input::-webkit-outer-spin-button,
+  .mt-input-wrap input::-webkit-inner-spin-button, .mt-input-wrap input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  .setting-input input:focus, .mt-input-wrap input:focus { outline: 0; border-color: var(--green-deep); box-shadow: var(--focus-ring); }
+  .setting-unit, .mt-pct { font-size: var(--fs-sm); color: var(--text-3); white-space: nowrap; }
+  @media (max-width: 479px) {
+    .setting-row, .margin-tier-row { grid-template-columns: 1fr; gap: var(--sp-1); }
+  }
+
+  /* ================================================================
+     10. BUTTONS
+     ================================================================ */
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 0 var(--sp-4);
+    border: 0;
+    border-radius: var(--r-sm);
+    background: var(--text);
+    color: var(--text-inverse);
+    font: 600 var(--fs-base) var(--font-body);
+    cursor: pointer;
+    transition: background-color .15s ease;
+  }
+  .btn-primary:hover { background: var(--green-deep); }
+  .btn-link {
+    background: none;
+    border: 0;
+    padding: 0;
+    font: inherit;
+    color: var(--green-text);
+    text-decoration: underline;
+    cursor: pointer;
   }
   .btn-margin-reset {
     background: transparent;
-    color: var(--ios-blue);
-    border: none;
-    font-family: inherit;
-    font-size: 1rem;
-    font-weight: 500;
+    border: 0;
+    color: var(--green-text);
+    font: 500 var(--fs-base) var(--font-body);
+    min-height: 44px;
+    padding: var(--sp-2) 0;
     cursor: pointer;
-    padding: 0.45rem 0;
-    letter-spacing: -0.01em;
   }
-  .btn-margin-reset:hover { opacity: 0.65; }
-  .btn-margin-reset:active { opacity: 0.45; }
-  @media (max-width: 500px) {
-    .margin-tier-row { padding: 0.5rem 0.65rem; gap: 0.3rem; }
-    .mt-input-wrap input { width: 60px; padding: 0.35rem 0.4rem; font-size: 0.9rem; }
-    .mt-label { font-size: 0.88rem; }
+  .btn-margin-reset:hover { text-decoration: underline; }
+
+  /* ================================================================
+     11. RESULTS — hero, summary rows, alerts, notes, tables
+     ================================================================ */
+  .recommended-row {
+    display: grid;
+    gap: 2px;
+    padding: var(--sp-4);
+    margin: 0 0 var(--sp-3);
+    background: var(--green);
+    color: var(--text);
+    border-radius: var(--r-md);
+  }
+  .recommended-row .label { font: 600 var(--fs-sm)/1.3 var(--font-body); color: rgba(13,13,13,.78); }
+  .recommended-row .value {
+    font: 700 var(--fs-hero)/1.1 var(--font-display);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -.02em;
+    color: var(--text);
+  }
+  .recommended-row .sub { font: 400 var(--fs-sm)/1.4 var(--font-body); color: rgba(13,13,13,.78); }
+  .recommended-row.invalid { background: var(--surface-2); border-left: 4px solid var(--red); }
+  .recommended-row.invalid .sub { color: var(--red-text); font-weight: 600; }
+  .recommended-row.incomplete { background: var(--surface-2); border: 1px dashed var(--line-strong); }
+  .recommended-row.neutral { background: var(--surface-2); border-left: 4px solid var(--text); }
+  @media (max-width: 479px) { .recommended-row .value { font-size: 1.6rem; } }
+
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--sp-3);
+    padding: var(--sp-2) 0;
+    border-bottom: 1px solid var(--line);
+    font-size: var(--fs-base);
+  }
+  .summary-row:last-child { border-bottom: 0; }
+  .summary-row .label { flex: 1 1 auto; min-width: 0; color: var(--text-2); }
+  .summary-row .value { flex: 0 0 auto; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .summary-row.big .label { color: var(--text); font-weight: 600; }
+  .summary-row.big .value { font-size: var(--fs-lg); font-weight: 700; }
+  .summary-row.danger * { color: var(--red-text); }
+  .summary-row.ok .value { color: var(--green-text); }
+  .summary-divider { height: 1px; background: var(--line); margin: var(--sp-2) 0; }
+
+  .margin-alert {
+    margin-top: var(--sp-3);
+    padding: var(--sp-3) var(--sp-4);
+    border-radius: var(--r-md);
+    font: 500 var(--fs-base)/1.4 var(--font-body);
+    display: none;
+  }
+  .margin-alert.low { display: block; background: var(--red-tint); color: var(--red-text); border-left: 3px solid var(--red); }
+  .margin-alert.ok { display: block; background: var(--green-tint); color: var(--green-text); border-left: 3px solid var(--green); }
+  .margin-alert.incomplete { display: block; background: var(--yellow-tint); color: var(--text); border-left: 3px solid var(--yellow); }
+
+  .note {
+    padding: var(--sp-3) var(--sp-4);
+    border-radius: var(--r-md);
+    background: var(--surface-2);
+    border-left: 3px solid var(--line-strong);
+    font-size: var(--fs-base);
+    margin-top: var(--sp-3);
+  }
+  .note.ok { border-left-color: var(--green); }
+
+  .notes {
+    list-style: none;
+    margin: var(--sp-3) 0 0;
+    padding: var(--sp-2) var(--sp-3);
+    background: var(--yellow-tint);
+    border-left: 3px solid var(--yellow);
+    border-radius: 0 var(--r-md) var(--r-md) 0;
+    font-size: var(--fs-sm);
+    line-height: 1.45;
+    color: var(--text);
+  }
+  .notes li { position: relative; padding: var(--sp-1) 0 var(--sp-1) 1.1rem; }
+  .notes li::before { content: '\2022'; position: absolute; left: 0; color: var(--amber-text); font-weight: 700; }
+  .notes li.more::before { content: none; }
+  .notes summary { cursor: pointer; font-weight: 600; color: var(--amber-text); }
+  .notes ul { list-style: none; padding: 0; margin: var(--sp-1) 0 0; }
+
+  /* Tables */
+  .table-scroll { overflow-x: auto; }
+  .breakdown-table { width: 100%; border-collapse: collapse; font-size: var(--fs-base); }
+  .breakdown-table th { text-align: left; padding: 8px 16px; border-bottom: 1px solid var(--line); }
+  .breakdown-table td { padding: 8px 16px; border-bottom: 1px solid var(--line); }
+  .breakdown-table th:nth-child(2), .breakdown-table td:nth-child(2) { text-align: center; }
+  .breakdown-table th:nth-child(n+3), .breakdown-table td:nth-child(n+3) {
+    text-align: right;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+  #da-table th:nth-child(2), #da-table td:nth-child(2) { text-align: left; }
+  .breakdown-table .num { text-align: right; }
+  .breakdown-table .ctr { text-align: center; }
+  .breakdown-table .muted, .muted { color: var(--text-2); }
+  .breakdown-table tr.section-header td { background: var(--surface-2); padding: 6px 16px; text-align: left; }
+  .breakdown-table tr.total-row td {
+    font-weight: 700;
+    font-size: var(--fs-md);
+    border-top: 1px solid var(--line-strong);
+    background: var(--surface-2);
+    padding: 12px 16px;
+  }
+  .breakdown-table tr.total-row td:last-child { text-align: right; }
+  .breakdown-table tbody tr:last-child td { border-bottom: 0; }
+  .breakdown-table tbody tr:hover td { background: var(--surface-2); }
+  @media (max-width: 600px) { .breakdown-table { min-width: 480px; } #da-table { min-width: 0; } }
+
+  /* ================================================================
+     12. PROFIT PROJECTION
+     ================================================================ */
+  .facts {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--sp-1) var(--sp-3);
+    font-size: var(--fs-sm);
+    margin: 0 0 var(--sp-3);
+  }
+  .facts dt { color: var(--text-3); }
+  .facts dd { color: var(--text); margin: 0; }
+  .profit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-3); }
+  @media (max-width: 479px) { .profit-grid { grid-template-columns: 1fr; } }
+  .profit-box {
+    padding: 12px 16px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    background: var(--surface-2);
+  }
+  .profit-box h4 { color: var(--text); margin-bottom: var(--sp-2); }
+  .profit-line { display: flex; justify-content: space-between; gap: var(--sp-3); font-size: var(--fs-base); padding: 3px 0; }
+  .profit-line .label { color: var(--text-2); }
+  .profit-line .value { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .profit-line.net { border-top: 1px solid var(--line); margin-top: var(--sp-2); padding-top: var(--sp-2); align-items: baseline; }
+  .profit-line.net .label { color: var(--text); font-weight: 600; }
+  .profit-line.net .value { font: 700 var(--fs-xl)/1.1 var(--font-display); color: var(--green-text); letter-spacing: -.01em; }
+  .profit-line.negative .label, .profit-line.negative .value { color: var(--red-text); }
+  .target-panel {
+    margin-top: 12px;
+    padding: 12px 16px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    background: var(--surface-2);
+  }
+  .panel-title { font: 600 var(--fs-sm)/1.3 var(--font-body); margin-bottom: var(--sp-1); }
+  .status { display: inline-block; padding: 1px 8px; border-radius: var(--r-sm); font-weight: 700; }
+  .status.ok { color: var(--green-text); background: var(--green-tint); }
+  .status.low { color: var(--red-text); background: var(--red-tint); }
+  .profit-note { font-size: var(--fs-sm); color: var(--red-text); font-weight: 600; margin-top: 4px; }
+  .fine-print { font-size: var(--fs-sm); color: var(--text-3); margin-top: 8px; line-height: 1.4; }
+  .empty-state { padding: 8px; color: var(--text-3); font-size: var(--fs-sm); text-align: center; }
+
+  /* ================================================================
+     13. PRICE BAR — phone/tablet only; hidden from 1024px (see §5)
+     ================================================================ */
+  .price-bar {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    z-index: 95;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-3);
+    width: 100%;
+    border: 0;
+    border-top: 1px solid rgba(0,0,0,.08);
+    padding: var(--sp-2) var(--gutter) calc(var(--sp-2) + env(safe-area-inset-bottom));
+    background: var(--green);
+    color: var(--text);
+    font: inherit;
+    text-align: left;
+    box-shadow: 0 -4px 14px rgba(0,0,0,.12);
+    cursor: pointer;
+  }
+  .price-bar .text { display: flex; flex-direction: column; min-width: 0; }
+  .price-bar .label {
+    font: 600 var(--fs-sm)/1.3 var(--font-body);
+    color: rgba(13,13,13,.78);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .price-bar .status { display: inline-block; padding: 0; border-radius: 0; background: none; font: 600 var(--fs-xs)/1.3 var(--font-body); }
+  .price-bar .status.low { color: var(--red-text); }
+  .price-bar .status.ok { color: #14532D; }
+  .price-bar .status:empty { display: none; }
+  .price-bar .value { font: 700 1.4rem/1.1 var(--font-display); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .price-bar.is-invalid { background: var(--surface-2); border-top: 3px solid var(--red); }
+  .price-bar[hidden], .price-bar.hero-visible { display: none; }
+
+  /* ================================================================
+     14. PRINT
+     ================================================================ */
+  /* ── Saved quotes / compare (owner, 10 Nov 2026) ── */
+  .btn-save { margin-left: auto; display: inline-flex; align-items: center; min-height: 32px; padding: 0 var(--sp-3); border: 1px solid var(--line-strong); border-radius: var(--r-sm); background: var(--surface); color: var(--text); font: 600 var(--fs-sm) var(--font-body); letter-spacing: 0; text-transform: none; cursor: pointer; }
+  .btn-save:hover { background: var(--green-tint); border-color: var(--green); }
+  .tab-count { display: inline-block; min-width: 18px; padding: 0 6px; margin-left: 6px; border-radius: 999px; background: var(--green); color: var(--text); font: 700 var(--fs-xs)/18px var(--font-body); text-align: center; vertical-align: middle; }
+  .toast { position: fixed; left: 50%; bottom: calc(84px + env(safe-area-inset-bottom)); transform: translate(-50%, 8px); z-index: 120; width: max-content; max-width: min(92vw, 520px); padding: 10px 14px; border-radius: var(--r-md); background: var(--text); color: var(--text-inverse); font: 500 var(--fs-base)/1.35 var(--font-body); box-shadow: 0 6px 20px rgba(0,0,0,.18); opacity: 0; pointer-events: none; transition: opacity .18s, transform .18s; }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+  .toast.clickable { cursor: pointer; text-decoration: underline; text-decoration-color: rgba(255,255,255,.45); }
+  .quote-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: var(--sp-2); margin: var(--sp-2) 0 var(--sp-3); }
+  .quote-chip { display: grid; grid-template-columns: auto 1fr; column-gap: var(--sp-2); align-items: start; padding: var(--sp-2) var(--sp-3); border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); cursor: pointer; }
+  .quote-chip.on { border-color: var(--green); background: var(--green-tint); }
+  .quote-chip input { grid-row: 1 / span 3; margin: 3px 0 0; width: 18px; height: 18px; accent-color: var(--green-deep); }
+  .quote-name { font: 600 var(--fs-base)/1.3 var(--font-body); color: var(--text); overflow-wrap: anywhere; }
+  .quote-meta { font-size: var(--fs-sm); color: var(--text-2); }
+  .quote-actions { display: flex; align-items: center; gap: var(--sp-2); font-size: var(--fs-sm); }
+  .btn-link.danger { color: var(--red-text); }
+  .compare-toolbar { display: flex; justify-content: space-between; align-items: center; gap: var(--sp-3); flex-wrap: wrap; margin-bottom: var(--sp-2); }
+  .compare-toolbar .hint { margin: 0; }
+  .compare-table th, .compare-table td { vertical-align: top; }
+  .compare-table th:first-child, .compare-table td:first-child { position: sticky; left: 0; z-index: 1; background: var(--surface); min-width: 150px; max-width: 260px; }
+  .compare-table tr.section-header td:first-child, .compare-table tr.total-row td:first-child { background: var(--surface-2); }
+  .compare-table th:nth-child(n+2), .compare-table td:nth-child(n+2) { text-align: left; white-space: normal; min-width: 170px; }
+  .compare-table td.num { text-align: right; white-space: normal; font-variant-numeric: tabular-nums; }
+  .compare-table td.num .fig { white-space: nowrap; }
+  .compare-table td.muted, .compare-table td .qty { color: var(--text-3); }
+  .compare-table td .qty { font-size: var(--fs-sm); margin-right: 8px; white-space: normal; }
+  .compare-table td .sub { font-size: var(--fs-sm); line-height: 1.3; color: var(--text-3); white-space: normal; font-weight: 400; font-family: var(--font-body); }
+  .compare-table tr.compare-hero td { font: 700 1.3rem/1.2 var(--font-display); padding-top: var(--sp-3); padding-bottom: var(--sp-3); }
+  .compare-table tr.compare-hero td:first-child { font: 600 var(--fs-base)/1.3 var(--font-body); }
+  .compare-table td.best { background: var(--green-tint); color: var(--green-text); }
+  .compare-table td.invalid, .compare-table td.incomplete { color: var(--text-2); }
+  .compare-table td.danger { color: var(--red-text); } .compare-table td.ok { color: var(--green-text); }
+  .compare-table td .tag { display: inline-block; margin-left: 8px; padding: 1px 8px; border-radius: 999px; background: var(--green); color: var(--text); font: 700 var(--fs-xs)/18px var(--font-body); vertical-align: middle; }
+  .compare-table .q-name { font: 600 var(--fs-base)/1.3 var(--font-display); text-transform: none; letter-spacing: 0; color: var(--text); overflow-wrap: anywhere; }
+  .compare-table .q-meta { font: 400 var(--fs-sm)/1.3 var(--font-body); text-transform: none; letter-spacing: 0; color: var(--text-2); margin-top: 2px; }
+  .compare-table .q-actions { margin-top: 4px; font: 500 var(--fs-sm) var(--font-body); text-transform: none; letter-spacing: 0; }
+  .compare-table .q-repeat { font: 600 var(--fs-sm)/1.3 var(--font-body); text-transform: none; letter-spacing: 0; color: var(--text-2); }
+  .compare-table td .tag.warn { background: var(--yellow-tint); color: var(--amber-text); }
+  .compare-table tbody tr:hover td.best { background: var(--green-tint); }
+  /* touch targets: 24px minimum, 44px on coarse pointers as the tabs already do */
+  .quote-actions .btn-link, .q-actions .btn-link, .compare-toolbar .btn-link { display: inline-flex; align-items: center; min-height: 32px; padding: 0 var(--sp-2); }
+  .quote-actions .btn-link:first-child, .q-actions .btn-link { margin-left: calc(-1 * var(--sp-2)); }
+  .quote-actions .btn-link.danger { margin-left: auto; margin-right: calc(-1 * var(--sp-2)); }
+  .compare-toolbar .btn-link { margin-right: calc(-1 * var(--sp-2)); }
+  @media (pointer: coarse) { .quote-actions .btn-link, .q-actions .btn-link, .compare-toolbar .btn-link, .btn-save { min-height: 44px; } }
+  @media (min-width: 1024px) { .toast { bottom: 24px; } #section-compare > .container { display: block; } }
+  @media (max-width: 600px) {
+    .compare-table { min-width: 0; }
+    .compare-table th:first-child, .compare-table td:first-child { min-width: 104px; font-size: var(--fs-sm); padding-left: 10px; padding-right: 8px; }
+    .compare-table th:nth-child(n+2), .compare-table td:nth-child(n+2) { min-width: 150px; padding-left: 10px; padding-right: 10px; }
+    .compare-table tr.compare-hero td { font-size: 1.1rem; }
   }
 
-  /* ── Mobile tweaks ── */
-  @media (max-width: 500px) {
-    header { padding: 0.85rem 1rem 0.7rem; }
-    header h1 { font-size: 1.25rem; }
-    header span { font-size: 0.85rem; display: block; width: 100%; padding-top: 0.1rem; }
-    .container { padding: 0 0.85rem; margin: 0.5rem auto 2rem; }
-    .card-body { padding: 0.25rem 0.85rem 0.85rem; }
-    .recommended-row .value { font-size: 1.7rem; }
-    .bess2-rebate .value { font-size: 1.3rem; }
+  @media print {
+    .btn-save, .quote-actions, .q-actions, .compare-toolbar, .toast { display: none !important; }
+    .topbar, .price-bar, .btn-primary, #overhead-section, #commission-section, .card-notes { display: none !important; }
+    .results-pane { position: static; max-height: none; overflow: visible; }
+    [id^="section-"] > .container { display: block; }
+    .card { break-inside: avoid; box-shadow: none; border: 1px solid #999; }
+    .recommended-row { print-color-adjust: exact; -webkit-print-color-adjust: exact; border: 2px solid #000; }
   }
+
+  /* admin: three tabs always fit on the title row */
+  @media (min-width: 768px) { .tabs { margin-left: auto; flex: 0 1 auto; flex-wrap: nowrap; gap: var(--sp-2); } .tab-group-label { display: inline; } .tab-btn { padding: 0 12px; } }
+  @media (max-width: 599px) { .tab-group-label { display: none; } }
 </style>
 </head>
 <body>
 
-<header>
-  <h1>Pricing Calculator</h1>
-  <span>Admin — Combined Pricing Calculator</span>
-</header>
-
-<div class="tab-bar-wrap">
-  <button class="tab-btn active" id="tab-sig" onclick="switchTab('sig')">Sigenergy</button>
-  <button class="tab-btn" id="tab-gw" onclick="switchTab('gw')">GoodWe ESA</button>
-</div>
+<div class="topbar"><div class="topbar-inner">
+  <header class="brand"><h1>Pricing Calculator <span class="edition">Admin</span></h1></header>
+  <nav class="tabs" role="tablist" aria-label="Calculators">
+    <div class="tab-group"><span class="tab-group-label" aria-hidden="true">Residential</span>
+      <button type="button" class="tab-btn active" id="tab-sig" role="tab" aria-selected="true" aria-controls="section-sig" tabindex="0" onclick="switchTab('sig')">Sigenergy</button>
+      <button type="button" class="tab-btn" id="tab-gw" role="tab" aria-selected="false" aria-controls="section-gw" tabindex="-1" onclick="switchTab('gw')">GoodWe ESA</button>
+    </div>
+    <div class="tab-group admin-only"><span class="tab-group-label" aria-hidden="true">Tools</span>
+      <button type="button" class="tab-btn" id="tab-compare" role="tab" aria-selected="false" aria-controls="section-compare" tabindex="-1" onclick="switchTab('compare')">Compare <span class="tab-count" id="compare-count" hidden>0</span></button>
+    </div>
+  </nav>
+</div></div>
 
 <!-- ============================================================ -->
 <!-- SIGENERGY SECTION                                            -->
 <!-- ============================================================ -->
-<div id="section-sig">
+<div id="section-sig" role="tabpanel" aria-labelledby="tab-sig">
   <div class="container">
 
-    <!-- INPUT PANEL -->
+    <!-- JOB CONFIGURATION -->
     <div class="card">
-      <div class="card-header">Sigenergy — Job Configuration</div>
+      <h2 class="card-header">Job configuration</h2>
       <div class="card-body">
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Number of Panels</label>
-            <input type="number" id="s-numPanels" min="0" value="20" oninput="calcSig()">
-          </div>
-          <div class="form-group">
-            <label>Panel Type</label>
-            <select id="s-panelType" onchange="calcSig()">
-              <option value="jinko475">Jinko 475W (All Black) — $127.60</option>
-              <option value="jinko510">Jinko 510W N-Type (Black Frame) — $117.81</option>
-              <option value="ja475">JA 475W — $130</option>
-              <option value="aiko475">AIKO 490W — $175</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Roof Type</label>
-            <select id="s-roofType" onchange="calcSig()">
-              <option value="tin">Tin Roof</option>
-              <option value="tile">Tile Roof</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Inverter</label>
-            <select id="s-inverterType" onchange="calcSig()">
-              <optgroup label="Single Phase">
-                <option value="ec5sp">EC 5.0 SP — $1,378.16</option>
-                <option value="ec6sp">EC 6.0 SP — $1,489.70</option>
-                <option value="ec8sp">EC 8.0 SP — $2,546.12</option>
-                <option value="ec10sp" selected>EC 10.0 SP — $2,640.83</option>
-                <option value="ec12sp">EC 12.0 SP — $2,741.12</option>
-              </optgroup>
-              <optgroup label="Three Phase">
-                <option value="ec5tp">EC 5.0 TP — $2,359.50</option>
-                <option value="ec10tp">EC 10.0 TP — $2,732.73</option>
-                <option value="ec15tp">EC 15.0 TP — $3,212.74</option>
-                <option value="ec20tp">EC 20.0 TP — $3,421.87</option>
-                <option value="ec25tp">EC 25.0 TP — $3,627.80</option>
-                <option value="ec30tp">EC 30.0 TP — $3,798.52</option>
-              </optgroup>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>No. of Inverters</label>
-            <select id="s-numInverters" onchange="calcSig()">
-              <option value="1">1</option>
-              <option value="2">2 (Dual)</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>BAT 10.0 (9 kWh) Modules — $2,475 ea</label>
-            <select id="s-num8kwh" onchange="calcSig()">
-              <option value="0">0</option>
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-              <option value="5">5</option>
-              <option value="6" selected>6</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>BAT 5.0 (5 kWh) Modules — $3,056.90 ea</label>
-            <select id="s-num5kwh" onchange="calcSig()">
-              <option value="0" selected>0</option>
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-              <option value="5">5</option>
-              <option value="6">6</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Gateway</label>
-            <select id="s-gatewayType" onchange="calcSig()">
-              <option value="sp">SP Gateway AU (Pro) — $756.86</option>
-              <option value="tp">TP Gateway AU (Pro) — $935.45</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Install Kits</label>
-            <select id="s-numInstallKits" onchange="calcSig()">
-              <option value="1">1 (Standard)</option>
-              <option value="2">2 (Dual Inverter)</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Power Sensor</label>
-            <select id="s-powerSensor" onchange="calcSig()">
-              <option value="none">None</option>
-              <option value="spct100">SP-CT100 Single Phase — $109.99</option>
-              <option value="tpct100">TP-CT100 Three Phase — $219.98</option>
-              <option value="tpct300dh">TP-CT300-DH — $316.90</option>
-              <option value="tpct600dh">TP-CT600-DH — $372.44</option>
-              <option value="tpdhci">TP DH-C&amp;I — $331.06</option>
-              <option value="nanobanana">Nano Beam Sensors — $1,200.00</option>
-            </select>
-          </div>
-          <input type="hidden" id="s-installPeriod" value="after">
-        </div>
 
-        <div style="padding: 0.75rem 0 0.25rem;">
-          <div class="extras-section-label">Extras (ex GST — added to final price)</div>
+        <fieldset class="field-set">
+          <legend>Equipment</legend>
+          <div class="form-grid">
+            <div class="form-group field">
+              <label class="field-label" for="s-numPanels">Number of panels</label>
+              <div class="field-control">
+                <input type="number" id="s-numPanels" min="0" value="20" oninput="calcSig()" inputmode="numeric" enterkeyhint="done">
+              </div>
+            </div>
+            <div class="form-group field field--wide field--select">
+              <label class="field-label" for="s-panelType">Panel type</label>
+              <div class="field-control">
+                <select id="s-panelType" onchange="calcSig()">
+                  <option value="jinko475">Jinko 475W (All Black) — $127.60</option>
+                  <option value="jinko510">Jinko 510W N-Type (Black Frame) — $117.81</option>
+                  <option value="ja475">JA 475W — $130</option>
+                  <option value="aiko475">AIKO 490W — $175</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group field field--select">
+              <label class="field-label" for="s-roofType">Roof type</label>
+              <div class="field-control">
+                <select id="s-roofType" onchange="calcSig()">
+                  <option value="tin">Tin Roof</option>
+                  <option value="tile">Tile Roof</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group field field--wide field--select">
+              <label class="field-label" for="s-inverterType">Inverter</label>
+              <div class="field-control">
+                <select id="s-inverterType" onchange="calcSig()">
+                  <optgroup label="Single Phase">
+                    <option value="ec5sp">EC 5.0 SP — $1,378.16</option>
+                    <option value="ec6sp">EC 6.0 SP — $1,489.70</option>
+                    <option value="ec8sp">EC 8.0 SP — $2,546.12</option>
+                    <option value="ec10sp" selected>EC 10.0 SP — $2,640.83</option>
+                    <option value="ec12sp">EC 12.0 SP — $2,741.12</option>
+                  </optgroup>
+                  <optgroup label="Three Phase">
+                    <option value="ec5tp">EC 5.0 TP — $2,359.50</option>
+                    <option value="ec10tp">EC 10.0 TP — $2,732.73</option>
+                    <option value="ec15tp">EC 15.0 TP — $3,212.74</option>
+                    <option value="ec20tp">EC 20.0 TP — $3,421.87</option>
+                    <option value="ec25tp">EC 25.0 TP — $3,627.80</option>
+                    <option value="ec30tp">EC 30.0 TP — $3,798.52</option>
+                  </optgroup>
+                </select>
+              </div>
+            </div>
+            <div class="form-group field field--select">
+              <label class="field-label" for="s-numInverters">No. of inverters</label>
+              <div class="field-control">
+                <select id="s-numInverters" onchange="calcSig()">
+                  <option value="1">1</option>
+                  <option value="2">2 (Dual)</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group field field--select">
+              <label class="field-label" for="s-num8kwh">BAT 10.0 modules</label>
+              <div class="field-control">
+                <select id="s-num8kwh" onchange="calcSig()" aria-describedby="s-num8kwh-hint">
+                  <option value="0">0</option>
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5">5</option>
+                  <option value="6" selected>6</option>
+                </select>
+              </div>
+              <span class="field-hint" id="s-num8kwh-hint">9 kWh · $2,475 each</span>
+            </div>
+            <div class="form-group field field--select">
+              <label class="field-label" for="s-num5kwh">BAT 5.0 modules</label>
+              <div class="field-control">
+                <select id="s-num5kwh" onchange="calcSig()" aria-describedby="s-num5kwh-hint">
+                  <option value="0" selected>0</option>
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5">5</option>
+                  <option value="6">6</option>
+                </select>
+              </div>
+              <span class="field-hint" id="s-num5kwh-hint">5 kWh · $3,056.90 each</span>
+            </div>
+            <div class="form-group field field--select">
+              <label class="field-label" for="s-gatewayType">Gateway</label>
+              <div class="field-control">
+                <select id="s-gatewayType" onchange="calcSig()">
+                  <option value="sp">SP Gateway AU (Pro) — $756.86</option>
+                  <option value="tp">TP Gateway AU (Pro) — $935.45</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group field field--select">
+              <label class="field-label" for="s-numInstallKits">Install kits</label>
+              <div class="field-control">
+                <select id="s-numInstallKits" onchange="calcSig()">
+                  <option value="1">1 (Standard)</option>
+                  <option value="2">2 (Dual Inverter)</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group field field--select">
+              <label class="field-label" for="s-powerSensor">Power sensor</label>
+              <div class="field-control">
+                <select id="s-powerSensor" onchange="calcSig()">
+                  <option value="none">None</option>
+                  <option value="spct100">SP-CT100 Single Phase — $109.99</option>
+                  <option value="tpct100">TP-CT100 Three Phase — $219.98</option>
+                  <option value="tpct300dh">TP-CT300-DH — $316.90</option>
+                  <option value="tpct600dh">TP-CT600-DH — $372.44</option>
+                  <option value="tpdhci">TP DH-C&amp;I — $331.06</option>
+                  <option value="nanobanana">Nano Beam Sensors — $1,200.00</option>
+                </select>
+              </div>
+            </div>
+            <input type="hidden" id="s-installPeriod" value="after">
+          </div>
+        </fieldset>
+
+        <fieldset class="field-set">
+          <legend>Extras <small>ex GST — added to the final price</small></legend>
           <div class="extras-grid">
             <label><input type="checkbox" class="s-extra-cb" data-price="250" onchange="calcSig()"><span>Double Storey Install</span><span class="extra-price">$250</span></label>
             <label><input type="checkbox" class="s-extra-cb" data-price="70" data-per-panel="true" onchange="calcSig()"><span>Tilt Frames</span><span class="per-panel-tag">/panel</span><span class="extra-price">$70</span></label>
             <label><input type="checkbox" class="s-extra-cb" data-price="30" data-per-panel="true" onchange="calcSig()"><span>Kliplock Feet</span><span class="per-panel-tag">/panel</span><span class="extra-price">$30</span></label>
-            <label><input type="checkbox" class="s-extra-cb" data-price="200" data-qty-select="s-splitQty" onchange="calcSig()"><span>Split Array</span><select class="extra-select" id="s-splitQty" onchange="calcSig()"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option></select><span class="extra-price">$200 ea</span></label>
+            <label class="extra--qty"><input type="checkbox" class="s-extra-cb" data-price="200" data-qty-select="s-splitQty" onchange="calcSig()"><span>Split Array</span><select class="extra-select" id="s-splitQty" aria-label="Split array quantity" onchange="calcSig()"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option></select><span class="extra-price">$200 ea</span></label>
             <label><input type="checkbox" class="s-extra-cb" data-price="70" data-per-panel="true" onchange="calcSig()"><span>30-Degree Pitch</span><span class="per-panel-tag">/panel</span><span class="extra-price">$70</span></label>
             <label><input type="checkbox" class="s-extra-cb" data-price="650" onchange="calcSig()"><span>New Additional Sub Board</span><span class="extra-price">$650</span></label>
             <label><input type="checkbox" class="s-extra-cb" data-price="500" onchange="calcSig()"><span>Decommission (4–8 Panels)</span><span class="extra-price">$500</span></label>
@@ -897,62 +992,87 @@
             <label><input type="checkbox" class="s-extra-cb" data-price="250" onchange="calcSig()"><span>Fireproof Backing</span><span class="extra-price">$250</span></label>
             <label><input type="checkbox" class="s-extra-cb" data-price="70" data-per-panel="true" onchange="calcSig()"><span>Optimizers</span><span class="per-panel-tag">/panel</span><span class="extra-price">$70</span></label>
             <label><input type="checkbox" class="s-extra-cb" data-price="200" onchange="calcSig()"><span>Concrete Plinth</span><span class="extra-price">$200</span></label>
-            <label><input type="checkbox" class="s-extra-cb" data-price="50" data-qty-select="s-cableMetres" onchange="calcSig()"><span>Cable (per metre)</span><select class="extra-select" id="s-cableMetres" onchange="calcSig()"><option value="1">1m</option><option value="2">2m</option><option value="3">3m</option><option value="4">4m</option><option value="5">5m</option><option value="10">10m</option><option value="15">15m</option><option value="20">20m</option><option value="25">25m</option><option value="30">30m</option></select><span class="extra-price">$50/m</span></label>
-            <label><input type="checkbox" class="s-extra-cb" data-price="150" data-qty-select="s-breakerQty" onchange="calcSig()"><span>Breakers</span><select class="extra-select" id="s-breakerQty" onchange="calcSig()"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option></select><span class="extra-price">$150 ea</span></label>
+            <label class="extra--qty"><input type="checkbox" class="s-extra-cb" data-price="50" data-qty-select="s-cableMetres" onchange="calcSig()"><span>Cable (per metre)</span><select class="extra-select" id="s-cableMetres" aria-label="Cable metres" onchange="calcSig()"><option value="1">1m</option><option value="2">2m</option><option value="3">3m</option><option value="4">4m</option><option value="5">5m</option><option value="10">10m</option><option value="15">15m</option><option value="20">20m</option><option value="25">25m</option><option value="30">30m</option></select><span class="extra-price">$50/m</span></label>
+            <label class="extra--qty"><input type="checkbox" class="s-extra-cb" data-price="150" data-qty-select="s-breakerQty" onchange="calcSig()"><span>Breakers</span><select class="extra-select" id="s-breakerQty" aria-label="Breakers quantity" onchange="calcSig()"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option></select><span class="extra-price">$150 ea</span></label>
             <label><input type="checkbox" class="s-extra-cb" data-price="650" onchange="calcSig()"><span>Hot Water Timer</span><span class="extra-price">$650</span></label>
             <label><input type="checkbox" class="s-extra-cb" data-price="2000" onchange="calcSig()"><span>Decommission Existing Battery</span><span class="extra-price">$2,000</span></label>
           </div>
-          <div class="form-group" style="margin-top:0.5rem;">
-            <label>Car Charger</label>
-            <select id="s-carCharger" onchange="calcSig()">
-              <option value="none">None</option>
-              <option value="gw7khca">GW7K-HCA — 7kW Single Phase ($1,900 ex GST)</option>
-              <option value="gw11khca">GW11K-HCA — 11kW Three Phase ($2,000 ex GST)</option>
-              <option value="gw22khca">GW22K-HCA — 22kW Three Phase ($2,400 ex GST)</option>
-            </select>
-          </div>
-        </div>
+        </fieldset>
 
-        <div class="form-footer">
-          <div class="form-group admin-only">
-            <label>Rep / Commission</label>
-            <select id="s-repType" onchange="calcSig()">
-              <option value="none">None</option>
-              <option value="onbooks">On-the-books ($/panel + battery)</option>
-              <option value="commsonly">Comms-only (flat $/sale)</option>
-            </select>
+        <fieldset class="field-set">
+          <legend>Pricing <small class="admin-only"><a class="field-link" href="#overhead-section" onclick="openSettings();return false;">Overheads &amp; commission settings</a></small></legend>
+          <div class="form-grid">
+            <div class="form-group field field--wide field--select">
+              <label class="field-label" for="s-carCharger">Car charger</label>
+              <div class="field-control">
+                <select id="s-carCharger" onchange="calcSig()">
+                  <option value="none">None</option>
+                  <option value="gw7khca">GW7K-HCA — 7kW Single Phase ($1,900 ex GST)</option>
+                  <option value="gw11khca">GW11K-HCA — 11kW Three Phase ($2,000 ex GST)</option>
+                  <option value="gw22khca">GW22K-HCA — 22kW Three Phase ($2,400 ex GST)</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group field field--wide field--highlight">
+              <label class="field-label" for="s-salePrice">Sale price</label>
+              <div class="field-control">
+                <span class="field-affix field-affix--pre">$</span>
+                <input type="number" id="s-salePrice" min="0" step="0.01" placeholder="Leave blank to skip" oninput="calcSig()" inputmode="decimal" enterkeyhint="done" autocomplete="off" aria-describedby="s-salePrice-hint">
+              </div>
+              <span class="field-hint" id="s-salePrice-hint">inc GST · leave blank to skip</span>
+            </div>
           </div>
-          <div class="form-group">
-            <label>Sale Price (inc GST)</label>
-            <input type="number" id="s-salePrice" min="0" step="0.01" placeholder="Leave blank to skip" oninput="calcSig()">
+        </fieldset>
+        <fieldset class="field-set admin-only">
+          <legend>Commission</legend>
+          <div class="form-grid">
+            <div class="form-group field field--select admin-only">
+              <label class="field-label" for="s-repType">Rep / commission</label>
+              <div class="field-control">
+                <select id="s-repType" onchange="calcSig()">
+                  <option value="none">None</option>
+                  <option value="onbooks">On-the-books ($/panel + battery)</option>
+                  <option value="commsonly">Comms-only (flat $/sale)</option>
+                </select>
+              </div>
+            </div>
           </div>
-          <button class="btn-calculate" onclick="calcSig()">Calculate</button>
-        </div>
+        </fieldset>
+
       </div>
     </div>
 
-    <!-- OUTPUT PANEL -->
-    <div class="output-grid">
-      <div class="card admin-only" id="s-results-card" style="display:none;">
-        <div class="card-header">Itemised Cost Breakdown</div>
-        <div class="card-body" style="padding:0;">
+    <!-- RESULTS PANE -->
+    <aside class="results-pane" tabindex="0" role="region" aria-label="Summary">
+      <div class="card summary-card" id="s-summary-card">
+        <h2 class="card-header">Summary <button type="button" class="btn-save admin-only" onclick="saveQuote('sig')" title="Save this quote to compare">Save quote</button></h2>
+        <div class="card-body" id="s-summary"></div>
+      </div>
+    </aside>
+
+    <!-- ITEMISED COST BREAKDOWN -->
+    <div class="card admin-only" id="s-results-card" style="display:none;">
+      <h2 class="card-header">Itemised cost breakdown</h2>
+      <div class="card-body flush">
+        <div class="table-scroll">
           <table class="breakdown-table" id="s-breakdown"></table>
         </div>
-      </div>
-
-      <div class="card summary-card" id="s-summary-card">
-        <div class="card-header">Summary</div>
-        <div class="card-body" id="s-summary"></div>
       </div>
     </div>
 
     <!-- PROFIT PROJECTION -->
     <div class="card admin-only" id="s-profit-card" style="display:none;">
-      <div class="card-header">Daily &amp; Weekly Profit Projection</div>
+      <h2 class="card-header">Daily &amp; weekly profit projection</h2>
       <div class="card-body">
-        <div class="form-group" style="margin-bottom:0.75rem;">
-          <label>Installs Per Week &mdash; sets the recommended price</label>
-          <input type="number" id="s-jobsPerWeek" min="0" step="0.5" value="15" oninput="calcSig()">
+        <div class="form-grid">
+          <div class="form-group field">
+            <label class="field-label" for="s-jobsPerWeek">Installs per week</label>
+            <div class="field-control">
+              <input type="number" id="s-jobsPerWeek" min="0" step="0.5" value="15" oninput="calcSig()" inputmode="decimal" enterkeyhint="done" aria-describedby="s-jobsPerWeek-hint">
+              <span class="field-affix">/wk</span>
+            </div>
+            <span class="field-hint" id="s-jobsPerWeek-hint">Sets the recommended price</span>
+          </div>
         </div>
         <div id="s-profit"></div>
       </div>
@@ -965,166 +1085,211 @@
 <!-- ============================================================ -->
 <!-- GOODWE SECTION                                               -->
 <!-- ============================================================ -->
-<div id="section-gw" style="display:none;">
+<div id="section-gw" style="display:none;" role="tabpanel" aria-labelledby="tab-gw">
   <div class="container">
 
-    <!-- INPUT PANEL -->
+    <!-- JOB CONFIGURATION -->
     <div class="card">
-      <div class="card-header">GoodWe ESA — Job Configuration</div>
+      <h2 class="card-header">Job configuration</h2>
       <div class="card-body">
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Number of Panels</label>
-            <input type="number" id="g-numPanels" min="0" value="20" oninput="calcGW()">
-          </div>
-          <div class="form-group">
-            <label>Panel Type</label>
-            <select id="g-panelType" onchange="calcGW()">
-              <option value="jinko475">Jinko 475W (All Black) — $127.60</option>
-              <option value="jinko510">Jinko 510W N-Type (Black Frame) — $117.81</option>
-              <option value="ja475">JA 475W — $130</option>
-              <option value="aiko475">AIKO 490W — $175</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Roof Type</label>
-            <select id="g-roofType" onchange="calcGW()">
-              <option value="tin">Tin Roof</option>
-              <option value="tile">Tile Roof</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Inverter</label>
-            <select id="g-inverterType" onchange="calcGW()">
-              <optgroup label="Single Phase">
-                <option value="gw5k">GW5K-EHA-G20 — $1,225.40</option>
-                <option value="gw8k">GW8K-EHA-G20 — $1,857.90</option>
-                <option value="gw10k" selected>GW9.999K-EHA-G20 — $2,008.60</option>
-              </optgroup>
-              <optgroup label="Three Phase">
-                <option value="gw10ktp">GW10K-ET-G20 — $2,062.50</option>
-                <option value="gw15ktp">GW15K-ET-G20 — $2,202.20</option>
-                <option value="gw20ktp">GW20K-ET-G20 — $2,277.00</option>
-                <option value="gw25ktp">GW25K-ET-G20 — $2,343.00</option>
-              </optgroup>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>No. of Inverters</label>
-            <select id="g-numInverters" onchange="calcGW()">
-              <option value="1">1</option>
-              <option value="2">2 (Dual)</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Battery Module</label>
-            <select id="g-batteryModule" onchange="updateGwBatterySizes()">
-              <option value="gw83">GW8.3-BAT-D-G20 (8.3 kWh) — $2,277</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Battery Size (kWh)</label>
-            <select id="g-batteryKwh" onchange="calcGW()">
-              <!-- populated by updateGwBatterySizes() -->
-            </select>
-          </div>
-          <input type="hidden" id="g-gatewayType" value="none">
-          <input type="hidden" id="g-installPeriod" value="after">
-          <div class="form-group">
-            <label>Install Kits</label>
-            <select id="g-numInstallKits" onchange="calcGW()">
-              <option value="1">1 (Standard)</option>
-              <option value="2">2 (Dual Inverter)</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Power Sensor</label>
-            <select id="g-powerSensor" onchange="calcGW()">
-              <option value="none">None</option>
-              <option value="spct100">SP-CT100 Single Phase — $109.99</option>
-              <option value="tpct100">TP-CT100 Three Phase — $219.98</option>
-              <option value="tpct300dh">TP-CT300-DH — $316.90</option>
-              <option value="tpct600dh">TP-CT600-DH — $372.44</option>
-              <option value="tpdhci">TP DH-C&amp;I — $331.06</option>
-              <option value="nanobanana">Nano Beam Sensors — $1,200.00</option>
-            </select>
-          </div>
-        </div>
 
-        <div class="extras-section-label" style="margin-top:0.75rem;">Extras (ex GST — added to final price)</div>
-        <div class="extras-grid">
-          <label><input type="checkbox" class="g-extra-cb" data-price="250" onchange="calcGW()"><span>Double Storey Install</span><span class="extra-price">$250</span></label>
-          <label><input type="checkbox" class="g-extra-cb" data-price="70" data-per-panel="true" onchange="calcGW()"><span>Tilt Frames</span><span class="per-panel-tag">/panel</span><span class="extra-price">$70</span></label>
-          <label><input type="checkbox" class="g-extra-cb" data-price="30" data-per-panel="true" onchange="calcGW()"><span>Kliplock Feet</span><span class="per-panel-tag">/panel</span><span class="extra-price">$30</span></label>
-          <label><input type="checkbox" class="g-extra-cb" data-price="200" data-qty-select="g-splitQty" onchange="calcGW()"><span>Split Array</span><select class="extra-select" id="g-splitQty" onchange="calcGW()"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option></select><span class="extra-price">$200 ea</span></label>
-          <label><input type="checkbox" class="g-extra-cb" data-price="70" data-per-panel="true" onchange="calcGW()"><span>30-Degree Pitch</span><span class="per-panel-tag">/panel</span><span class="extra-price">$70</span></label>
-          <label><input type="checkbox" class="g-extra-cb" data-price="650" onchange="calcGW()"><span>New Additional Sub Board</span><span class="extra-price">$650</span></label>
-          <label><input type="checkbox" class="g-extra-cb" data-price="500" onchange="calcGW()"><span>Decommission (4–8 Panels)</span><span class="extra-price">$500</span></label>
-          <label><input type="checkbox" class="g-extra-cb" data-price="700" onchange="calcGW()"><span>Decommission (10–20 Panels)</span><span class="extra-price">$700</span></label>
-          <label><input type="checkbox" class="g-extra-cb" data-price="380" onchange="calcGW()"><span>Bollard</span><span class="extra-price">$380</span></label>
-          <label><input type="checkbox" class="g-extra-cb" data-price="250" onchange="calcGW()"><span>Fireproof Backing</span><span class="extra-price">$250</span></label>
-          <label><input type="checkbox" class="g-extra-cb" data-price="70" data-per-panel="true" onchange="calcGW()"><span>Optimizers</span><span class="per-panel-tag">/panel</span><span class="extra-price">$70</span></label>
-          <label><input type="checkbox" class="g-extra-cb" data-price="200" onchange="calcGW()"><span>Concrete Plinth</span><span class="extra-price">$200</span></label>
-          <label><input type="checkbox" class="g-extra-cb" data-price="50" data-qty-select="g-cableMetres" onchange="calcGW()"><span>Cable (per metre)</span><select class="extra-select" id="g-cableMetres" onchange="calcGW()"><option value="1">1m</option><option value="2">2m</option><option value="3">3m</option><option value="4">4m</option><option value="5">5m</option><option value="10">10m</option><option value="15">15m</option><option value="20">20m</option><option value="25">25m</option><option value="30">30m</option></select><span class="extra-price">$50/m</span></label>
-          <label><input type="checkbox" class="g-extra-cb" data-price="150" data-qty-select="g-breakerQty" onchange="calcGW()"><span>Breakers</span><select class="extra-select" id="g-breakerQty" onchange="calcGW()"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option></select><span class="extra-price">$150 ea</span></label>
-          <label><input type="checkbox" class="g-extra-cb" data-price="650" onchange="calcGW()"><span>Hot Water Timer</span><span class="extra-price">$650</span></label>
-          <label><input type="checkbox" class="g-extra-cb" data-price="2000" onchange="calcGW()"><span>Decommission Existing Battery</span><span class="extra-price">$2,000</span></label>
-        </div>
+        <fieldset class="field-set">
+          <legend>Equipment</legend>
+          <div class="form-grid">
+            <div class="form-group field">
+              <label class="field-label" for="g-numPanels">Number of panels</label>
+              <div class="field-control">
+                <input type="number" id="g-numPanels" min="0" value="20" oninput="calcGW()" inputmode="numeric" enterkeyhint="done">
+              </div>
+            </div>
+            <div class="form-group field field--wide field--select">
+              <label class="field-label" for="g-panelType">Panel type</label>
+              <div class="field-control">
+                <select id="g-panelType" onchange="calcGW()">
+                  <option value="jinko475">Jinko 475W (All Black) — $127.60</option>
+                  <option value="jinko510">Jinko 510W N-Type (Black Frame) — $117.81</option>
+                  <option value="ja475">JA 475W — $130</option>
+                  <option value="aiko475">AIKO 490W — $175</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group field field--select">
+              <label class="field-label" for="g-roofType">Roof type</label>
+              <div class="field-control">
+                <select id="g-roofType" onchange="calcGW()">
+                  <option value="tin">Tin Roof</option>
+                  <option value="tile">Tile Roof</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group field field--wide field--select">
+              <label class="field-label" for="g-inverterType">Inverter</label>
+              <div class="field-control">
+                <select id="g-inverterType" onchange="calcGW()">
+                  <optgroup label="Single Phase">
+                    <option value="gw5k">GW5K-EHA-G20 — $1,225.40</option>
+                    <option value="gw8k">GW8K-EHA-G20 — $1,857.90</option>
+                    <option value="gw10k" selected>GW9.999K-EHA-G20 — $2,008.60</option>
+                  </optgroup>
+                  <optgroup label="Three Phase">
+                    <option value="gw10ktp">GW10K-ET-G20 — $2,062.50</option>
+                    <option value="gw15ktp">GW15K-ET-G20 — $2,202.20</option>
+                    <option value="gw20ktp">GW20K-ET-G20 — $2,277.00</option>
+                    <option value="gw25ktp">GW25K-ET-G20 — $2,343.00</option>
+                  </optgroup>
+                </select>
+              </div>
+            </div>
+            <div class="form-group field field--select">
+              <label class="field-label" for="g-numInverters">No. of inverters</label>
+              <div class="field-control">
+                <select id="g-numInverters" onchange="calcGW()">
+                  <option value="1">1</option>
+                  <option value="2">2 (Dual)</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group field field--wide field--select">
+              <label class="field-label" for="g-batteryModule">Battery module</label>
+              <div class="field-control">
+                <select id="g-batteryModule" onchange="updateGwBatterySizes()">
+                  <option value="gw83">GW8.3-BAT-D-G20 (8.3 kWh) — $2,277</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group field field--select">
+              <label class="field-label" for="g-batteryKwh">Battery size</label>
+              <div class="field-control">
+                <select id="g-batteryKwh" onchange="calcGW()">
+                  <!-- populated by updateGwBatterySizes() -->
+                </select>
+              </div>
+            </div>
+            <input type="hidden" id="g-gatewayType" value="none">
+            <input type="hidden" id="g-installPeriod" value="after">
+            <div class="form-group field field--select">
+              <label class="field-label" for="g-numInstallKits">Install kits</label>
+              <div class="field-control">
+                <select id="g-numInstallKits" onchange="calcGW()">
+                  <option value="1">1 (Standard)</option>
+                  <option value="2">2 (Dual Inverter)</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group field field--select">
+              <label class="field-label" for="g-powerSensor">Power sensor</label>
+              <div class="field-control">
+                <select id="g-powerSensor" onchange="calcGW()">
+                  <option value="none">None</option>
+                  <option value="spct100">SP-CT100 Single Phase — $109.99</option>
+                  <option value="tpct100">TP-CT100 Three Phase — $219.98</option>
+                  <option value="tpct300dh">TP-CT300-DH — $316.90</option>
+                  <option value="tpct600dh">TP-CT600-DH — $372.44</option>
+                  <option value="tpdhci">TP DH-C&amp;I — $331.06</option>
+                  <option value="nanobanana">Nano Beam Sensors — $1,200.00</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </fieldset>
 
-        <div class="form-group" style="margin-top:0.5rem;">
-          <label>Car Charger</label>
-          <select id="g-carCharger" onchange="calcGW()">
-            <option value="none">None</option>
-            <option value="gw7khca">GW7K-HCA — 7kW Single Phase ($1,900 ex GST)</option>
-            <option value="gw11khca">GW11K-HCA — 11kW Three Phase ($2,000 ex GST)</option>
-            <option value="gw22khca">GW22K-HCA — 22kW Three Phase ($2,400 ex GST)</option>
-          </select>
-        </div>
+        <fieldset class="field-set">
+          <legend>Extras <small>ex GST — added to the final price</small></legend>
+          <div class="extras-grid">
+            <label><input type="checkbox" class="g-extra-cb" data-price="250" onchange="calcGW()"><span>Double Storey Install</span><span class="extra-price">$250</span></label>
+            <label><input type="checkbox" class="g-extra-cb" data-price="70" data-per-panel="true" onchange="calcGW()"><span>Tilt Frames</span><span class="per-panel-tag">/panel</span><span class="extra-price">$70</span></label>
+            <label><input type="checkbox" class="g-extra-cb" data-price="30" data-per-panel="true" onchange="calcGW()"><span>Kliplock Feet</span><span class="per-panel-tag">/panel</span><span class="extra-price">$30</span></label>
+            <label class="extra--qty"><input type="checkbox" class="g-extra-cb" data-price="200" data-qty-select="g-splitQty" onchange="calcGW()"><span>Split Array</span><select class="extra-select" id="g-splitQty" onchange="calcGW()" aria-label="Split array quantity"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option></select><span class="extra-price">$200 ea</span></label>
+            <label><input type="checkbox" class="g-extra-cb" data-price="70" data-per-panel="true" onchange="calcGW()"><span>30-Degree Pitch</span><span class="per-panel-tag">/panel</span><span class="extra-price">$70</span></label>
+            <label><input type="checkbox" class="g-extra-cb" data-price="650" onchange="calcGW()"><span>New Additional Sub Board</span><span class="extra-price">$650</span></label>
+            <label><input type="checkbox" class="g-extra-cb" data-price="500" onchange="calcGW()"><span>Decommission (4–8 Panels)</span><span class="extra-price">$500</span></label>
+            <label><input type="checkbox" class="g-extra-cb" data-price="700" onchange="calcGW()"><span>Decommission (10–20 Panels)</span><span class="extra-price">$700</span></label>
+            <label><input type="checkbox" class="g-extra-cb" data-price="380" onchange="calcGW()"><span>Bollard</span><span class="extra-price">$380</span></label>
+            <label><input type="checkbox" class="g-extra-cb" data-price="250" onchange="calcGW()"><span>Fireproof Backing</span><span class="extra-price">$250</span></label>
+            <label><input type="checkbox" class="g-extra-cb" data-price="70" data-per-panel="true" onchange="calcGW()"><span>Optimizers</span><span class="per-panel-tag">/panel</span><span class="extra-price">$70</span></label>
+            <label><input type="checkbox" class="g-extra-cb" data-price="200" onchange="calcGW()"><span>Concrete Plinth</span><span class="extra-price">$200</span></label>
+            <label class="extra--qty"><input type="checkbox" class="g-extra-cb" data-price="50" data-qty-select="g-cableMetres" onchange="calcGW()"><span>Cable (per metre)</span><select class="extra-select" id="g-cableMetres" onchange="calcGW()" aria-label="Cable metres"><option value="1">1m</option><option value="2">2m</option><option value="3">3m</option><option value="4">4m</option><option value="5">5m</option><option value="10">10m</option><option value="15">15m</option><option value="20">20m</option><option value="25">25m</option><option value="30">30m</option></select><span class="extra-price">$50/m</span></label>
+            <label class="extra--qty"><input type="checkbox" class="g-extra-cb" data-price="150" data-qty-select="g-breakerQty" onchange="calcGW()"><span>Breakers</span><select class="extra-select" id="g-breakerQty" onchange="calcGW()" aria-label="Breakers quantity"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option></select><span class="extra-price">$150 ea</span></label>
+            <label><input type="checkbox" class="g-extra-cb" data-price="650" onchange="calcGW()"><span>Hot Water Timer</span><span class="extra-price">$650</span></label>
+            <label><input type="checkbox" class="g-extra-cb" data-price="2000" onchange="calcGW()"><span>Decommission Existing Battery</span><span class="extra-price">$2,000</span></label>
+          </div>
+        </fieldset>
 
-        <div class="form-group" style="margin-top:0.75rem;">
-          <label style="font-weight:700;color:var(--dark-green);">Check Your Price (inc GST)</label>
-          <input type="number" id="g-customPriceField" placeholder="Enter sale price inc GST" step="0.01"
-            style="width:100%;padding:10px;border:2px solid #3a6b35;border-radius:8px;font-size:1em;"
-            oninput="calcGW()">
-        </div>
+        <fieldset class="field-set">
+          <legend>Pricing <small class="admin-only"><a class="field-link" href="#overhead-section" onclick="openSettings();return false;">Overheads &amp; commission settings</a></small></legend>
+          <div class="form-grid">
+            <div class="form-group field field--wide field--select">
+              <label class="field-label" for="g-carCharger">Car charger</label>
+              <div class="field-control">
+                <select id="g-carCharger" onchange="calcGW()">
+                  <option value="none">None</option>
+                  <option value="gw7khca">GW7K-HCA — 7kW Single Phase ($1,900 ex GST)</option>
+                  <option value="gw11khca">GW11K-HCA — 11kW Three Phase ($2,000 ex GST)</option>
+                  <option value="gw22khca">GW22K-HCA — 22kW Three Phase ($2,400 ex GST)</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group field field--wide field--highlight">
+              <label class="field-label" for="g-customPriceField">Sale price</label>
+              <div class="field-control">
+                <span class="field-affix field-affix--pre">$</span>
+                <input type="number" id="g-customPriceField" placeholder="Enter sale price inc GST" step="0.01" oninput="calcGW()" inputmode="decimal" enterkeyhint="done" autocomplete="off" aria-describedby="g-customPriceField-hint">
+              </div>
+              <span class="field-hint" id="g-customPriceField-hint">inc GST · leave blank to skip</span>
+            </div>
+          </div>
+        </fieldset>
 
-        <div class="form-group admin-only" style="margin-top:0.75rem;">
-          <label>Rep / Commission</label>
-          <select id="g-repType" onchange="calcGW()">
-            <option value="none">None</option>
-            <option value="onbooks">On-the-books ($/panel + battery)</option>
-            <option value="commsonly">Comms-only (flat $/sale)</option>
-          </select>
-        </div>
+        <fieldset class="field-set admin-only">
+          <legend>Commission</legend>
+          <div class="form-grid">
+            <div class="form-group field field--select admin-only">
+              <label class="field-label" for="g-repType">Rep / commission</label>
+              <div class="field-control">
+                <select id="g-repType" onchange="calcGW()">
+                  <option value="none">None</option>
+                  <option value="onbooks">On-the-books ($/panel + battery)</option>
+                  <option value="commsonly">Comms-only (flat $/sale)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </fieldset>
 
-        <div class="form-footer">
-          <button class="btn-calculate" onclick="calcGW()">Calculate</button>
-        </div>
       </div>
     </div>
 
-    <!-- OUTPUT PANEL -->
-    <div class="output-grid">
-      <div class="card admin-only" id="g-results-card" style="display:none;">
-        <div class="card-header">Itemised Cost Breakdown</div>
-        <div class="card-body" style="padding:0;">
+    <!-- SUMMARY (sticky pane on desktop) -->
+    <aside class="results-pane" tabindex="0" role="region" aria-label="Summary">
+      <div class="card summary-card" id="g-summary-card">
+        <h2 class="card-header">Summary <button type="button" class="btn-save admin-only" onclick="saveQuote('gw')" title="Save this quote to compare">Save quote</button></h2>
+        <div class="card-body" id="g-summary"></div>
+      </div>
+    </aside>
+
+    <!-- ITEMISED COST BREAKDOWN -->
+    <div class="card admin-only" id="g-results-card" style="display:none;">
+      <h2 class="card-header">Itemised cost breakdown</h2>
+      <div class="card-body flush">
+        <div class="table-scroll">
           <table class="breakdown-table" id="g-breakdown"></table>
         </div>
-      </div>
-
-      <div class="card summary-card" id="g-summary-card">
-        <div class="card-header">Summary</div>
-        <div class="card-body" id="g-summary"></div>
       </div>
     </div>
 
     <!-- PROFIT PROJECTION -->
     <div class="card admin-only" id="g-profit-card" style="display:none;">
-      <div class="card-header">Daily &amp; Weekly Profit Projection</div>
+      <h2 class="card-header">Daily &amp; weekly profit projection</h2>
       <div class="card-body">
-        <div class="form-group" style="margin-bottom:0.75rem;">
-          <label>Installs Per Week &mdash; sets the recommended price</label>
-          <input type="number" id="g-jobsPerWeek" min="0" step="0.5" value="15" oninput="calcGW()">
+        <div class="form-grid">
+          <div class="form-group field">
+            <label class="field-label" for="g-jobsPerWeek">Installs per week</label>
+            <div class="field-control">
+              <input type="number" id="g-jobsPerWeek" min="0" step="0.5" value="15" oninput="calcGW()" inputmode="decimal" enterkeyhint="done" aria-describedby="g-jobsPerWeek-hint">
+              <span class="field-affix">/wk</span>
+            </div>
+            <span class="field-hint" id="g-jobsPerWeek-hint">Sets the recommended price</span>
+          </div>
         </div>
         <div id="g-profit"></div>
       </div>
@@ -1132,6 +1297,22 @@
 
   </div>
 </div><!-- end #section-gw -->
+
+
+<!-- ============================================================ -->
+<!-- COMPARE SAVED QUOTES (owner, 10 Nov 2026)                    -->
+<!-- ============================================================ -->
+<div id="section-compare" style="display:none;" role="tabpanel" aria-labelledby="tab-compare">
+  <div class="container">
+    <div class="card">
+      <h2 class="card-header">Saved quotes <span class="basis">side by side</span></h2>
+      <div class="card-body">
+        <p class="margin-tier-hint">Press <strong>Save quote</strong> in any calculator&rsquo;s Summary to add the job here. A quote keeps the components and prices as they were when it was saved, and stays in this browser. <strong>Open in calculator</strong> puts its inputs back so you can change it and save it again.</p>
+        <div id="compare-root"></div>
+      </div>
+    </div>
+  </div>
+</div><!-- end #section-compare -->
 
 
 <!-- ============================================================ -->
@@ -1162,81 +1343,81 @@
 <!-- ============================================================ -->
 <!-- ADMIN: OVERHEADS (applies to both tabs)                      -->
 <!-- ============================================================ -->
-<div class="container admin-only" id="overhead-section">
-  <div class="card">
-    <div class="card-header">Overheads</div>
+<div class="container settings admin-only" id="overhead-section">
+  <details class="card settings-card" id="overhead-card">
+    <summary class="card-header">Overheads</summary>
     <div class="card-body">
       <p class="margin-tier-hint">
-        <strong>Weekly overhead and the net target set the recommended price</strong> (with Installs Per Week on each tab; working days only splits the profit card into days). Every job is priced so the business nets the target % of ex-GST revenue: price = (net cost + extras + commission + 1.1 &times; weekly overhead &divide; installs/wk) &divide; (1 &minus; target). Margin tiers are no longer used. Daily overhead = weekly &divide; working days (currently <strong id="overhead-daily-display"></strong> / day). Applies to both tabs and persists in this browser.
+        <strong>Weekly overhead and the net target set the recommended price</strong> (with Installs Per Week on each tab; working days only splits the profit card into days). Every job is priced so the business nets the target % of ex-GST revenue: price = (net cost + extras + commission + 1.1 &times; weekly overhead &divide; installs/wk) &divide; (1 &minus; target). Daily overhead = weekly &divide; working days (currently <strong id="overhead-daily-display"></strong> / day). Applies to both tabs and persists in this browser.
       </p>
       <div class="margin-tier-grid">
-        <div class="margin-tier-row">
-          <span class="mt-label">Weekly overhead</span>
-          <div class="mt-input-wrap" style="grid-column: 2 / span 2;">
-            <span class="mt-pct">$</span>
-            <input type="number" id="overhead-weekly" min="0" step="1000" oninput="onOverheadChange()">
-            <span class="mt-pct">/ week</span>
+        <div class="setting-row">
+          <label class="setting-label" for="overhead-weekly">Weekly overhead</label>
+          <div class="setting-input">
+            <span class="setting-unit">$</span>
+            <input type="number" id="overhead-weekly" min="0" step="1000" oninput="onOverheadChange()" inputmode="decimal" enterkeyhint="done">
+            <span class="setting-unit">/ week</span>
           </div>
         </div>
-        <div class="margin-tier-row">
-          <span class="mt-label">Working days per week</span>
-          <div class="mt-input-wrap" style="grid-column: 2 / span 2;">
-            <input type="number" id="overhead-days" min="1" max="7" step="1" oninput="onOverheadChange()">
-            <span class="mt-pct">days</span>
+        <div class="setting-row">
+          <label class="setting-label" for="overhead-days">Working days per week</label>
+          <div class="setting-input">
+            <input type="number" id="overhead-days" min="1" max="7" step="1" oninput="onOverheadChange()" inputmode="numeric" enterkeyhint="done">
+            <span class="setting-unit">days</span>
           </div>
         </div>
-        <div class="margin-tier-row">
-          <span class="mt-label">Net profit target</span>
-          <div class="mt-input-wrap" style="grid-column: 2 / span 2;">
-            <input type="number" id="overhead-target" min="0" max="50" step="0.5" oninput="onOverheadChange()">
-            <span class="mt-pct">% net (ex GST)</span>
+        <div class="setting-row">
+          <label class="setting-label" for="overhead-target">Net profit target</label>
+          <div class="setting-input">
+            <input type="number" id="overhead-target" min="0" max="50" step="0.5" oninput="onOverheadChange()" inputmode="decimal" enterkeyhint="done">
+            <span class="setting-unit">% net (ex GST)</span>
           </div>
         </div>
       </div>
-      <button class="btn-margin-reset" onclick="resetOverhead()">Reset to Default</button>
+      <button type="button" class="btn-margin-reset" onclick="resetOverhead()">Reset to Default</button>
     </div>
-  </div>
+  </details>
 </div>
 
 <!-- ============================================================ -->
 <!-- ADMIN: REP COMMISSION (applies to both tabs)                -->
 <!-- ============================================================ -->
-<div class="container admin-only" id="commission-section">
-  <div class="card">
-    <div class="card-header">Rep Commission</div>
+<div class="container settings admin-only" id="commission-section">
+  <details class="card settings-card" id="commission-card">
+    <summary class="card-header">Rep commission</summary>
     <div class="card-body">
       <p class="margin-tier-hint">
         Set each rep type's commission. Pick the rep type per job in the calculator; the commission is deducted from that job's margin and the daily/weekly profit. Persists in this browser.
       </p>
       <div class="margin-tier-grid">
-        <div class="margin-tier-row">
-          <span class="mt-label">On-the-books &mdash; per panel</span>
-          <div class="mt-input-wrap" style="grid-column: 2 / span 2;">
-            <span class="mt-pct">$</span>
-            <input type="number" id="comm-per-panel" min="0" step="5" oninput="onCommissionChange()">
-            <span class="mt-pct">/ panel</span>
+        <div class="setting-row">
+          <label class="setting-label" for="comm-per-panel">On-the-books &mdash; per panel</label>
+          <div class="setting-input">
+            <span class="setting-unit">$</span>
+            <input type="number" id="comm-per-panel" min="0" step="5" oninput="onCommissionChange()" inputmode="decimal" enterkeyhint="done">
+            <span class="setting-unit">/ panel</span>
           </div>
         </div>
-        <div class="margin-tier-row">
-          <span class="mt-label">On-the-books &mdash; per battery sale</span>
-          <div class="mt-input-wrap" style="grid-column: 2 / span 2;">
-            <span class="mt-pct">$</span>
-            <input type="number" id="comm-per-battery" min="0" step="50" oninput="onCommissionChange()">
-            <span class="mt-pct">/ battery</span>
+        <div class="setting-row">
+          <label class="setting-label" for="comm-per-battery">On-the-books &mdash; per battery sale</label>
+          <div class="setting-input">
+            <span class="setting-unit">$</span>
+            <input type="number" id="comm-per-battery" min="0" step="50" oninput="onCommissionChange()" inputmode="decimal" enterkeyhint="done">
+            <span class="setting-unit">/ battery</span>
           </div>
         </div>
-        <div class="margin-tier-row">
-          <span class="mt-label">Comms-only &mdash; flat per sale</span>
-          <div class="mt-input-wrap" style="grid-column: 2 / span 2;">
-            <span class="mt-pct">$</span>
-            <input type="number" id="comm-flat" min="0" step="100" oninput="onCommissionChange()">
-            <span class="mt-pct">/ sale</span>
+        <div class="setting-row">
+          <label class="setting-label" for="comm-flat">Comms-only &mdash; flat per sale</label>
+          <div class="setting-input">
+            <span class="setting-unit">$</span>
+            <input type="number" id="comm-flat" min="0" step="100" oninput="onCommissionChange()" inputmode="decimal" enterkeyhint="done">
+            <span class="setting-unit">/ sale</span>
           </div>
         </div>
       </div>
-      <button class="btn-margin-reset" onclick="resetCommission()">Reset to Default</button>
+      <button type="button" class="btn-margin-reset" onclick="resetCommission()">Reset to Default</button>
     </div>
-  </div>
+  </details>
 </div>
 
 <!-- ============================================================ -->
@@ -1322,6 +1503,7 @@ const SIG_STC_BATTERY_CAP = 50;
 const DEFAULT_OVERHEAD = { weekly: 145000, days: 5, targetNet: 15 };
 let OVERHEAD = { ...DEFAULT_OVERHEAD };
 const OVERHEAD_STORAGE_KEY = 'ausave-overhead-v1';
+const OVERHEAD_PRESET_KEY = 'ausave-overhead-preset-145k';   // one-time reset marker, shared by the owner and admin pages
 function dailyOverhead() { return OVERHEAD.weekly / OVERHEAD.days; }
 function netTargetFrac() { return (OVERHEAD.targetNet || 0) / 100; }
 // Floor sale price (inc GST) for the net target at J jobs/week.
@@ -1436,7 +1618,7 @@ function calcBatterySTCs(batteryKwh, cap) {
 
 function buildProfitHtml(isBatteryOnly, jobsPerDay, marginPerJob, labelExtra, noPriceMsg, basisPrice) {
   if (noPriceMsg) {
-    return `<div style="padding:0.5rem;color:var(--muted);font-size:0.85rem;text-align:center;">${noPriceMsg}</div>`;
+    return `<div class="empty-state">${noPriceMsg}</div>`;
   }
   // Management basis (owner instruction 9 Aug 2026): profit ex GST; sale prices stay inc GST.
   const mEx = marginPerJob / 1.1;
@@ -1446,7 +1628,8 @@ function buildProfitHtml(isBatteryOnly, jobsPerDay, marginPerJob, labelExtra, no
   const dailyNetProfit    = zeroClamp(dailyGrossMargin - dailyOverhead());
   const weeklyNetProfit   = zeroClamp(weeklyGrossMargin - OVERHEAD.weekly);
 
-  let h = `<div style="font-size:0.75rem;color:var(--muted);margin-bottom:0.5rem;">Job type: <strong>${isBatteryOnly ? 'Battery Only' : 'Solar + Battery'}</strong> &mdash; Capacity: <strong>${Math.round(jobsPerDay * OVERHEAD.days * 10) / 10} jobs/week (${Math.round(jobsPerDay * 10) / 10}/day)</strong>${labelExtra} &mdash; Margin/job (ex GST): <strong>${fmt(mEx)}</strong></div>`;
+  // labelExtra is the third fact as a ready <dt>/<dd> pair (sale price, recommended or "your price", with any commission appended)
+  let h = `<dl class="facts"><dt>Job type</dt><dd><strong>${isBatteryOnly ? 'Battery Only' : 'Solar + Battery'}</strong></dd><dt>Capacity</dt><dd><strong>${Math.round(jobsPerDay * OVERHEAD.days * 10) / 10} jobs/week (${Math.round(jobsPerDay * 10) / 10}/day)</strong></dd>${labelExtra}<dt>Margin/job (ex GST)</dt><dd><strong>${fmt(mEx)}</strong></dd></dl>`;
   h += '<div class="profit-grid">';
 
   h += '<div class="profit-box"><h4>Daily</h4>';
@@ -1468,15 +1651,13 @@ function buildProfitHtml(isBatteryOnly, jobsPerDay, marginPerJob, labelExtra, no
   const jobsWk = jobsPerDay * OVERHEAD.days;
   if (tFrac > 0 && basisPrice > 0) {
     const tPct = OVERHEAD.targetNet;
-    const okCol = '#27ae60', badCol = '#c0392b';
-    let nt = `<div style="margin-top:0.6rem;padding:8px 10px;border-radius:8px;background:#f6f8f7;border:1px solid #dde3e0;">`;
-    nt += `<div style="font-weight:700;font-size:0.8rem;margin-bottom:4px;">Net profit target &mdash; ${tPct}% of revenue (ex GST)</div>`;
+    let nt = '<div class="target-panel">';
+    nt += `<div class="panel-title">Net profit target &mdash; ${tPct}% of revenue (ex GST)</div>`;
     if (jobsWk > 0) {
       const netWk = weeklyGrossMargin - OVERHEAD.weekly;
       const netPct = netWk / (jobsWk * basisPrice / 1.1) * 100;
       const onTarget = Math.round(netPct * 10) >= Math.round(tPct * 10);   // 1-dp compare: the recommended price sits exactly on the target
-      const col = onTarget ? okCol : badCol;
-      nt += `<div class="profit-line"><span class="label">Projected net margin at ${Math.round(jobsWk * 10) / 10} jobs/wk</span><span class="value" style="color:${col};font-weight:700;">${netPct.toFixed(1)}% ${onTarget ? '&mdash; on target' : '&mdash; below target'}</span></div>`;
+      nt += `<div class="profit-line"><span class="label">Projected net margin at ${Math.round(jobsWk * 10) / 10} jobs/wk</span><span class="value"><span class="status ${onTarget ? 'ok' : 'low'}">${netPct.toFixed(1)}% ${onTarget ? '&mdash; on target' : '&mdash; below target'}</span></span></div>`;
       const floor = netFloorPrice(basisPrice - marginPerJob, jobsWk);
       if (floor !== null) {
         const lift = (floor / basisPrice - 1) * 100;
@@ -1489,27 +1670,438 @@ function buildProfitHtml(isBatteryOnly, jobsPerDay, marginPerJob, labelExtra, no
     if (surplusEx > 0) {
       const jobsNeed = OVERHEAD.weekly / surplusEx;
       const breakEv = mEx > 0 ? OVERHEAD.weekly / mEx : null;
-      nt += `<div class="profit-line"><span class="label">Jobs/wk for ${tPct}% net at this price</span><span class="value">${jobsNeed > 40 ? '40+ &mdash; not realistic at this price' : (Math.ceil(Math.round(jobsNeed * 100) / 10) / 10) + (breakEv ? ` (break-even ${Math.ceil(Math.round(breakEv * 100) / 10) / 10})` : '')}</span></div>`;
+      if (jobsNeed > 40) {
+        nt += `<div class="profit-line"><span class="label">Jobs/wk for ${tPct}% net at this price</span><span class="value"></span></div><div class="profit-note">40+ &mdash; not realistic at this price</div>`;
+      } else {
+        nt += `<div class="profit-line"><span class="label">Jobs/wk for ${tPct}% net at this price</span><span class="value">${(Math.ceil(Math.round(jobsNeed * 100) / 10) / 10) + (breakEv ? ` (break-even ${Math.ceil(Math.round(breakEv * 100) / 10) / 10})` : '')}</span></div>`;
+      }
     } else {
-      nt += `<div class="profit-line"><span class="label">Jobs/wk for ${tPct}% net at this price</span><span class="value" style="color:${badCol};">Not achievable &mdash; margin is under ${tPct}% of revenue before overheads. Raise the price.</span></div>`;
+      nt += `<div class="profit-line"><span class="label">Jobs/wk for ${tPct}% net at this price</span><span class="value"></span></div><div class="profit-note">Not achievable &mdash; margin is under ${tPct}% of revenue before overheads. Raise the price.</div>`;
     }
-    nt += `<div style="font-size:0.68rem;color:var(--muted);margin-top:3px;">Assumes every job that week matches this one. Basis: entered sale price, else recommended. Edit the target in Overheads.</div>`;
+    nt += `<div class="fine-print">Assumes every job that week matches this one. Basis: entered sale price, else recommended. Edit the target in Overheads.</div>`;
     nt += '</div>';
     h += nt;
   }
 
-  h += `<div style="font-size:0.7rem;color:var(--muted);margin-top:0.4rem;">Profit figures ex GST (GST collected on sales is the ATO's, not margin). Sale prices inc GST. Overheads = total weekly cash incl rep commissions.</div>`;
+  h += `<div class="fine-print">Profit figures ex GST (GST collected on sales is the ATO's, not margin). Sale prices inc GST. Overheads = total weekly cash incl rep commissions.</div>`;
   return h;
 }
 
 // ================================================================
-// TAB SWITCHER
+// TAB SWITCHER + UI CHROME (owner UX rebuild 10 Nov 2026, ported to the admin page 11 Nov 2026) — display only, no pricing.
+// Defined above the INIT block so switchTab can run at load.
 // ================================================================
+const TABS = ['sig', 'gw', 'compare'];
+const TAB_TITLES = { sig: 'Sigenergy', gw: 'GoodWe ESA', compare: 'Compare quotes' };
+
 function switchTab(tab) {
-  document.getElementById('section-sig').style.display = (tab === 'sig') ? '' : 'none';
-  document.getElementById('section-gw').style.display  = (tab === 'gw')  ? '' : 'none';
-  document.getElementById('tab-sig').classList.toggle('active', tab === 'sig');
-  document.getElementById('tab-gw').classList.toggle('active',  tab === 'gw');
+  if (tab === 'compare' && !adminMode) tab = 'sig';   // sales view: saved quotes hold costs, margins and overheads
+  TABS.forEach(t => {
+    const on = t === tab;
+    const sec = document.getElementById('section-' + t);
+    if (sec) sec.style.display = on ? '' : 'none';
+    const btn = document.getElementById('tab-' + t);
+    if (btn) { btn.classList.toggle('active', on); btn.setAttribute('aria-selected', on ? 'true' : 'false'); btn.tabIndex = on ? 0 : -1; }
+  });
+  document.body.dataset.tab = tab;
+  if (tab === 'compare' && typeof renderCompare === 'function') renderCompare();
+  const resi = (tab === 'sig' || tab === 'gw');
+  ['overhead-section', 'commission-section'].forEach(id => { const el = document.getElementById(id); if (el) el.hidden = !resi; });
+  document.title = TAB_TITLES[tab] + ' — Pricing Calculator (Admin)';
+  try { history.replaceState(null, '', '#' + tab); localStorage.setItem('ausave-admin-tab', tab); } catch (e) {}
+  // keep the active button in view when the tab strip scrolls sideways (scrollLeft only — no page jump)
+  const nav = document.querySelector('.tabs'), active = document.getElementById('tab-' + tab);
+  if (nav && active && nav.scrollWidth > nav.clientWidth + 1) {
+    const nr = nav.getBoundingClientRect(), br = active.getBoundingClientRect();
+    nav.scrollLeft += (br.left + br.width / 2) - (nr.left + nr.width / 2);
+  }
+  syncPriceBar();
+}
+
+// ================================================================
+// SAVED QUOTES + COMPARE (owner, 10 Nov 2026; admin page 11 Nov 2026)
+// A quote is a snapshot of one tab: every input, the bill of materials, every summary row, the hero price and the
+// size facts the calc used, as rendered at the time. Quotes live in this browser's localStorage. "Open in calculator"
+// puts the inputs back. Nothing here changes a calculation.
+// ================================================================
+const QUOTES_KEY = 'ausave-admin-quotes-v1';   // not the owner page's key: its quotes hold commercial tabs and owner-only inputs this page would drop
+const QUOTE_FACTS = {};   // size facts per tab, set by each calc right before it writes its summary (no DOM, no arithmetic)
+const QUOTE_TABS = {
+  sig:   { bom: 's-breakdown', summary: 's-summary',  calc: 'calcSig',   extras: 's-extra-cb' },
+  gw:    { bom: 'g-breakdown', summary: 'g-summary',  calc: 'calcGW',    extras: 'g-extra-cb' }
+};
+function loadQuotes() { try { const a = JSON.parse(localStorage.getItem(QUOTES_KEY) || '[]'); return Array.isArray(a) ? a.filter(q => q && typeof q === 'object' && q.id && QUOTE_TABS[q.tab]) : []; } catch (e) { return []; } }
+function storeQuotes(list) {
+  try { localStorage.setItem(QUOTES_KEY, JSON.stringify(list)); return true; }
+  catch (e) { toast('Could not save in this browser (storage full or blocked).'); return false; }
+}
+const qText = el => el ? el.textContent.replace(/\s+/g, ' ').trim() : '';
+const qEsc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function qMoney(s) { const m = String(s || '').replace(/,/g, '').match(/(−|-)?\s*\$\s*(\d+(?:\.\d+)?)/); if (!m) return null; const v = parseFloat(m[2]); return m[1] ? -v : v; }
+function qWhen(iso) { const d = new Date(iso); return isNaN(d) ? '' : d.toLocaleString('en-AU', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }); }
+let toastTimer = null;
+function toast(msg, onClick) {
+  let el = document.getElementById('toast');
+  if (!el) { el = document.createElement('div'); el.id = 'toast'; el.className = 'toast'; el.setAttribute('role', 'status'); document.body.appendChild(el); }
+  el.textContent = msg; el.onclick = onClick || null; el.classList.toggle('clickable', !!onClick); el.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove('show'), onClick ? 7000 : 3200);
+}
+function updateCompareCount() {
+  const n = loadQuotes().length, b = document.getElementById('compare-count');
+  if (b) { b.textContent = n; b.hidden = n === 0; }
+}
+const extraLabelOf = cb => qText(cb.parentElement && cb.parentElement.querySelector('span'));
+
+function captureQuote(tab) {
+  const cfg = QUOTE_TABS[tab], sec = document.getElementById('section-' + tab);
+  if (!cfg || !sec) return null;
+  // every control, by id (the per-stack boxes and quantity selects have ids)
+  const inputs = {};
+  sec.querySelectorAll('input[id], select[id]').forEach(e => { inputs[e.id] = e.type === 'checkbox' ? !!e.checked : e.value; });
+  // the extras by label, with the quantity the calc used (per-panel ones × panels, quantity ones × their select)
+  const panels = cfg.extras ? parseInt((sec.querySelector('input[id$="-numPanels"]') || {}).value) || 0 : 0;
+  const extras = cfg.extras ? [...sec.querySelectorAll('input.' + cfg.extras)].map(cb => {
+    const unit = parseFloat(cb.dataset.price) || 0;
+    const qty = cb.dataset.perPanel === 'true' ? panels : cb.dataset.qtySelect ? (parseInt((document.getElementById(cb.dataset.qtySelect) || {}).value) || 1) : 1;
+    return { label: extraLabelOf(cb), on: !!cb.checked, perPanel: cb.dataset.perPanel === 'true', qty, unit, total: unit * qty };
+  }) : null;
+  // the configuration, label -> what the owner sees in the field (every card in the form column)
+  const system = [];
+  sec.querySelectorAll('.container > .card .field').forEach(f => {
+    const lab = f.querySelector('.field-label'), ctl = f.querySelector('.field-control input, .field-control select');
+    if (!lab || !ctl) return;
+    if (f.closest('.field-set--money') && !(parseFloat(ctl.value) > 0)) return;   // job-site boxes left at 0 say nothing
+    let val;
+    if (ctl.tagName === 'SELECT') val = ctl.selectedOptions && ctl.selectedOptions[0] ? ctl.selectedOptions[0].textContent.trim() : ctl.value;
+    else if (ctl.type === 'checkbox') val = ctl.checked ? 'Yes' : 'No';
+    else {
+      const pre = f.querySelector('.field-affix--pre'), post = f.querySelector('.field-affix:not(.field-affix--pre)');
+      const shown = (pre && qText(pre) === '$' && ctl.value !== '' && !isNaN(parseFloat(ctl.value))) ? parseFloat(ctl.value).toLocaleString('en-AU', { maximumFractionDigits: 2 }) : ctl.value;
+      val = ctl.value === '' ? '' : (pre ? qText(pre) : '') + shown + (post ? ' ' + qText(post) : '');
+    }
+    system.push({ label: qText(lab).replace(/\s*work it out$/i, ''), value: val === '' ? '—' : val });
+  });
+  if (extras) system.push({ label: 'Extras', value: extras.filter(e => e.on).map(e => e.label + (e.perPanel ? ' × ' + e.qty + ' panels' : e.qty > 1 ? ' × ' + e.qty : '')).join(', ') || '—' });
+  // bill of materials, as rendered (ex GST figures)
+  const bom = []; let section = '';
+  const table = document.getElementById(cfg.bom);
+  if (table) table.querySelectorAll('tr').forEach(tr => {
+    if (tr.querySelector('th')) return;
+    const cells = [...tr.children].map(qText);
+    if (!cells.length) return;
+    if (tr.classList.contains('section-header')) { section = cells[0]; return; }
+    if (cells.length >= 4) bom.push({ section, item: cells[0], qty: cells[1], unit: cells[2], total: cells[3] });
+    else if (cells.length === 2) bom.push({ item: cells[0], total: cells[1], kind: 'total' });
+  });
+  // ticked extras as component rows (ex GST, as the calc prices them) so they sit in the Components comparison
+  if (extras && typeof fmt === 'function') extras.filter(e => e.on).forEach(e => bom.push({ section: 'Extras', item: 'Extra: ' + e.label, qty: String(e.qty), unit: fmt(e.unit), total: fmt(e.total) }));
+  // summary: hero, rows, verdicts; notes counted across the whole results pane
+  const summary = []; let hero = null, notes = 0;
+  const sum = document.getElementById(cfg.summary);
+  if (sum) sum.querySelectorAll('.recommended-row, .summary-row, .margin-alert').forEach(el => {
+    if (el.matches('.recommended-row')) {
+      const h = { label: typeof firstTextOf === 'function' ? firstTextOf(el.querySelector('.label')) : qText(el.querySelector('.label')), value: qText(el.querySelector('.value')), sub: qText(el.querySelector('.sub')), cls: el.className.replace('recommended-row', '').trim() };
+      if (!hero) hero = h; else summary.push({ label: h.label, value: h.value, cls: '' });
+      return;
+    }
+    if (el.matches('.margin-alert')) {
+      summary.push({ label: el.classList.contains('incomplete') ? 'BOM status' : 'Verdict', value: typeof firstTextOf === 'function' ? firstTextOf(el) : qText(el),
+        cls: el.classList.contains('low') ? 'danger' : el.classList.contains('ok') ? 'ok' : el.classList.contains('incomplete') ? 'incomplete' : '' });
+      return;
+    }
+    summary.push({ label: qText(el.querySelector('.label')), value: qText(el.querySelector('.value')), cls: el.classList.contains('danger') ? 'danger' : el.classList.contains('ok') ? 'ok' : '' });
+  });
+  const countNotes = root => root ? root.querySelectorAll('ul.notes > li:not(.more), li.more li').length : 0;
+  notes += countNotes(sum) + (cfg.warnings ? countNotes(document.getElementById(cfg.warnings)) : 0);
+  const settings = (tab === 'sig' || tab === 'gw') && typeof OVERHEAD !== 'undefined'
+    ? { weekly: OVERHEAD.weekly, days: OVERHEAD.days, targetNet: OVERHEAD.targetNet, commission: (typeof COMM !== 'undefined' ? { ...COMM } : null) } : null;
+  return { id: 'q' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), name: '', tab, tabTitle: TAB_TITLES[tab], savedAt: new Date().toISOString(), selected: true,
+    inputs, extras, system, bom, summary, hero, notes, settings, facts: QUOTE_FACTS[tab] ? { ...QUOTE_FACTS[tab] } : null };
+}
+
+function saveQuote(tab) {
+  const q = captureQuote(tab);
+  if (!q) return;
+  if (!q.hero || !q.hero.value) { toast('Nothing to save yet — this tab has no price.'); return; }
+  if (/\binvalid\b/.test(q.hero.cls || '')) { toast('Not a price yet — this is the bare cost. Set Installs Per Week above 0, then save.'); return; }
+  const def = q.tabTitle + ' — ' + q.hero.value;
+  let name = def;
+  if (typeof window.prompt === 'function') { name = window.prompt('Name this quote', def); if (name === null) return; }
+  q.name = (String(name || '').trim() || def).slice(0, 80);
+  const list = loadQuotes(); list.unshift(q);
+  if (!storeQuotes(list)) return;
+  updateCompareCount();
+  if (document.body.dataset.tab === 'compare') renderCompare();
+  toast('Saved "' + q.name + '". ' + list.length + ' quote' + (list.length !== 1 ? 's' : '') + ' to compare — tap to open.', () => switchTab('compare'));
+}
+function toggleQuote(id, on) { const list = loadQuotes(); const q = list.find(x => x.id === id); if (!q) return; q.selected = !!on; storeQuotes(list); renderCompare(); }
+function renameQuote(id) {
+  const list = loadQuotes(); const q = list.find(x => x.id === id); if (!q) return;
+  const name = typeof window.prompt === 'function' ? window.prompt('Rename this quote', q.name) : null;
+  if (name === null || name === undefined || !String(name).trim()) return;
+  q.name = String(name).trim().slice(0, 80); storeQuotes(list); renderCompare();
+}
+function deleteQuote(id) {
+  const list = loadQuotes(); const q = list.find(x => x.id === id); if (!q) return;
+  if (typeof window.confirm === 'function' && !window.confirm('Delete the quote "' + q.name + '"?')) return;
+  storeQuotes(list.filter(x => x.id !== id)); updateCompareCount(); renderCompare();
+}
+function clearQuotes() {
+  const n = loadQuotes().length; if (!n) return;
+  if (typeof window.confirm === 'function' && !window.confirm('Delete all ' + n + ' saved quotes?')) return;
+  storeQuotes([]); updateCompareCount(); renderCompare();
+}
+function openQuote(id) {
+  const q = loadQuotes().find(x => x.id === id); if (!q || !q.inputs) return;
+  const cfg = QUOTE_TABS[q.tab], sec = document.getElementById('section-' + q.tab); if (!cfg || !sec) return;
+  switchTab(q.tab);
+  let missing = [];
+  const apply = () => {
+    let pending = 0; missing = [];
+    sec.querySelectorAll('input[id], select[id]').forEach(e => {
+      if (!(e.id in q.inputs)) return;
+      const want = q.inputs[e.id];
+      if (e.type === 'checkbox') { if (!!e.checked !== !!want) { e.checked = !!want; e.dispatchEvent(new Event('change', { bubbles: true })); } return; }
+      if (String(e.value) === String(want)) return;
+      // never set a value the list does not have: the option is either not built yet (GoodWe kWh list — next pass)
+      // or gone from the price list (reported after the final pass); the select keeps its current, valid value
+      if (e.tagName === 'SELECT' && !Array.prototype.some.call(e.options, o => o.value === String(want))) { missing.push(e); pending++; return; }
+      e.value = want;
+      if (String(e.value) !== String(want)) pending++;
+      e.dispatchEvent(new Event(e.tagName === 'SELECT' ? 'change' : 'input', { bubbles: true }));
+    });
+    if (cfg.extras && Array.isArray(q.extras)) {
+      const byLabel = q.extras.some(x => x && typeof x === 'object');   // older quotes hold true/false by position
+      [...sec.querySelectorAll('input.' + cfg.extras)].forEach((e, i) => {
+        const saved = byLabel ? q.extras.find(x => x && x.label === extraLabelOf(e)) : null;
+        const want = byLabel ? !!(saved && saved.on) : !!q.extras[i];
+        if (!!e.checked !== want) { e.checked = want; e.dispatchEvent(new Event('change', { bubbles: true })); }
+      });
+    }
+    return pending;
+  };
+  // pass 1 creates dependent controls (per-stack boxes, kWh options); pass 2 fills them; pass 3 is a safety net
+  for (let pass = 0; pass < 3; pass++) { const pending = apply(); if (pass > 0 && pending === 0) break; }
+  let calcError = null;
+  const fn = window[cfg.calc]; if (typeof fn === 'function') { try { fn(); } catch (err) { calcError = err; } }
+  // what has moved since the quote was saved: list changes that drive its price (not restored on purpose) and the price itself
+  const changed = [];
+  if (q.settings && typeof OVERHEAD !== 'undefined') {
+    const s = q.settings, money = v => typeof fmt === 'function' ? fmt(v) : '$' + v;
+    if (s.weekly !== OVERHEAD.weekly) changed.push('weekly overhead ' + money(s.weekly) + ' → ' + money(OVERHEAD.weekly));
+    if (s.targetNet !== OVERHEAD.targetNet) changed.push('net target ' + s.targetNet + '% → ' + OVERHEAD.targetNet + '%');
+    if (s.days !== OVERHEAD.days) changed.push('working days ' + s.days + ' → ' + OVERHEAD.days);
+    const c = s.commission, rep = q.inputs[(q.tab === 'sig' ? 's' : 'g') + '-repType'];
+    if (c && typeof COMM !== 'undefined') {
+      if (rep === 'onbooks' && c.perPanel !== COMM.perPanel) changed.push('commission per panel $' + c.perPanel + ' → $' + COMM.perPanel);
+      if (rep === 'onbooks' && c.perBattery !== COMM.perBattery) changed.push('commission per battery $' + c.perBattery + ' → $' + COMM.perBattery);
+      if (rep === 'commsonly' && c.flat !== COMM.flat) changed.push('flat commission $' + c.flat + ' → $' + COMM.flat);
+    }
+  }
+  const lost = missing.map(e => {
+    const lab = sec.querySelector('label[for="' + e.id + '"]'), name = lab ? qText(lab).replace(/\s*work it out$/i, '') : e.id;
+    const sys = (q.system || []).find(s => s.label === name);
+    return name + ' "' + (sys ? sys.value : q.inputs[e.id]) + '"';
+  });
+  const sum = document.getElementById(cfg.summary);
+  const heroNow = sum ? qText(sum.querySelector('.recommended-row .value')) : '';
+  const repriced = !!(q.hero && q.hero.value && heroNow && heroNow !== q.hero.value);
+  let msg = 'Opened "' + q.name + '" in ' + q.tabTitle + '.';
+  if (lost.length) msg += ' Not restored — no longer on the list: ' + lost.join('; ') + '. Pick a replacement before quoting.';
+  if (repriced || changed.length) {
+    msg += repriced ? ' The price has moved since it was saved (' + (q.hero ? q.hero.value : '—') + ' → ' + heroNow + ')' + (changed.length ? ': ' + changed.join('; ') : '') + '.'
+                    : ' Same price as saved. Settings changed since: ' + changed.join('; ') + '.';
+    if (sum) {   // a durable note at the top of the Summary until the next recalculation replaces it
+      const n = document.createElement('div'); n.className = 'note';
+      n.textContent = (repriced ? 'Saved at ' + (q.hero ? q.hero.value : '—') + ', now ' + (heroNow || '—') + '. ' : 'Same price as when it was saved. ') + (changed.length ? 'Changed since: ' + changed.join('; ') + '.' : 'Prices or settings have changed since it was saved.');
+      sum.insertBefore(n, sum.firstChild);
+    }
+  } else if (calcError) msg += ' The calculator could not reprice it — check the inputs.';
+  toast(msg, (lost.length || repriced || changed.length || calcError) ? () => switchTab('compare') : null);
+  if (typeof window.scrollTo === 'function') { try { window.scrollTo(0, 0); } catch (e) {} }
+  // the pressed "Open" button now sits in the hidden Compare section: hand keyboard focus to the opened tab
+  const ae = document.activeElement, tabBtn = document.getElementById('tab-' + q.tab);
+  if (tabBtn && (!ae || ae === document.body || (ae.closest && ae.closest('#section-compare')))) tabBtn.focus({ preventScroll: true });
+}
+
+// ── Compare table helpers: the same line must line up across quotes although its label carries that quote's figures ──
+const ROW_ALIAS = {   // the same quantity worded differently on the two tabs (this page has no commercial tabs to line up with)
+  'Your Price': 'Sale Price (inc GST)'
+};
+const canonLabel = l => ROW_ALIAS[l] || l;
+// key = label with money amounts, bracketed counts/specs, a trailing " — detail" and installs/wk or % figures blanked;
+// "(ex GST)" / "(inc GST)" carry no digit so they stay distinct
+const rowKey = l => canonLabel(String(l || '')).replace(/\$\s?[\d,]+(?:\.\d+)?/g, '…').replace(/\s*\([^)]*\d[^)]*\)/g, '').replace(/\s+[—–]\s.*$/, '').replace(/\d+(?:\.\d+)?\s*(installs\/wk|%)/g, '… $1').replace(/\s+/g, ' ').trim() || String(l || '');
+// components: key on the product; the configuration the item name carries ("— 8 + 8 across 2 stacks — 25% off", "(1 per stack)", "(USD … FOB @ 0.65)") shows under the figure
+const bomKey = s => canonLabel(String(s == null ? '' : s)).replace(/\s+[—–].*$/, '').replace(/\s*\((1 per stack|USD [^)]*|[\d.]+kW \/ [\d.]+kWh)\)\s*$/, '').trim();
+const bomSub = s => { s = String(s == null ? '' : s); let rest = s.slice(bomKey(s).length).trim().replace(/^[—–]\s*/, ''); if (/^\(.*\)$/.test(rest)) rest = rest.slice(1, -1); return rest; };
+// one row per key, merged in order rather than first-come: a line only a later quote has goes in beside the lines it shares
+// with the quotes before it, so each quote's run stays together; a quote that shares nothing is appended whole
+function mergeKeys(lists, key) {
+  const out = [];
+  lists.forEach(l => {
+    const mine = new Set(l.map(key)); let pos = -1, held = [];
+    l.forEach(r => {
+      const k = key(r), at = out.indexOf(k);
+      if (at >= 0) { if (held.length) { out.splice(at, 0, ...held); pos = at + held.length; held = []; } else pos = at; return; }
+      if (pos < 0) { if (held.indexOf(k) < 0) held.push(k); return; }
+      if (out.indexOf(k) >= 0) return;
+      while (pos + 1 < out.length && !mine.has(out[pos + 1])) pos++;
+      out.splice(++pos, 0, k);
+    });
+    held.forEach(k => { if (out.indexOf(k) < 0) out.push(k); });
+  });
+  return out;
+}
+
+function renderCompare() {
+  const root = document.getElementById('compare-root'); if (!root) return;
+  // keep keyboard focus through the rebuild (a tick, rename or delete destroys the control that was pressed)
+  const ae = document.activeElement, inRoot = !!(ae && root.contains(ae)), chip = inRoot ? ae.closest('.quote-chip') : null;
+  const keep = inRoot ? { id: chip ? chip.dataset.qid : null, pos: chip ? [...chip.parentNode.children].indexOf(chip) : 0, ctl: chip ? [...chip.querySelectorAll('input, button')].indexOf(ae) : 0 } : null;
+  const paint = html => {
+    root.innerHTML = html;
+    if (!keep) return;
+    const chips = [...root.querySelectorAll('.quote-chip')];
+    const c = chips.find(x => x.dataset.qid === keep.id) || chips[Math.min(keep.pos, chips.length - 1)];
+    const ctls = c ? c.querySelectorAll('input, button') : [];
+    const el = ctls[keep.ctl] || ctls[0] || root.querySelector('button') || document.getElementById('tab-compare');
+    if (el && typeof el.focus === 'function') el.focus({ preventScroll: true });
+  };
+  if (typeof adminMode !== 'undefined' && !adminMode) { paint('<div class="note">Saved quotes are not shown in this view.</div>'); return; }   // sales view (belt and braces: switchTab already keeps this tab closed)
+  const list = loadQuotes();
+  if (!list.length) { paint('<div class="note">No saved quotes yet. Build a job on any calculator tab and press <strong>Save quote</strong> in its Summary — it will appear here.</div>'); return; }
+  let h = '<div class="quote-list">' + list.map(q =>
+    `<label class="quote-chip${q.selected === false ? '' : ' on'}" data-qid="${q.id}"><input type="checkbox"${q.selected === false ? '' : ' checked'} onchange="toggleQuote('${q.id}', this.checked)" aria-label="Compare ${qEsc(q.name)}">` +
+    `<span class="quote-name">${qEsc(q.name)}</span><span class="quote-meta">${qEsc(q.tabTitle)} · ${qEsc(qWhen(q.savedAt))}${q.hero ? ' · ' + qEsc(q.hero.value) : ''}</span>` +
+    `<span class="quote-actions"><button type="button" class="btn-link" onclick="openQuote('${q.id}')">Open</button><button type="button" class="btn-link" onclick="renameQuote('${q.id}')">Rename</button><button type="button" class="btn-link danger" onclick="deleteQuote('${q.id}')">Delete</button></span></label>`).join('') + '</div>';
+  h += `<div class="compare-toolbar"><span class="hint">${list.length} saved · tick the quotes to compare · kept in this browser only</span><button type="button" class="btn-link danger" onclick="clearQuotes()">Delete all</button></div>`;
+  const sel = list.filter(q => q.selected !== false);
+  if (!sel.length) { paint(h + '<div class="note">Tick at least one quote to compare.</div>'); return; }
+  const prices = sel.map(q => q.hero ? qMoney(q.hero.value) : null);
+  // a hero the calculator flagged invalid (bare cost, installs/wk 0) or incomplete (BOM lines with no price) is shown, never the benchmark
+  const isPrice = q => !!q.hero && !/\b(invalid|incomplete)\b/.test(q.hero.cls || '');
+  const flagWord = q => /\binvalid\b/.test((q.hero && q.hero.cls) || '') ? 'not a price' : 'BOM incomplete';
+  const valid = prices.filter((p, i) => p != null && p > 0 && isPrice(sel[i]));
+  const best = valid.length > 1 ? Math.min(...valid) : null;
+  const cell = (v, cls) => `<td class="${cls || ''}">${v}</td>`;
+  const withDetail = (v, full, key) => full && full !== key ? v + `<div class="sub">${qEsc(full)}</div>` : v;
+  const secRow = (name, repeat) => '<tr class="section-header"><td>' + name + '</td>' + sel.map(q => '<td>' + (repeat ? '<div class="q-repeat">' + qEsc(q.name) + '</div>' : '') + '</td>').join('') + '</tr>';
+  let t = '<div class="table-scroll"><table class="breakdown-table compare-table"><thead><tr><th scope="col">Quote</th>' +
+    sel.map(q => `<th scope="col"><div class="q-name">${qEsc(q.name)}</div><div class="q-meta">${qEsc(q.tabTitle)} · ${qEsc(qWhen(q.savedAt))}</div><div class="q-actions"><button type="button" class="btn-link" onclick="openQuote('${q.id}')">Open in calculator</button></div></th>`).join('') + '</tr></thead><tbody>';
+  // ── price
+  t += secRow('Price');
+  t += '<tr class="compare-hero"><td>Recommended price (inc GST)</td>' + sel.map((q, i) => {
+    const p = prices[i], isBest = best != null && p === best && isPrice(q);
+    const state = q.hero && q.hero.cls ? ' ' + qEsc(q.hero.cls) : '';
+    const tag = isBest ? '<span class="tag">lowest</span>' : (q.hero && !isPrice(q) ? '<span class="tag warn">' + flagWord(q) + '</span>' : '');
+    return `<td class="num${isBest ? ' best' : ''}${state}"><span class="fig">${q.hero ? qEsc(q.hero.value) : '—'}</span>${tag}` +
+      (q.hero && q.hero.label && !/^Recommended (Sale )?[Pp]rice \(inc GST\)$/.test(q.hero.label) ? `<div class="sub">${qEsc(q.hero.label)}</div>` : '') +
+      (q.hero && q.hero.sub ? `<div class="sub">${qEsc(q.hero.sub)}</div>` : '') + '</td>';
+  }).join('') + '</tr>';
+  if (best != null) t += '<tr><td>Difference to the lowest</td>' + sel.map((q, i) => { const p = prices[i]; if (!isPrice(q)) return cell(q.hero ? flagWord(q) : '—', 'num muted'); if (p == null) return cell('—', 'num muted'); return cell(p === best ? '—' : '+ $' + Math.round(p - best).toLocaleString('en-AU'), 'num' + (p === best ? ' muted' : '')); }).join('') + '</tr>';
+  // ── size (facts the calcs recorded)
+  const facts = sel.map(q => q.facts || null);
+  if (facts.some(f => f && (f.nominal > 0 || f.invKw > 0 || f.pvKw > 0))) {
+    const num = (v, dp) => (v == null || isNaN(v)) ? null : (+v).toLocaleString('en-AU', { maximumFractionDigits: dp });
+    const sizeRow = (label, fn) => '<tr><td>' + label + '</td>' + facts.map((f, i) => { const v = f ? fn(f, i) : null; return cell(v == null ? '—' : v, 'num' + (v == null ? ' muted' : '')); }).join('') + '</tr>';
+    t += secRow('Size', true);
+    t += sizeRow('Battery (kWh nominal / usable)', f => f.nominal > 0 ? num(f.nominal, 1) + (f.usable > 0 ? ' / ' + num(f.usable, 1) : '') : null);
+    if (facts.some(f => f && f.invKw > 0)) t += sizeRow('Battery inverter / PCS (kW)', f => f.invKw > 0 ? num(f.invKw, 2) : null);
+    t += sizeRow('Solar (kW)', f => f.pvKw > 0 ? num(f.pvKw, 2) : null);
+    t += sizeRow('Recommended price per usable kWh (inc GST)', (f, i) => prices[i] > 0 && f.usable > 0 && isPrice(sel[i]) ? '$' + num(prices[i] / f.usable, 0) : null);
+    t += sizeRow('Net cost per usable kWh (inc GST)', f => f.netCost > 0 && f.usable > 0 ? '$' + num(f.netCost / f.usable, 0) : null);
+  }
+  // ── costs, rebates and margin (the residential gross total already sits with the component totals)
+  const sumRows = q => (q.summary || []).filter(r => !/^Gross Material Total \((ex|inc) GST\)$/.test(r.label));
+  const verdictKey = k => /^(Verdict|BOM status)$/.test(k);
+  let sumKeys = mergeKeys(sel.map(sumRows), r => rowKey(r.label));
+  sumKeys = sumKeys.filter(k => !verdictKey(k)).concat(sumKeys.filter(verdictKey));
+  if (sumKeys.length) {
+    t += secRow('Costs, rebates and margin', true);
+    sumKeys.forEach(key => { t += '<tr><td>' + qEsc(key) + '</td>' + sel.map(q => {
+      const rs = sumRows(q).filter(x => rowKey(x.label) === key);
+      if (!rs.length) return cell('—', 'num muted');
+      const cls = rs.some(r => r.cls === 'danger') ? 'danger' : rs.some(r => r.cls === 'ok') ? 'ok' : rs.some(r => r.cls === 'incomplete') ? 'incomplete' : '';
+      return cell(rs.map(r => withDetail(qEsc(r.value), canonLabel(r.label), key)).join('<div class="sub">·</div>'), 'num' + (cls ? ' ' + cls : ''));
+    }).join('') + '</tr>'; });
+  }
+  // ── system (rows every quote leaves empty are dropped)
+  const sysKeys = mergeKeys(sel.map(q => q.system || []), r => canonLabel(r.label));
+  const emptyish = v => !v || /^(—|0|\$0|0 %|none|— none —|no)$/i.test(String(v).trim());
+  const sysRows = sysKeys.map(key => ({ key, cells: sel.map(q => (q.system || []).find(x => canonLabel(x.label) === key) || null) })).filter(r => r.cells.some(c => c && !emptyish(c.value)));
+  if (sysRows.length) {
+    t += secRow('System', true);
+    sysRows.forEach(r => { t += '<tr><td>' + qEsc(r.key) + '</td>' + r.cells.map(c => cell(c ? qEsc(c.value) : '—', 'txt' + (!c || emptyish(c.value) ? ' muted' : ''))).join('') + '</tr>'; });
+  }
+  // ── components
+  const items = mergeKeys(sel.map(q => (q.bom || []).filter(r => r.kind !== 'total')), r => bomKey(r.item));
+  if (items.length) {
+    t += secRow('Components (ex GST)', true);
+    items.forEach(key => { t += '<tr><td>' + qEsc(key) + '</td>' + sel.map(q => { const r = (q.bom || []).find(x => x.kind !== 'total' && bomKey(x.item) === key); if (!r) return cell('—', 'num muted'); const sub = bomSub(r.item); return cell(`<span class="qty">${qEsc(r.qty)}${r.unit ? ' × ' + qEsc(r.unit) : ''}</span><span class="fig">${qEsc(r.total)}</span>` + (sub ? `<div class="sub">${qEsc(sub)}</div>` : ''), 'num'); }).join('') + '</tr>'; });
+    const totals = mergeKeys(sel.map(q => (q.bom || []).filter(r => r.kind === 'total')), r => canonLabel(r.item));
+    totals.forEach(key => { t += '<tr class="total-row"><td>' + qEsc(key) + '</td>' + sel.map(q => { const r = (q.bom || []).find(x => x.kind === 'total' && canonLabel(x.item) === key); return cell(r ? qEsc(r.total) : '—', 'num'); }).join('') + '</tr>'; });
+  }
+  if (sel.some(q => q.notes)) t += '<tr><td>Notes on the quote</td>' + sel.map(q => cell(q.notes ? q.notes + ' note' + (q.notes !== 1 ? 's' : '') : '—', 'num muted')).join('') + '</tr>';
+  t += '</tbody></table></div>';
+  paint(h + t);
+}
+const SCROLL_BEHAVIOR = (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) ? 'auto' : 'smooth';
+function openSettings() {
+  if (typeof adminMode !== 'undefined' && !adminMode) return;   // sales view hides the settings cards
+  switchTab(document.body.dataset.tab || 'sig');
+  ['overhead-card', 'commission-card'].forEach(id => { const d = document.getElementById(id); if (d) d.open = true; });
+  const s = document.getElementById('overhead-section');
+  if (s && typeof s.scrollIntoView === 'function') s.scrollIntoView({ behavior: SCROLL_BEHAVIOR, block: 'start' });
+}
+
+// Price bar (below 1024px): mirrors the active tab's hero and its first margin verdict; hidden while the hero is on screen.
+const PRICE_SRC = ['s-summary', 'g-summary'];
+let priceBarIO = null, priceBarHero = null, priceLiveTimer = null;
+function firstTextOf(el) {
+  if (!el) return '';
+  for (const n of el.childNodes) if (n.nodeType === 3 && n.textContent.trim()) return n.textContent.trim();
+  return el.textContent.trim();
+}
+function syncPriceBar() {
+  const bar = document.getElementById('price-bar');
+  if (!bar) return;
+  const section = document.getElementById('section-' + (document.body.dataset.tab || 'sig'));
+  const hero = section ? section.querySelector('.recommended-row') : null;
+  if (!hero) {
+    bar.hidden = true;
+    if (priceBarIO) { priceBarIO.disconnect(); priceBarIO = null; }
+    priceBarHero = null;
+    return;
+  }
+  const label = firstTextOf(hero.querySelector('.label'));
+  const valueEl = hero.querySelector('.value');
+  const value = valueEl ? valueEl.textContent.trim() : '';
+  const alert = section.querySelector('.margin-alert.low, .margin-alert.ok, .margin-alert.incomplete');
+  const status = alert ? firstTextOf(alert) : '';
+  bar.querySelector('.label').textContent = label;
+  bar.querySelector('.value').textContent = value;
+  const st = bar.querySelector('.status');
+  st.textContent = status;
+  st.className = 'status' + (alert ? (alert.classList.contains('ok') ? ' ok' : ' low') : '');
+  bar.classList.toggle('is-invalid', hero.classList.contains('invalid') || hero.classList.contains('incomplete'));
+  bar.hidden = false;
+  bar.onclick = () => { if (typeof hero.scrollIntoView === 'function') hero.scrollIntoView({ block: 'center', behavior: SCROLL_BEHAVIOR }); };
+  if ('IntersectionObserver' in window && hero !== priceBarHero) {
+    if (priceBarIO) priceBarIO.disconnect();
+    const topbar = document.querySelector('.topbar');
+    const th = topbar ? Math.round(topbar.getBoundingClientRect().height) : 0;
+    priceBarIO = new IntersectionObserver(entries => {
+      entries.forEach(en => bar.classList.toggle('hero-visible', en.isIntersecting));
+    }, { rootMargin: (th > 0 ? '-' + th + 'px' : '0px') + ' 0px 0px 0px', threshold: 0.6 });
+    priceBarIO.observe(hero);
+    priceBarHero = hero;
+  }
+  clearTimeout(priceLiveTimer);
+  priceLiveTimer = setTimeout(() => {
+    const live = document.getElementById('price-live');
+    if (live) live.textContent = label + ' ' + value + (status ? '. ' + status : '');
+  }, 700);
 }
 
 // ================================================================
@@ -1679,14 +2271,14 @@ function calcSig() {
   const costsPerJobInc = netMaterialCost + extrasIncGst + sCommission;
   const targetPrice = netTargetPrice(costsPerJobInc, jobsPerWeek);
   const recommendedPrice = targetPrice !== null ? targetPrice : costsPerJobInc;
-  const recLabelHtml = targetPrice !== null
-    ? `<span class="admin-only"> (net ${OVERHEAD.targetNet}% at ${jobsPerWeek} installs/wk, ${fmt(OVERHEAD.weekly)} overheads)</span>`
-    : `<span style="color:#c0392b;font-weight:700;"> &mdash; NOT A PRICE: bare cost. Set Installs Per Week above 0.</span>`;
+  const recSub = targetPrice !== null
+    ? '<span class="admin-only">net ' + OVERHEAD.targetNet + '% at ' + jobsPerWeek + ' installs/wk, ' + fmt(OVERHEAD.weekly) + ' overheads</span>'
+    : 'NOT A PRICE: bare cost. Set Installs Per Week above 0.';
 
   // Summary HTML
-  let sHtml = '';
+  let sHtml = `<div class="recommended-row${targetPrice === null ? ' invalid' : ''}"><span class="label">Recommended Sale Price (inc GST)${extrasIncGst > 0 ? ' (+ extras)' : ''}</span><span class="value">${fmt(recommendedPrice)}</span><span class="sub">${recSub}</span></div>`;
   sHtml += '<div class="admin-only">';
-  sHtml += summaryRow('Gross Material Total (ex GST)', fmt(grossTotal / 1.1), 'big');
+  sHtml += summaryRow('Gross Material Total (ex GST)', fmt(grossTotal / 1.1));
   sHtml += summaryRow('Gross Material Total (inc GST)', fmt(grossTotal));
   sHtml += '</div>';
   sHtml += '<div class="summary-divider"></div>';
@@ -1694,7 +2286,7 @@ function calcSig() {
   if (hasBattery) sHtml += batteryKwh > BATTERY_STC_MAX_NOMINAL
     ? summaryRow('Battery STCs — none: over 100kWh nominal is not eligible (CER)', fmt(0))
     : summaryRow(`Battery STCs (${batterySTCs} &times; $${STC_PRICE})`, '&minus; ' + fmt(batterySTCvalue));
-  sHtml += summaryRow('Total STC Rebate', '&minus; ' + fmt(totalSTCvalue), 'big');
+  sHtml += summaryRow('Total STC Rebate', '&minus; ' + fmt(totalSTCvalue));
   sHtml += '<div class="admin-only">';
   sHtml += '<div class="summary-divider"></div>';
   sHtml += summaryRow('Net Material Cost (ex GST)', fmt(netMaterialCost / 1.1), 'big');
@@ -1708,14 +2300,12 @@ function calcSig() {
     sHtml += summaryRow('Extras Total (inc GST)', fmt(extrasIncGst));
   }
 
-  sHtml += `<div class="recommended-row"><span class="label">Recommended Sale Price (inc GST)${extrasIncGst > 0 ? ' (+ extras)' : ''}${recLabelHtml}</span><span class="value">${fmt(recommendedPrice)}</span></div>`;
-
   // Rep commission is added into the recommended price above — show it as an addition
   if (sCommission > 0) {
     sHtml += '<div class="admin-only">';
     sHtml += '<div class="summary-divider"></div>';
     sHtml += summaryRow('Rep Commission &mdash; ' + commissionLabel(sRepType, numPanels, hasBattery) + ' (added to price)', '+ ' + fmt(sCommission));
-    sHtml += summaryRow('Recommended Price (incl. commission)', fmt(recommendedPrice), 'big');
+    sHtml += summaryRow('Recommended Price (incl. commission)', fmt(recommendedPrice));
     sHtml += '</div>';
   }
 
@@ -1743,6 +2333,7 @@ function calcSig() {
     }
   }
 
+  QUOTE_FACTS.sig = { nominal: batteryKwh, usable: batteryKwh, invKw: null, pvKw: numPanels * (PANEL_WATTS[panelType] || 475) / 1000, netCost: netMaterialCost, recommended: recommendedPrice, jobsPerWeek };   // size facts for the Compare tab (read only)
   document.getElementById('s-summary').innerHTML = sHtml;
   document.getElementById('s-summary-card').style.display = '';
   if (!adminMode) document.querySelectorAll('.admin-only').forEach(el => { el.style.display = 'none'; });
@@ -1753,8 +2344,8 @@ function calcSig() {
   const marginPerJob = profitBasis - netMaterialCost - extrasIncGst - sCommission;
   const commLabel = sCommission > 0 ? ` &mdash; Commission: <strong>${fmt(sCommission)}</strong> (in price, paid to rep)` : '';
   const labelExtra = (usingSale
-    ? ` &mdash; Sale Price: <strong>${fmt(salePrice)}</strong>`
-    : ` &mdash; Recommended: <strong>${fmt(recommendedPrice)}</strong>`) + commLabel;
+    ? `<dt>Sale Price</dt><dd><strong>${fmt(salePrice)}</strong>`
+    : `<dt>Recommended</dt><dd><strong>${fmt(recommendedPrice)}</strong>`) + commLabel + '</dd>';
   document.getElementById('s-profit').innerHTML = buildProfitHtml(isBatteryOnly, jobsPerDay, marginPerJob, labelExtra, null, profitBasis);
   document.getElementById('s-profit-card').style.display = adminMode ? '' : 'none';
 }
@@ -1939,14 +2530,14 @@ function calcGW() {
   const costsPerJobInc = netMaterialCost + extrasIncGst + gCommission;
   const targetPrice = netTargetPrice(costsPerJobInc, jobsPerWeek);
   const recommendedPrice = targetPrice !== null ? targetPrice : costsPerJobInc;
-  const recLabelHtml = targetPrice !== null
-    ? `<span class="admin-only"> (net ${OVERHEAD.targetNet}% at ${jobsPerWeek} installs/wk, ${fmt(OVERHEAD.weekly)} overheads)</span>`
-    : `<span style="color:#c0392b;font-weight:700;"> &mdash; NOT A PRICE: bare cost. Set Installs Per Week above 0.</span>`;
+  const recSub = targetPrice !== null
+    ? '<span class="admin-only">net ' + OVERHEAD.targetNet + '% at ' + jobsPerWeek + ' installs/wk, ' + fmt(OVERHEAD.weekly) + ' overheads</span>'
+    : 'NOT A PRICE: bare cost. Set Installs Per Week above 0.';
 
   // Summary
-  let sHtml = '';
+  let sHtml = `<div class="recommended-row${targetPrice === null ? ' invalid' : ''}"><span class="label">Recommended Sale Price (inc GST)${extrasIncGst > 0 ? ' (+ extras)' : ''}</span><span class="value">${fmt(recommendedPrice)}</span><span class="sub">${recSub}</span></div>`;
   sHtml += '<div class="admin-only">';
-  sHtml += summaryRow('Gross Material Total (ex GST)', fmt(grossTotal / 1.1), 'big');
+  sHtml += summaryRow('Gross Material Total (ex GST)', fmt(grossTotal / 1.1));
   sHtml += summaryRow('Gross Material Total (inc GST)', fmt(grossTotal));
   sHtml += '</div>';
   sHtml += '<div class="summary-divider"></div>';
@@ -1954,7 +2545,7 @@ function calcGW() {
   if (hasBattery) sHtml += batteryKwh > BATTERY_STC_MAX_NOMINAL
     ? summaryRow('Battery STCs — none: over 100kWh nominal is not eligible (CER)', fmt(0))
     : summaryRow(`Battery STCs (${batterySTCs} &times; $${STC_PRICE})`, '&minus; ' + fmt(batterySTCvalue));
-  sHtml += summaryRow('Total STC Rebate', '&minus; ' + fmt(totalSTCvalue), 'big');
+  sHtml += summaryRow('Total STC Rebate', '&minus; ' + fmt(totalSTCvalue));
   sHtml += '<div class="admin-only">';
   sHtml += '<div class="summary-divider"></div>';
   sHtml += summaryRow('Net Material Cost (ex GST)', fmt(netMaterialCost / 1.1), 'big');
@@ -1968,14 +2559,12 @@ function calcGW() {
     sHtml += summaryRow('Extras Total (inc GST)', fmt(extrasIncGst));
   }
 
-  sHtml += `<div class="recommended-row"><span class="label">Recommended Sale Price (inc GST)${extrasIncGst > 0 ? ' (+ extras)' : ''}${recLabelHtml}</span><span class="value">${fmt(recommendedPrice)}</span></div>`;
-
   // Rep commission is added into the recommended price above — show it as an addition
   if (gCommission > 0) {
     sHtml += '<div class="admin-only">';
     sHtml += '<div class="summary-divider"></div>';
     sHtml += summaryRow('Rep Commission &mdash; ' + commissionLabel(gRepType, numPanels, hasBattery) + ' (added to price)', '+ ' + fmt(gCommission));
-    sHtml += summaryRow('Recommended Price (incl. commission)', fmt(recommendedPrice), 'big');
+    sHtml += summaryRow('Recommended Price (incl. commission)', fmt(recommendedPrice));
     sHtml += '</div>';
   }
 
@@ -1988,18 +2577,18 @@ function calcGW() {
     const gwFloorLabel    = targetPrice !== null ? `Net-${OVERHEAD.targetNet}% price at ${jobsPerWeek} installs/wk` : 'Bare cost (Installs Per Week is 0)';
     const gwBelowNet      = gwFloor !== null && Math.round(customPrice * 100) < Math.round(gwFloor * 100);   // cent precision — recommended price IS the floor
     const cpBad           = gwBelowNet;
-    const cpColor         = cpBad ? '#c0392b' : '#27ae60';
     sHtml += '<div class="summary-divider"></div>';
-    sHtml += `<div style="padding:10px;border-radius:8px;background:${cpBad ? '#ffeaea' : '#eafff0'};border:1px solid ${cpColor};">`;
-    sHtml += `<div style="font-weight:700;font-size:0.95em;margin-bottom:4px;">Your Price: ${fmt(customPrice)}</div>`;
-    sHtml += `<span class="admin-only" style="font-weight:700;color:${cpColor};font-size:1.1em;">Margin${gCommission > 0 ? ' (after comm.)' : ''}: ${fmt(cpMarginDollars)} inc GST &middot; ${fmt(cpMarginDollars / 1.1)} ex GST (${cpMarginPct.toFixed(1)}%)</span>`;
-    sHtml += `<div class="admin-only" style="font-size:0.85em;margin-top:2px;">${gwFloorLabel}: <strong>${fmt(gwFloor)}</strong> inc GST</div>`;
-    sHtml += cpBad
-      ? `<div style="color:#c0392b;font-size:0.85em;margin-top:4px;">Price is below the recommended minimum &mdash; please review<span class="admin-only"> (below the ${gwFloorLabel.toLowerCase()}; margin ${cpMarginPct.toFixed(1)}%)</span></div>`
-      : `<div style="color:#27ae60;font-size:0.85em;margin-top:4px;">Price is acceptable<span class="admin-only"> (margin ${cpMarginPct.toFixed(1)}%; at or above the ${gwFloorLabel.toLowerCase()})</span></div>`;
+    sHtml += summaryRow('Your Price', fmt(customPrice), 'big');
+    sHtml += '<div class="admin-only">';
+    sHtml += summaryRow(`Margin${gCommission > 0 ? ' (after comm.)' : ''}`, `${fmt(cpMarginDollars)} inc GST &middot; ${fmt(cpMarginDollars / 1.1)} ex GST (${cpMarginPct.toFixed(1)}%)`, cpBad ? 'danger' : 'ok');
+    sHtml += summaryRow(gwFloorLabel + ' (inc GST)', fmt(gwFloor));
     sHtml += '</div>';
+    sHtml += cpBad
+      ? `<div class="margin-alert low">Price is below the recommended minimum &mdash; please review<span class="admin-only"> (below the ${gwFloorLabel.toLowerCase()}; margin ${cpMarginPct.toFixed(1)}%)</span></div>`
+      : `<div class="margin-alert ok">Price is acceptable<span class="admin-only"> (margin ${cpMarginPct.toFixed(1)}%; at or above the ${gwFloorLabel.toLowerCase()})</span></div>`;
   }
 
+  QUOTE_FACTS.gw = { nominal: batteryKwh, usable: hasBattery ? batteryModules * batMod.usable : 0, invKw: null, pvKw: numPanels * (PANEL_WATTS[panelType] || 475) / 1000, netCost: netMaterialCost, recommended: recommendedPrice, jobsPerWeek };   // size facts for the Compare tab (read only)
   document.getElementById('g-summary').innerHTML = sHtml;
   document.getElementById('g-summary-card').style.display = '';
   if (!adminMode) document.querySelectorAll('.admin-only').forEach(el => { el.style.display = 'none'; });
@@ -2010,8 +2599,8 @@ function calcGW() {
   const marginPerJob = profitBasis - netMaterialCost - extrasIncGst - gCommission;
   const gCommLabel = gCommission > 0 ? ` &mdash; Commission: <strong>${fmt(gCommission)}</strong> (in price, paid to rep)` : '';
   const labelExtra = (usingCustom
-    ? ` &mdash; Your Price: <strong>${fmt(customPrice)}</strong>`
-    : ` &mdash; Recommended: <strong>${fmt(recommendedPrice)}</strong>`) + gCommLabel;
+    ? `<dt>Your Price</dt><dd><strong>${fmt(customPrice)}</strong>`
+    : `<dt>Recommended</dt><dd><strong>${fmt(recommendedPrice)}</strong>`) + gCommLabel + '</dd>';
   document.getElementById('g-profit').innerHTML = buildProfitHtml(isBatteryOnly, jobsPerDay, marginPerJob, labelExtra, null, profitBasis);
   document.getElementById('g-profit-card').style.display = adminMode ? '' : 'none';
 }
@@ -2026,8 +2615,13 @@ document.addEventListener('keydown', function(e) {
     document.querySelectorAll('.admin-only').forEach(el => {
       el.style.display = adminMode ? '' : 'none';
     });
+    if (!adminMode) {   // sales view: leave Compare and drop any toast that names a saved price
+      if (document.body.dataset.tab === 'compare') switchTab('sig');
+      const t = document.getElementById('toast'); if (t) t.classList.remove('show');
+    }
     calcSig();
     calcGW();
+    syncPriceBar();
   }
 });
 
@@ -2115,6 +2709,12 @@ function resetSolarRate() {
 function loadOverhead() {
   try {
     const saved = JSON.parse(localStorage.getItem(OVERHEAD_STORAGE_KEY) || '{}');
+    // 11 Nov 2026 (owner): weekly overhead pre-set to $145,000. A weekly figure saved in this browser before then is
+    // dropped once (working days and the net target are kept); anything typed afterwards persists as before.
+    if (!localStorage.getItem(OVERHEAD_PRESET_KEY)) {
+      if ('weekly' in saved) { delete saved.weekly; localStorage.setItem(OVERHEAD_STORAGE_KEY, JSON.stringify(saved)); }
+      localStorage.setItem(OVERHEAD_PRESET_KEY, '1');
+    }
     // saved 104000 was the stale pre-Aug-2026 default — migrate those browsers to $145k
     if (typeof saved.weekly === 'number' && saved.weekly >= 0 && saved.weekly !== 104000) OVERHEAD.weekly = saved.weekly;
     if (typeof saved.days === 'number' && saved.days >= 1 && saved.days <= 7) OVERHEAD.days = saved.days;
@@ -2213,6 +2813,49 @@ loadOverhead();
 syncOverheadInputs();
 updateGwBatterySizes(); // populates g-batteryKwh and calls calcGW()
 calcSig();
+
+// ── UI wiring (owner UX rebuild 10 Nov 2026, ported 11 Nov 2026): tab restore + deep link, keyboard tabs, topbar height, price bar, wheel guard ──
+(function initUi() {
+  let start = (location.hash || '').slice(1);
+  if (!TABS.includes(start)) {
+    start = null;
+    try { const saved = localStorage.getItem('ausave-admin-tab'); if (TABS.includes(saved)) start = saved; } catch (e) {}
+  }
+  switchTab(start || 'sig');
+  updateCompareCount();
+  window.addEventListener('hashchange', () => {
+    const t = (location.hash || '').slice(1);
+    if (TABS.includes(t) && t !== document.body.dataset.tab) switchTab(t);
+  });
+  const nav = document.querySelector('.tabs');
+  if (nav) nav.addEventListener('keydown', e => {
+    if (e.altKey || e.ctrlKey || e.metaKey || !['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) return;   // leave the browser's Back/Forward shortcuts alone
+    const tabs = adminMode ? TABS : TABS.filter(t => t !== 'compare');   // sales view: the Compare tab is hidden
+    const cur = Math.max(0, tabs.indexOf(document.body.dataset.tab || 'sig'));
+    const next = e.key === 'ArrowLeft' ? (cur + tabs.length - 1) % tabs.length
+               : e.key === 'ArrowRight' ? (cur + 1) % tabs.length
+               : e.key === 'Home' ? 0 : tabs.length - 1;
+    e.preventDefault();
+    switchTab(tabs[next]);
+    const b = document.getElementById('tab-' + tabs[next]);
+    if (b) b.focus();
+  });
+  const topbar = document.querySelector('.topbar');
+  const setTopbarH = () => { if (topbar) document.documentElement.style.setProperty('--topbar-h', topbar.offsetHeight + 'px'); };
+  setTopbarH(); window.addEventListener('resize', setTopbarH);
+  if (topbar && 'ResizeObserver' in window) {
+    new ResizeObserver(() => document.documentElement.style.setProperty('--topbar-h', topbar.offsetHeight + 'px')).observe(topbar);
+  }
+  if ('MutationObserver' in window) {
+    const mo = new MutationObserver(() => syncPriceBar());
+    PRICE_SRC.forEach(id => { const el = document.getElementById(id); if (el) mo.observe(el, { childList: true }); });
+  }
+  // a wheel over a focused number input must not change the price silently
+  document.addEventListener('wheel', e => { const t = e.target; if (t instanceof HTMLInputElement && t.type === 'number' && t === document.activeElement) e.preventDefault(); }, { passive: false });
+  // the price bar markup sits after this script, so the first sync waits for the DOM
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', syncPriceBar); else syncPriceBar();
+})();
 </script>
+<button type="button" id="price-bar" class="price-bar" hidden><span class="text"><span class="label"></span><span class="status"></span></span><span class="value"></span></button><div id="price-live" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
 </body>
 </html>

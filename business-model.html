@@ -1,397 +1,406 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-AU">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#FFFFFF">
-<title>Business Model</title>
+<title>Business Model — Pricing Calculator</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   /* ================================================================
-     Site theme — Barlow display, Inter body,
-     white canvas, leaf green accent, solar yellow highlight
-     (theme copied from admin-combined.html so the pages match)
+     Same visual system as owner-combined.html (rebuilt 10 Nov 2026):
+     its tokens, top bar, cards, input rows, buttons and hero.
+     The bm-* rules further down are this page's own components.
+     ================================================================ */
+
+  /* ================================================================
+     1. TOKENS — the owner page's set, same names and values. Brand
+        greens/red are fills and rules only; coloured text uses
+        --green-text / --red-text / --amber-text
      ================================================================ */
   :root {
-    --doc-bg:           #FFFFFF;
-    --doc-elevated:     #FFFFFF;
-    --doc-subtle:       rgba(0,0,0,0.025);
-    --doc-fill:         rgba(0,0,0,0.04);
-    --doc-fill-2:       rgba(0,0,0,0.025);
-
-    --border-xsoft:     rgba(0,0,0,0.05);
-    --border-soft:      rgba(0,0,0,0.06);
-    --border:           rgba(0,0,0,0.10);
-    --border-strong:    rgba(0,0,0,0.15);
-
-    --doc-text:         #111827;
-    --doc-text-2:       rgba(17,24,39,0.62);
-    --doc-text-3:       rgba(17,24,39,0.38);
-    --doc-text-4:       rgba(17,24,39,0.20);
-    --doc-contrast:     #0D0D0D;
-
-    --brand-green:      #80BC68;
-    --brand-green-2:    #4CAF78;
-    --brand-green-tint: rgba(128,188,104,0.12);
-    --brand-yellow:     #FFDD00;
-    --brand-yellow-tint:rgba(255,221,0,0.16);
-    --brand-red:        #E8003D;
-    --brand-red-tint:   rgba(232,0,61,0.10);
-
-    --ios-bg:           var(--doc-bg);
-    --ios-bg-elevated:  var(--doc-elevated);
-    --ios-fill:         var(--doc-fill);
-    --ios-fill-2:       var(--doc-fill-2);
-    --ios-separator:    var(--border);
-    --ios-separator-opaque: rgba(0,0,0,0.18);
-    --ios-label:        var(--doc-text);
-    --ios-label-2:      var(--doc-text-2);
-    --ios-label-3:      var(--doc-text-3);
-    --ios-blue:         var(--brand-green-2);
-    --ios-green:        var(--brand-green);
-    --ios-red:          var(--brand-red);
-
-    --accent:           var(--ios-green);
-    --muted:            var(--ios-label-2);
+    --surface: #FFFFFF; --surface-2: #F6F7F5; --surface-3: #EEF1EC;
+    --line: rgba(17,24,39,.10); --line-strong: rgba(17,24,39,.22); --line-input: #B9C0C9;
+    --text: #111827; --text-2: #4B5563; --text-3: #6B7280; --text-inverse: #FFFFFF;
+    --green: #80BC68; --green-deep: #4CAF78; --green-tint: rgba(128,188,104,.14); --green-text: #2E7D32;
+    --yellow: #FFDD00; --yellow-tint: rgba(255,221,0,.18); --amber-text: #8A6D00;
+    --red: #E8003D; --red-tint: rgba(232,0,61,.08); --red-text: #C50034;
+    --font-display: 'Barlow', sans-serif; --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --fs-xs: .72rem; --fs-sm: .8rem; --fs-base: .875rem; --fs-md: 1rem; --fs-lg: 1.15rem; --fs-xl: 1.5rem; --fs-hero: 2rem;
+    --r-sm: 6px; --r-md: 10px; --r-lg: 14px;
+    --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-5: 24px; --sp-6: 40px;
+    --shadow-card: 0 1px 2px rgba(0,0,0,.04); --focus-ring: 0 0 0 3px rgba(128,188,104,.35);
+    --page-max: 1400px; --gutter: 16px; --pane-w: clamp(360px, 36%, 520px); --topbar-h: 96px; /* the owner page measures --topbar-h in JS; this page sets it just below */
+    /* legacy aliases, part of the owner page's block; nothing on this page reads them */
+    --muted: var(--text-2); --brand-yellow-tint: var(--yellow-tint); --brand-red: var(--red); --dark-green: var(--green-text);
   }
+  /* This page only: a narrower measure than the calculators (two input columns, not a form and a pane),
+     and a fixed top bar height because there are no tabs to wrap */
+  :root { --bm-max: 1120px; --topbar-h: 57px; }   /* 56px bar + its 1px rule */
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  html { -webkit-text-size-adjust: 100%; }
+  /* ================================================================
+     2. RESET AND BASE
+     ================================================================ */
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; scroll-padding-top: calc(var(--topbar-h) + 12px); }
   body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: var(--doc-bg);
-    color: var(--doc-text);
-    line-height: 1.45;
+    margin: 0;
+    font: 400 var(--fs-md)/1.45 var(--font-body);
+    background: var(--surface);
+    color: var(--text);
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    font-size: 16px;
-    -webkit-overflow-scrolling: touch;
+  }
+  h1, h2, h3, p { margin: 0; }
+  button, input { font: inherit; color: inherit; margin: 0; }
+  button { cursor: pointer; }
+  input { scroll-margin-top: calc(var(--topbar-h) + 12px); }
+
+  /* ================================================================
+     3. UTILITIES — eyebrow voice, focus, motion
+     ================================================================ */
+  .margin-tier-row.margin-tier-head .mt-label,
+  .margin-tier-row.margin-tier-head .mt-col-label,
+  .bm-results-row.head .r-label,
+  .bm-results-row.head .r-val {
+    font: 600 var(--fs-xs)/1.2 var(--font-body);
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+  [hidden] { display: none !important; }
+  button:focus-visible, input:focus-visible, a:focus-visible {
+    outline: 2px solid var(--text);
+    outline-offset: 2px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
   }
 
-  h1, h2, h3, h4, .card-header { font-family: 'Barlow', sans-serif; }
-
-  /* ── Brand Nav Bar ── */
-  header {
-    background: var(--doc-bg);
-    color: var(--doc-text);
-    padding: 1rem 1.5rem 0.95rem;
-    display: flex;
-    align-items: baseline;
-    gap: 0.75rem;
+  /* ================================================================
+     4. TOP BAR — sticky title, 56px, no tabs on this page
+     ================================================================ */
+  .topbar {
     position: sticky;
     top: 0;
     z-index: 100;
-    border-bottom: 0.5px solid var(--ios-separator);
+    background: var(--surface);
+    border-bottom: 1px solid var(--line);
   }
-  header h1 {
-    font-family: 'Barlow', sans-serif;
-    font-size: 1.65rem;
-    font-weight: 900;
-    letter-spacing: -0.01em;
-    text-transform: uppercase;
-    color: var(--doc-contrast);
-  }
-  header span {
-    font-family: 'Inter', sans-serif;
-    font-size: 0.85rem;
-    color: var(--doc-text-2);
-    font-weight: 400;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-  }
-
-  /* ── Container / Cards ── */
-  .container {
-    max-width: 980px;
-    margin: 1rem auto 2.5rem;
-    padding: 0 1rem;
+  .topbar-inner {
+    max-width: var(--bm-max);
+    margin: 0 auto;
+    padding: 0 max(var(--gutter), env(safe-area-inset-right)) 0 max(var(--gutter), env(safe-area-inset-left));
     display: flex;
-    flex-direction: column;
-    gap: 1.1rem;
-  }
-  .card {
-    background: var(--doc-elevated);
-    border-radius: 12px;
-    overflow: hidden;
-    border: 1px solid var(--border-soft);
-    box-shadow: 0 1px 2px rgba(0,0,0,0.025);
-  }
-  .card-header {
-    background: transparent;
-    color: var(--doc-contrast);
-    padding: 1rem 1.1rem 0.5rem;
-    font-family: 'Barlow', sans-serif;
-    font-weight: 700;
-    font-size: 0.78rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-  }
-  .card-body { padding: 0.25rem 1rem 1rem; }
-
-  /* ── Editable grid (from the calc's margin-tier editor) ── */
-  .margin-tier-hint {
-    font-size: 0.88rem;
-    color: var(--ios-label-2);
-    margin-bottom: 0.85rem;
-    line-height: 1.4;
-    letter-spacing: -0.01em;
-  }
-  .margin-tier-grid {
-    background: var(--ios-bg);
-    border-radius: 10px;
-    overflow: hidden;
-    margin-bottom: 0.9rem;
-  }
-  .margin-tier-row {
-    display: grid;
-    grid-template-columns: 1.1fr 1fr 1fr;
-    gap: 0.5rem;
-    padding: 0.55rem 0.85rem;
+    flex-wrap: wrap;
     align-items: center;
-    background: #ffffff;
-    border-top: 0.5px solid var(--ios-separator);
+    column-gap: var(--sp-4);
+    row-gap: 0;
   }
-  .margin-tier-row:first-child { border-top: none; }
-  .margin-tier-row.margin-tier-head {
-    background: var(--ios-bg);
-    padding: 0.5rem 0.85rem;
-  }
-  .margin-tier-row.margin-tier-head .mt-label,
-  .margin-tier-row.margin-tier-head .mt-col-label {
-    font-size: 0.72rem;
-    font-weight: 600;
-    color: var(--ios-label-2);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-  }
-  .mt-col-label { text-align: center; }
-  .mt-label {
-    font-size: 0.92rem;
-    color: var(--ios-label);
-    font-weight: 500;
-    letter-spacing: -0.01em;
-  }
-  .mt-input-wrap {
+  .brand { display: flex; align-items: center; min-height: 56px; flex: 0 1 auto; min-width: 0; }
+  .brand h1 {
+    font: 800 1.2rem/1.1 var(--font-display);
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--text);
     display: flex;
+    flex-wrap: wrap;            /* the chip drops under the title on a very narrow phone instead of overflowing */
     align-items: center;
-    gap: 0.3rem;
-    justify-content: flex-end;
-  }
-  .mt-input-wrap input {
-    width: 82px;
-    padding: 0.4rem 0.55rem;
-    border: 0.5px solid var(--ios-separator-opaque);
-    border-radius: 8px;
-    font-size: 0.95rem;
-    font-family: inherit;
-    background: #ffffff;
-    color: var(--ios-label);
-    text-align: right;
-    font-variant-numeric: tabular-nums;
-    appearance: textfield;
-    -moz-appearance: textfield;
-    transition: all 0.15s ease;
-  }
-  .mt-input-wrap input::-webkit-inner-spin-button,
-  .mt-input-wrap input::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    appearance: none;
-    margin: 0;
-  }
-  .mt-input-wrap input:focus {
-    outline: none;
-    border-color: var(--ios-green);
-    box-shadow: 0 0 0 3px rgba(52,199,89,0.18);
-  }
-  .mt-input-wrap input:disabled {
-    opacity: 0.55;
-    background: var(--doc-fill-2);
-    cursor: not-allowed;
-  }
-  .mt-pct {
-    color: var(--ios-label-2);
-    font-size: 0.9rem;
-    font-weight: 500;
+    gap: 2px var(--sp-2);
     white-space: nowrap;
   }
+  .edition {
+    display: inline-block;
+    font: 600 var(--fs-xs)/1 var(--font-body);
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--green-text);
+    border: 1px solid currentColor;
+    border-radius: 4px;
+    padding: 3px 6px;
+  }
+  @media (max-width: 1023px) { .brand h1 { font-size: 1.05rem; } }
+  @media (max-height: 520px) { .topbar { position: static; } }
+
+  /* ================================================================
+     5. PAGE
+     ================================================================ */
+  .container {
+    max-width: var(--bm-max);
+    margin: var(--sp-4) auto var(--sp-6);
+    padding: 0 max(var(--gutter), env(safe-area-inset-right)) env(safe-area-inset-bottom) max(var(--gutter), env(safe-area-inset-left));
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-4);
+  }
+
+  /* ================================================================
+     6. CARDS
+     ================================================================ */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
+  }
+  .card-header {
+    font: 600 1.05rem/1.3 var(--font-display);
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--text);
+    padding: var(--sp-4) var(--sp-4) var(--sp-2);
+    display: flex;
+    align-items: baseline;
+    gap: var(--sp-3);
+    flex-wrap: wrap;
+    margin: 0;
+  }
+  .card-body { padding: var(--sp-2) var(--sp-4) var(--sp-4); }
+
+  /* ================================================================
+     7. INPUT ROWS — the owner page's settings rows (label, input, unit)
+     ================================================================ */
+  .margin-tier-hint { font-size: var(--fs-sm); color: var(--text-2); line-height: 1.5; margin: 0 0 var(--sp-3); }
+  .margin-tier-hint:last-child { margin-bottom: 0; }
+  .margin-tier-grid { border: 1px solid var(--line); border-radius: var(--r-md); overflow: hidden; margin: 0 0 var(--sp-3); }
+  .margin-tier-grid:last-child { margin-bottom: 0; }
+  .margin-tier-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;   /* label, then the input: the script places it across tracks 2 and 3 */
+    column-gap: var(--sp-3);
+    align-items: center;
+    padding: var(--sp-2) var(--sp-3);
+    border-top: 1px solid var(--line);
+    background: var(--surface);
+  }
+  .margin-tier-row:first-child { border-top: 0; }
+  .mt-label { font: 500 var(--fs-base)/1.3 var(--font-body); color: var(--text); min-width: 0; }
+  .mt-col-label { min-width: 0; text-align: center; }
+  .mt-input-wrap { display: flex; align-items: center; justify-content: flex-end; gap: var(--sp-2); min-width: 0; }
+  .mt-input-wrap input {
+    width: 110px;
+    height: 40px;
+    padding: 0 var(--sp-2);
+    border: 1px solid var(--line-input);
+    border-radius: var(--r-sm);
+    background: var(--surface);
+    color: var(--text);
+    text-align: right;
+    font: 400 var(--fs-md) var(--font-body);   /* 16px: no zoom on focus on a phone */
+    font-variant-numeric: tabular-nums;
+    -moz-appearance: textfield;
+    appearance: textfield;
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+  .mt-input-wrap input::-webkit-inner-spin-button,
+  .mt-input-wrap input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  .mt-input-wrap input:focus { outline: 0; border-color: var(--green-deep); box-shadow: var(--focus-ring); }
+  .mt-input-wrap input:disabled {
+    background: var(--surface-2);
+    border-color: var(--line);
+    color: var(--text-2);
+    -webkit-text-fill-color: var(--text-2);   /* Safari greys disabled text further; the locked baseline still has to be read */
+    opacity: 1;
+    cursor: not-allowed;
+  }
+  .mt-pct { font-size: var(--fs-sm); color: var(--text-3); white-space: nowrap; }
+
+  /* ================================================================
+     8. BUTTONS
+     ================================================================ */
   .btn-margin-reset {
     background: transparent;
-    color: var(--ios-blue);
-    border: none;
-    font-family: inherit;
-    font-size: 0.98rem;
-    font-weight: 500;
+    border: 0;
+    color: var(--green-text);
+    font: 500 var(--fs-base) var(--font-body);
+    min-height: 44px;
+    padding: var(--sp-2) 0;
     cursor: pointer;
-    padding: 0.45rem 0;
-    letter-spacing: -0.01em;
   }
-  .btn-margin-reset:hover { opacity: 0.65; }
-  .btn-margin-reset:active { opacity: 0.45; }
+  .btn-margin-reset:hover { text-decoration: underline; }
 
-  /* ── Business-model specifics ── */
+  /* ================================================================
+     9. BUSINESS MODEL — hero, controls, compare columns, results
+     ================================================================ */
 
-  /* Hero */
+  /* Hero: the owner page's .recommended-row. Ahead = green fill, behind = red rule, no change = neutral */
   .bm-hero-inner {
-    padding: 1.1rem 1.1rem 1.2rem;
-    border-radius: 10px;
-    text-align: center;
+    display: grid;
+    gap: 2px;
+    padding: var(--sp-4);
+    background: var(--green);
+    color: var(--text);
+    border-radius: var(--r-md);
   }
-  .bm-hero-inner.pos  { background: var(--brand-green-tint); }
-  .bm-hero-inner.neg  { background: var(--brand-red-tint); }
-  .bm-hero-inner.zero { background: var(--doc-subtle); }
-  .bm-hero-label {
-    font-family: 'Barlow', sans-serif;
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--ios-label-2);
-    margin-bottom: 0.3rem;
-  }
+  .bm-hero-label { font: 600 var(--fs-sm)/1.3 var(--font-body); color: rgba(13,13,13,.78); }
   .bm-hero-value {
-    font-family: 'Barlow', sans-serif;
-    font-size: 2.3rem;
-    font-weight: 900;
-    letter-spacing: -0.02em;
+    font: 700 var(--fs-hero)/1.1 var(--font-display);
     font-variant-numeric: tabular-nums;
-    line-height: 1.1;
+    letter-spacing: -.02em;
+    color: var(--text);
+    overflow-wrap: anywhere;
   }
-  .bm-hero-inner.pos .bm-hero-value  { color: var(--brand-green-2); }
-  .bm-hero-inner.neg .bm-hero-value  { color: var(--ios-red); }
-  .bm-hero-inner.zero .bm-hero-value { color: var(--doc-text-3); }
-  .bm-hero-sub {
-    font-size: 0.88rem;
-    color: var(--ios-label-2);
-    margin-top: 0.35rem;
-  }
+  .bm-hero-sub { font: 400 var(--fs-sm)/1.4 var(--font-body); color: rgba(13,13,13,.78); }
+  .bm-hero-inner.neg { background: var(--surface-2); border-left: 4px solid var(--red); }
+  .bm-hero-inner.neg .bm-hero-value { color: var(--red-text); }
+  .bm-hero-inner.zero { background: var(--surface-2); border-left: 4px solid var(--text); }
+  .bm-hero-inner.zero .bm-hero-value { color: var(--text-2); }
+  @media (max-width: 479px) { .bm-hero-value { font-size: 1.6rem; } }
 
-  /* Controls */
+  /* Controls: one row of text buttons; a full-width list on a phone */
+  .bm-controls-card .card-body { padding-top: var(--sp-1); padding-bottom: var(--sp-1); }
   .bm-controls {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.25rem 1.6rem;
     align-items: center;
+    gap: 0 var(--sp-5);
+  }
+  @media (max-width: 479px) {
+    .bm-controls { flex-direction: column; align-items: stretch; }
+    .bm-controls .btn-margin-reset { text-align: left; border-top: 1px solid var(--line); }
+    .bm-controls .btn-margin-reset:first-child { border-top: 0; }
   }
 
-  /* Compare grid */
+  /* Compare: baseline | scenario side by side from 900px, stacked below */
   .bm-compare {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.1rem;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--sp-5);
     align-items: start;
   }
-  @media (max-width: 760px) { .bm-compare { grid-template-columns: 1fr; } }
+  @media (min-width: 900px) { .bm-compare { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   .bm-col {
     display: flex;
     flex-direction: column;
-    gap: 1.1rem;
+    gap: var(--sp-4);
     min-width: 0;
   }
   .bm-col-title {
-    font-family: 'Barlow', sans-serif;
-    font-size: 0.78rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--doc-contrast);
-    padding: 0.1rem 0.2rem 0;
+    font: 700 var(--fs-lg)/1.3 var(--font-display);
+    color: var(--text);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sp-1) var(--sp-2);
+    padding: 0 2px;
   }
-  .bm-col-title .bm-lock { color: var(--ios-label-3); font-weight: 400; letter-spacing: 0; text-transform: none; font-family: 'Inter', sans-serif; font-size: 0.78rem; }
+  .bm-col-title .bm-lock {
+    font: 500 var(--fs-xs)/1 var(--font-body);
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    border: 1px solid var(--line);
+    border-radius: var(--r-sm);
+    padding: 3px 6px;
+  }
 
-  /* Scenario cards get the solar-yellow top rule */
+  /* Scenario cards carry the solar-yellow top rule (the owner page's .brand-card-solar) */
   .bm-card-scenario { position: relative; }
   .bm-card-scenario::before {
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0;
     height: 4px;
-    background: var(--brand-yellow);
+    background: var(--yellow);
   }
-  .bm-card-scenario .card-header { padding-top: 1.15rem; }
 
-  /* Role rows: Role | Salary | Per crew | Office */
-  .bm-role-row { grid-template-columns: 1fr 1.05fr 0.68fr 0.68fr; }
-  .bm-role-row .mt-input-wrap input { width: 100%; max-width: 92px; }
-  .bm-role-row .mt-input-wrap.small input { max-width: 54px; text-align: center; }
+  /* Role rows: Role | Salary | Per crew | Office. Fixed number tracks so every row lines up */
+  .bm-role-row { grid-template-columns: minmax(0, 1fr) 7.75rem 4.25rem 4.25rem; column-gap: var(--sp-2); }
+  .bm-role-row .mt-col-label:nth-child(2) { text-align: right; }
+  .bm-role-row .mt-input-wrap { gap: var(--sp-1); }
+  .bm-role-row .mt-input-wrap input { flex: 1 1 auto; width: 100%; min-width: 0; }
+  .bm-role-row .mt-input-wrap.small input { text-align: center; padding: 0 var(--sp-1); }
+  @media (max-width: 479px) {
+    .margin-tier-row { padding-left: var(--sp-2); padding-right: var(--sp-2); }
+    .bm-role-row { grid-template-columns: minmax(0, 1fr) 5.75rem 3rem 3rem; column-gap: var(--sp-1); }
+  }
+  @media (max-width: 359px) {
+    /* smallest phones: the label takes its own line, the inputs sit under it */
+    .card-header, .card-body { padding-left: var(--sp-3); padding-right: var(--sp-3); }
+    .margin-tier-row { row-gap: var(--sp-1); }
+    .margin-tier-row > .mt-label { grid-column: 1 / -1; }
+    .bm-role-row { grid-template-columns: minmax(0, 1fr) 3rem 3rem; }
+  }
 
-  /* Results table */
+  /* Results: Metric | Baseline | Scenario | change */
   .bm-results-row {
     display: grid;
-    grid-template-columns: 1.45fr 1fr 1fr 0.95fr;
-    gap: 0.5rem;
-    padding: 0.5rem 0.85rem;
-    align-items: center;
-    background: #ffffff;
-    border-top: 0.5px solid var(--ios-separator);
-    font-size: 0.92rem;
+    grid-template-columns: minmax(0, 1.45fr) repeat(3, minmax(0, 1fr));
+    column-gap: var(--sp-3);
+    align-items: baseline;
+    padding: var(--sp-2) var(--sp-3);
+    border-top: 1px solid var(--line);
+    background: var(--surface);
+    font-size: var(--fs-base);
   }
-  .bm-results-row:first-child { border-top: none; }
-  .bm-results-row.head {
-    background: var(--ios-bg);
-    font-size: 0.72rem;
-    font-weight: 600;
-    color: var(--ios-label-2);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-  }
-  .bm-results-row .r-label { color: var(--ios-label-2); font-weight: 500; }
+  .bm-results-row:first-child { border-top: 0; }
+  .bm-results-row .r-label { min-width: 0; color: var(--text-2); }
   .bm-results-row .r-val {
+    min-width: 0;
     text-align: right;
+    font-weight: 600;
     font-variant-numeric: tabular-nums;
-    font-weight: 500;
-    color: var(--ios-label);
+    color: var(--text);
+    overflow-wrap: anywhere;
   }
-  .bm-results-row.head .r-val { color: var(--ios-label-2); font-weight: 600; }
+  .bm-results-row.head .r-val { color: var(--text-3); }
   .bm-results-row.net-row {
-    border-top: 1.5px solid var(--ios-separator-opaque);
-    background: var(--doc-subtle);
+    border-top-color: var(--line-strong);
+    background: var(--surface-2);
+    padding-top: var(--sp-3);
+    padding-bottom: var(--sp-3);
   }
-  .bm-results-row.net-row .r-label {
-    color: var(--ios-label);
-    font-weight: 700;
-    font-family: 'Barlow', sans-serif;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    font-size: 0.85rem;
+  .bm-results-row.net-row .r-label { color: var(--text); font-weight: 600; }
+  .bm-results-row.net-row .r-val { font-weight: 700; }
+  @media (min-width: 768px) { .bm-results-row.net-row .r-val { font-size: var(--fs-md); } }
+  .bm-results-row .r-val.pos  { color: var(--green-text); }
+  .bm-results-row .r-val.neg  { color: var(--red-text); }
+  .bm-results-row .r-val.zero { color: var(--text-3); }
+  .bm-results-row.net-row .r-val.zero { color: var(--text-2); }   /* --text-3 is under AA on the grey row */
+  @media (max-width: 599px) {
+    /* phone: the metric name takes its own line, the three figures sit under their column heads */
+    .bm-results-row { grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: var(--sp-2); row-gap: 2px; padding-left: var(--sp-2); padding-right: var(--sp-2); }
+    .bm-results-row .r-label { grid-column: 1 / -1; }
+    .bm-results-row.head .r-label { display: none; }
   }
-  .bm-results-row.net-row .r-val { font-weight: 700; font-size: 1.02rem; letter-spacing: -0.01em; }
-  .r-val.pos  { color: var(--brand-green-2); }
-  .r-val.neg  { color: var(--ios-red); }
-  .r-val.zero { color: var(--doc-text-3); }
+  @media (max-width: 479px) {
+    /* a third of a phone's width has to hold "+$11,808,000" */
+    .bm-results-row .r-val, .bm-results-row.net-row .r-val { font-size: var(--fs-sm); }
+  }
+  @media (max-width: 359px) {
+    .bm-results-row .r-val, .bm-results-row.net-row .r-val { font-size: var(--fs-xs); }
+  }
+  @media (max-width: 389px) {
+    /* 360px: "+$11,808,000" is 89.8px at --fs-sm; a third of the row was 86.7px */
+    .bm-results-row { column-gap: var(--sp-1); padding-left: var(--sp-1); padding-right: var(--sp-1); }
+  }
 
-  @media (max-width: 500px) {
-    header { padding: 0.85rem 1rem 0.7rem; }
-    header h1 { font-size: 1.25rem; }
-    header span { font-size: 0.85rem; display: block; width: 100%; padding-top: 0.1rem; }
-    .container { padding: 0 0.85rem; margin: 0.5rem auto 2rem; }
-    .card-body { padding: 0.25rem 0.85rem 0.85rem; }
-    .margin-tier-row { padding: 0.5rem 0.65rem; gap: 0.3rem; }
-    .mt-input-wrap input { width: 68px; padding: 0.35rem 0.4rem; font-size: 0.9rem; }
-    .mt-label { font-size: 0.85rem; }
-    .bm-results-row { padding: 0.45rem 0.6rem; gap: 0.3rem; font-size: 0.8rem; }
-    .bm-results-row.net-row .r-val { font-size: 0.9rem; }
-    .bm-hero-value { font-size: 1.8rem; }
+  /* ================================================================
+     10. PRINT — the figures, not the controls
+     ================================================================ */
+  @media print {
+    .topbar, .bm-controls-card { display: none !important; }
+    .card { break-inside: avoid; box-shadow: none; border: 1px solid #999; }
+    .bm-hero-inner { print-color-adjust: exact; -webkit-print-color-adjust: exact; border: 2px solid #000; }
+    .container, .bm-compare, .bm-col { display: block; }
+    .container > * + *, .bm-col > * + *, .bm-col + .bm-col { margin-top: var(--sp-4); }
+    .bm-col-title { break-after: avoid; page-break-after: avoid; }
   }
 </style>
 </head>
 <body>
 
-<header>
-  <h1>Pricing Calculator</h1>
-  <span>Business Model — What-If Annual Margins</span>
-</header>
+<div class="topbar"><div class="topbar-inner"><header class="brand"><h1>Pricing Calculator <span class="edition">Business model</span></h1></header></div></div>
 
 <div class="container">
 
   <!-- HERO: the answer first -->
   <div class="card">
-    <div class="card-header">Annual Net Profit Impact</div>
+    <h2 class="card-header">Annual Net Profit Impact</h2>
     <div class="card-body">
       <div class="bm-hero-inner zero" id="bm-hero">
         <div class="bm-hero-label" id="bm-hero-label">Scenario vs today</div>
@@ -402,13 +411,13 @@
   </div>
 
   <!-- CONTROLS -->
-  <div class="card">
-    <div class="card-body" style="padding-top: 0.9rem;">
+  <div class="card bm-controls-card">
+    <div class="card-body">
       <div class="bm-controls">
-        <button class="btn-margin-reset" onclick="copyBaselineToScenario()">Copy baseline &rarr; scenario</button>
-        <button class="btn-margin-reset" onclick="promoteScenario()">Set scenario as new baseline</button>
-        <button class="btn-margin-reset" onclick="toggleBaselineLock()" id="bm-lock-btn">Edit baseline</button>
-        <button class="btn-margin-reset" onclick="resetAll()">Reset all to defaults</button>
+        <button type="button" class="btn-margin-reset" onclick="copyBaselineToScenario()">Copy baseline &rarr; scenario</button>
+        <button type="button" class="btn-margin-reset" onclick="promoteScenario()">Set scenario as new baseline</button>
+        <button type="button" class="btn-margin-reset" onclick="toggleBaselineLock()" id="bm-lock-btn">Edit baseline</button>
+        <button type="button" class="btn-margin-reset" onclick="resetAll()">Reset all to defaults</button>
       </div>
     </div>
   </div>
@@ -417,24 +426,24 @@
   <div class="bm-compare">
 
     <div class="bm-col" id="bm-col-baseline">
-      <div class="bm-col-title">Today — Baseline <span class="bm-lock" id="bm-lock-hint">&#128274; locked</span></div>
+      <h2 class="bm-col-title">Today — Baseline <span class="bm-lock" id="bm-lock-hint">&#128274; locked</span></h2>
 
       <div class="card">
-        <div class="card-header">Capacity &amp; Revenue</div>
+        <h3 class="card-header">Capacity &amp; Revenue</h3>
         <div class="card-body">
           <div class="margin-tier-grid" id="mount-baseline-capacity"></div>
         </div>
       </div>
 
       <div class="card">
-        <div class="card-header">Team — Roles &amp; Salaries</div>
+        <h3 class="card-header">Team — Roles &amp; Salaries</h3>
         <div class="card-body">
           <div class="margin-tier-grid" id="mount-baseline-team"></div>
         </div>
       </div>
 
       <div class="card">
-        <div class="card-header">Vehicles &amp; Fixed Overhead</div>
+        <h3 class="card-header">Vehicles &amp; Fixed Overhead</h3>
         <div class="card-body">
           <div class="margin-tier-grid" id="mount-baseline-costs"></div>
         </div>
@@ -442,10 +451,10 @@
     </div>
 
     <div class="bm-col" id="bm-col-scenario">
-      <div class="bm-col-title">What-If Scenario</div>
+      <h2 class="bm-col-title">What-If Scenario</h2>
 
       <div class="card bm-card-scenario">
-        <div class="card-header">Capacity &amp; Revenue</div>
+        <h3 class="card-header">Capacity &amp; Revenue</h3>
         <div class="card-body">
           <p class="margin-tier-hint">Revenue is capacity-driven &mdash; assumes sales keep pace with install capacity. Commission prefill &asymp; $25 &times; 20 panels + $650 battery = $1,150/job.</p>
           <div class="margin-tier-grid" id="mount-scenario-capacity"></div>
@@ -453,7 +462,7 @@
       </div>
 
       <div class="card bm-card-scenario">
-        <div class="card-header">Team — Roles &amp; Salaries</div>
+        <h3 class="card-header">Team — Roles &amp; Salaries</h3>
         <div class="card-body">
           <p class="margin-tier-hint">Salaries are placeholders &mdash; edit to your real numbers. <strong>Per crew</strong> staffing scales automatically with crew count; <strong>Office</strong> headcount is independent of crews. On-costs (super, workers comp, leave loading) are applied to all wages.</p>
           <div class="margin-tier-grid" id="mount-scenario-team"></div>
@@ -461,7 +470,7 @@
       </div>
 
       <div class="card bm-card-scenario">
-        <div class="card-header">Vehicles &amp; Fixed Overhead</div>
+        <h3 class="card-header">Vehicles &amp; Fixed Overhead</h3>
         <div class="card-body">
           <p class="margin-tier-hint"><strong>Fixed overhead is non-wage only</strong>: rent, marketing, insurance, fuel, software &mdash; everything NOT listed in the team table. Don't re-enter wages here &mdash; your ~$125k/week total overhead already includes wages; this field is the remainder. The prefill is a placeholder split &mdash; edit it.</p>
           <div class="margin-tier-grid" id="mount-scenario-costs"></div>
@@ -473,17 +482,17 @@
 
   <!-- RESULTS -->
   <div class="card">
-    <div class="card-header">Annual Comparison</div>
+    <h2 class="card-header">Annual Comparison</h2>
     <div class="card-body">
-      <div class="margin-tier-grid" id="bm-results" style="margin-bottom: 0.2rem;"></div>
+      <div class="margin-tier-grid" id="bm-results"></div>
     </div>
   </div>
 
   <!-- ASSUMPTIONS -->
   <div class="card">
-    <div class="card-header">Assumptions</div>
+    <h2 class="card-header">Assumptions</h2>
     <div class="card-body">
-      <p class="margin-tier-hint" style="margin-bottom: 0.3rem;">
+      <p class="margin-tier-hint">
         &bull; Annual = weekly &times; working weeks, so weekly figures (overhead, vehicles) are only counted for working weeks &mdash; bump them up if they run 52 weeks.<br>
         &bull; Salaries are annual and are NOT scaled by working weeks.<br>
         &bull; Sales are assumed to keep up with install capacity (capacity-driven revenue).<br>
