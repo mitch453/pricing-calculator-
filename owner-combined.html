@@ -840,7 +840,7 @@
     </div>
     <div class="tab-group"><span class="tab-group-label" aria-hidden="true">Tools</span>
       <button type="button" class="tab-btn" id="tab-da" role="tab" aria-selected="false" aria-controls="section-da" tabindex="-1" onclick="switchTab('da')">DA Application</button>
-      <button type="button" class="tab-btn" id="tab-compare" role="tab" aria-selected="false" aria-controls="section-compare" tabindex="-1" onclick="switchTab('compare')">Compare <span class="tab-count" id="compare-count" hidden>0</span></button>
+      <button type="button" class="tab-btn admin-only" id="tab-compare" role="tab" aria-selected="false" aria-controls="section-compare" tabindex="-1" onclick="switchTab('compare')">Compare <span class="tab-count" id="compare-count" hidden>0</span></button>
     </div>
   </nav>
 </div></div>
@@ -996,7 +996,7 @@
         </fieldset>
 
         <fieldset class="field-set">
-          <legend>Pricing <small><a class="field-link" href="#overhead-section" onclick="openSettings();return false;">Overheads &amp; commission settings</a></small></legend>
+          <legend>Pricing <small class="admin-only"><a class="field-link" href="#overhead-section" onclick="openSettings();return false;">Overheads &amp; commission settings</a></small></legend>
           <div class="form-grid">
             <div class="form-group field field--wide field--select">
               <label class="field-label" for="s-carCharger">Car charger</label>
@@ -1069,7 +1069,7 @@
     <!-- RESULTS PANE -->
     <aside class="results-pane" tabindex="0" role="region" aria-label="Summary">
       <div class="card summary-card" id="s-summary-card">
-        <h2 class="card-header">Summary <button type="button" class="btn-save" onclick="saveQuote('sig')" title="Save this quote to compare">Save quote</button></h2>
+        <h2 class="card-header">Summary <button type="button" class="btn-save admin-only" onclick="saveQuote('sig')" title="Save this quote to compare">Save quote</button></h2>
         <div class="card-body" id="s-summary"></div>
       </div>
     </aside>
@@ -1235,14 +1235,14 @@
             <label><input type="checkbox" class="g-extra-cb" data-price="70" data-per-panel="true" onchange="calcGW()"><span>Optimizers</span><span class="per-panel-tag">/panel</span><span class="extra-price">$70</span></label>
             <label><input type="checkbox" class="g-extra-cb" data-price="200" onchange="calcGW()"><span>Concrete Plinth</span><span class="extra-price">$200</span></label>
             <label class="extra--qty"><input type="checkbox" class="g-extra-cb" data-price="50" data-qty-select="g-cableMetres" onchange="calcGW()"><span>Cable (per metre)</span><select class="extra-select" id="g-cableMetres" onchange="calcGW()" aria-label="Cable metres"><option value="1">1m</option><option value="2">2m</option><option value="3">3m</option><option value="4">4m</option><option value="5">5m</option><option value="10">10m</option><option value="15">15m</option><option value="20">20m</option><option value="25">25m</option><option value="30">30m</option></select><span class="extra-price">$50/m</span></label>
-            <label class="extra--qty"><input type="checkbox" class="g-extra-cb" data-price="150" data-qty-select="g-breakerQty" onchange="calcGW()"><span>Breakers</span><select class="extra-select" id="g-breakerQty" onchange="calcGW()" aria-label="Breaker quantity"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option></select><span class="extra-price">$150 ea</span></label>
+            <label class="extra--qty"><input type="checkbox" class="g-extra-cb" data-price="150" data-qty-select="g-breakerQty" onchange="calcGW()"><span>Breakers</span><select class="extra-select" id="g-breakerQty" onchange="calcGW()" aria-label="Breakers quantity"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option></select><span class="extra-price">$150 ea</span></label>
             <label><input type="checkbox" class="g-extra-cb" data-price="650" onchange="calcGW()"><span>Hot Water Timer</span><span class="extra-price">$650</span></label>
             <label><input type="checkbox" class="g-extra-cb" data-price="2000" onchange="calcGW()"><span>Decommission Existing Battery</span><span class="extra-price">$2,000</span></label>
           </div>
         </fieldset>
 
         <fieldset class="field-set">
-          <legend>Pricing <small><a class="field-link" href="#overhead-section" onclick="openSettings();return false;">Overheads &amp; commission settings</a></small></legend>
+          <legend>Pricing <small class="admin-only"><a class="field-link" href="#overhead-section" onclick="openSettings();return false;">Overheads &amp; commission settings</a></small></legend>
           <div class="form-grid">
             <div class="form-group field field--wide field--select">
               <label class="field-label" for="g-carCharger">Car charger</label>
@@ -1315,7 +1315,7 @@
     <!-- SUMMARY (sticky pane on desktop) -->
     <aside class="results-pane" tabindex="0" role="region" aria-label="Summary">
       <div class="card summary-card" id="g-summary-card">
-        <h2 class="card-header">Summary <button type="button" class="btn-save" onclick="saveQuote('gw')" title="Save this quote to compare">Save quote</button></h2>
+        <h2 class="card-header">Summary <button type="button" class="btn-save admin-only" onclick="saveQuote('gw')" title="Save this quote to compare">Save quote</button></h2>
         <div class="card-body" id="g-summary"></div>
       </div>
     </aside>
@@ -1700,7 +1700,7 @@
 
   <aside class="results-pane" tabindex="0" role="region" aria-label="Summary">
     <div class="card" id="ci-results-card">
-      <h2 class="card-header">Summary <button type="button" class="btn-save" onclick="saveQuote('ci')" title="Save this quote to compare">Save quote</button></h2>
+      <h2 class="card-header">Summary <button type="button" class="btn-save admin-only" onclick="saveQuote('ci')" title="Save this quote to compare">Save quote</button></h2>
       <div class="card-body">
         <div id="ci-summary"></div>
         <div id="ci-warnings"></div>
@@ -1966,7 +1966,7 @@
 
   <aside class="results-pane" tabindex="0" role="region" aria-label="Summary">
     <div class="card" id="dy-results-card">
-      <h2 class="card-header">Summary <button type="button" class="btn-save" onclick="saveQuote('deye')" title="Save this quote to compare">Save quote</button></h2>
+      <h2 class="card-header">Summary <button type="button" class="btn-save admin-only" onclick="saveQuote('deye')" title="Save this quote to compare">Save quote</button></h2>
       <div class="card-body">
         <div id="dy-summary"></div>
         <div id="dy-warnings"></div>
@@ -2321,7 +2321,7 @@
 
   <aside class="results-pane" tabindex="0" role="region" aria-label="Summary">
     <div class="card" id="gc-results-card">
-      <h2 class="card-header">Summary <button type="button" class="btn-save" onclick="saveQuote('gwci')" title="Save this quote to compare">Save quote</button></h2>
+      <h2 class="card-header">Summary <button type="button" class="btn-save admin-only" onclick="saveQuote('gwci')" title="Save this quote to compare">Save quote</button></h2>
       <div class="card-body">
         <div id="gc-summary"></div>
         <div id="gc-warnings"></div>
@@ -2641,7 +2641,7 @@
 
   <aside class="results-pane" tabindex="0" role="region" aria-label="Summary">
     <div class="card" id="ks-results-card">
-      <h2 class="card-header">Summary <button type="button" class="btn-save" onclick="saveQuote('kstar')" title="Save this quote to compare">Save quote</button></h2>
+      <h2 class="card-header">Summary <button type="button" class="btn-save admin-only" onclick="saveQuote('kstar')" title="Save this quote to compare">Save quote</button></h2>
       <div class="card-body">
         <div id="ks-summary"></div>
         <div id="ks-warnings"></div>
@@ -2968,7 +2968,7 @@
 
   <aside class="results-pane" tabindex="0" role="region" aria-label="Summary">
     <div class="card" id="ev-results-card">
-      <h2 class="card-header">Summary <button type="button" class="btn-save" onclick="saveQuote('ev')" title="Save this quote to compare">Save quote</button></h2>
+      <h2 class="card-header">Summary <button type="button" class="btn-save admin-only" onclick="saveQuote('ev')" title="Save this quote to compare">Save quote</button></h2>
       <div class="card-body">
         <div id="ev-summary"></div>
         <div id="ev-warnings"></div>
@@ -3259,7 +3259,7 @@
 
   <aside class="results-pane" tabindex="0" role="region" aria-label="Summary">
     <div class="card" id="cu-results-card">
-      <h2 class="card-header">Summary <button type="button" class="btn-save" onclick="saveQuote('cube')" title="Save this quote to compare">Save quote</button></h2>
+      <h2 class="card-header">Summary <button type="button" class="btn-save admin-only" onclick="saveQuote('cube')" title="Save this quote to compare">Save quote</button></h2>
       <div class="card-body">
         <div id="cu-summary"></div>
         <div id="cu-warnings"></div>
@@ -5382,6 +5382,7 @@ const COMMERCIAL_TABS = ['ci', 'cube', 'deye', 'gwci', 'kstar', 'ev'];
 let lastCommercialTab = null;
 
 function switchTab(tab) {
+  if (tab === 'compare' && !adminMode) tab = 'sig';   // sales view: saved quotes hold costs, margins and overheads
   TABS.forEach(t => {
     const on = t === tab;
     const sec = document.getElementById('section-' + t);
@@ -5604,15 +5605,19 @@ function openQuote(id) {
   let msg = 'Opened "' + q.name + '" in ' + q.tabTitle + '.';
   if (lost.length) msg += ' Not restored — no longer on the list: ' + lost.join('; ') + '. Pick a replacement before quoting.';
   if (repriced || changed.length) {
-    msg += ' The price has moved since it was saved (' + (q.hero ? q.hero.value : '—') + ' → ' + heroNow + ')' + (changed.length ? ': ' + changed.join('; ') : '') + '.';
+    msg += repriced ? ' The price has moved since it was saved (' + (q.hero ? q.hero.value : '—') + ' → ' + heroNow + ')' + (changed.length ? ': ' + changed.join('; ') : '') + '.'
+                    : ' Same price as saved. Settings changed since: ' + changed.join('; ') + '.';
     if (sum) {   // a durable note at the top of the Summary until the next recalculation replaces it
       const n = document.createElement('div'); n.className = 'note';
-      n.textContent = 'Saved at ' + (q.hero ? q.hero.value : '—') + ', now ' + (heroNow || '—') + '. ' + (changed.length ? 'Changed since: ' + changed.join('; ') + '.' : 'Prices or settings have changed since it was saved.');
+      n.textContent = (repriced ? 'Saved at ' + (q.hero ? q.hero.value : '—') + ', now ' + (heroNow || '—') + '. ' : 'Same price as when it was saved. ') + (changed.length ? 'Changed since: ' + changed.join('; ') + '.' : 'Prices or settings have changed since it was saved.');
       sum.insertBefore(n, sum.firstChild);
     }
   } else if (calcError) msg += ' The calculator could not reprice it — check the inputs.';
   toast(msg, (lost.length || repriced || changed.length || calcError) ? () => switchTab('compare') : null);
   if (typeof window.scrollTo === 'function') { try { window.scrollTo(0, 0); } catch (e) {} }
+  // the pressed "Open" button now sits in the hidden Compare section: hand keyboard focus to the opened tab
+  const ae = document.activeElement, tabBtn = document.getElementById('tab-' + q.tab);
+  if (tabBtn && (!ae || ae === document.body || (ae.closest && ae.closest('#section-compare')))) tabBtn.focus({ preventScroll: true });
 }
 
 // ── Compare table helpers: the same line must line up across quotes although its label carries that quote's figures ──
@@ -5623,7 +5628,8 @@ const ROW_ALIAS = {   // the same quantity worded differently on different tabs
   'Net Material Cost (inc GST)': 'Net Cost after rebates (inc GST)',
   'Gross Material Total (ex GST)': 'Gross Cost (ex GST)',
   'Gross Material Total (inc GST)': 'Gross Cost (inc GST)',
-  'Gross Margin (ex GST)': 'Gross Profit (ex GST)'
+  'Gross Margin (ex GST)': 'Gross Profit (ex GST)',
+  'Your Price': 'Sale Price (inc GST)'
 };
 const canonLabel = l => ROW_ALIAS[l] || l;
 // key = label with money amounts, bracketed counts/specs, a trailing " — detail" and installs/wk or % figures blanked;
@@ -5665,6 +5671,7 @@ function renderCompare() {
     const el = ctls[keep.ctl] || ctls[0] || root.querySelector('button') || document.getElementById('tab-compare');
     if (el && typeof el.focus === 'function') el.focus({ preventScroll: true });
   };
+  if (typeof adminMode !== 'undefined' && !adminMode) { paint('<div class="note">Saved quotes are not shown in this view.</div>'); return; }   // sales view (belt and braces: switchTab already keeps this tab closed)
   const list = loadQuotes();
   if (!list.length) { paint('<div class="note">No saved quotes yet. Build a job on any calculator tab and press <strong>Save quote</strong> in its Summary — it will appear here.</div>'); return; }
   let h = '<div class="quote-list">' + list.map(q =>
@@ -5692,7 +5699,7 @@ function renderCompare() {
     const state = q.hero && q.hero.cls ? ' ' + qEsc(q.hero.cls) : '';
     const tag = isBest ? '<span class="tag">lowest</span>' : (q.hero && !isPrice(q) ? '<span class="tag warn">' + flagWord(q) + '</span>' : '');
     return `<td class="num${isBest ? ' best' : ''}${state}"><span class="fig">${q.hero ? qEsc(q.hero.value) : '—'}</span>${tag}` +
-      (q.hero && q.hero.label && q.hero.label !== 'Recommended price (inc GST)' ? `<div class="sub">${qEsc(q.hero.label)}</div>` : '') +
+      (q.hero && q.hero.label && !/^Recommended (Sale )?[Pp]rice \(inc GST\)$/.test(q.hero.label) ? `<div class="sub">${qEsc(q.hero.label)}</div>` : '') +
       (q.hero && q.hero.sub ? `<div class="sub">${qEsc(q.hero.sub)}</div>` : '') + '</td>';
   }).join('') + '</tr>';
   if (best != null) t += '<tr><td>Difference to the lowest</td>' + sel.map((q, i) => { const p = prices[i]; if (!isPrice(q)) return cell(q.hero ? flagWord(q) : '—', 'num muted'); if (p == null) return cell('—', 'num muted'); return cell(p === best ? '—' : '+ $' + Math.round(p - best).toLocaleString('en-AU'), 'num' + (p === best ? ' muted' : '')); }).join('') + '</tr>';
@@ -5703,7 +5710,7 @@ function renderCompare() {
     const sizeRow = (label, fn) => '<tr><td>' + label + '</td>' + facts.map((f, i) => { const v = f ? fn(f, i) : null; return cell(v == null ? '—' : v, 'num' + (v == null ? ' muted' : '')); }).join('') + '</tr>';
     t += secRow('Size', true);
     t += sizeRow('Battery (kWh nominal / usable)', f => f.nominal > 0 ? num(f.nominal, 1) + (f.usable > 0 ? ' / ' + num(f.usable, 1) : '') : null);
-    t += sizeRow('Battery inverter / PCS (kW)', f => f.invKw > 0 ? num(f.invKw, 2) : null);
+    if (facts.some(f => f && f.invKw > 0)) t += sizeRow('Battery inverter / PCS (kW)', f => f.invKw > 0 ? num(f.invKw, 2) : null);
     t += sizeRow('Solar (kW)', f => f.pvKw > 0 ? num(f.pvKw, 2) : null);
     t += sizeRow('Recommended price per usable kWh (inc GST)', (f, i) => prices[i] > 0 && f.usable > 0 && isPrice(sel[i]) ? '$' + num(prices[i] / f.usable, 0) : null);
     t += sizeRow('Net cost per usable kWh (inc GST)', f => f.netCost > 0 && f.usable > 0 ? '$' + num(f.netCost / f.usable, 0) : null);
@@ -5738,7 +5745,7 @@ function renderCompare() {
     const totals = mergeKeys(sel.map(q => (q.bom || []).filter(r => r.kind === 'total')), r => canonLabel(r.item));
     totals.forEach(key => { t += '<tr class="total-row"><td>' + qEsc(key) + '</td>' + sel.map(q => { const r = (q.bom || []).find(x => x.kind === 'total' && canonLabel(x.item) === key); return cell(r ? qEsc(r.total) : '—', 'num'); }).join('') + '</tr>'; });
   }
-  t += '<tr><td>Notes on the quote</td>' + sel.map(q => cell(q.notes ? q.notes + ' note' + (q.notes !== 1 ? 's' : '') : '—', 'num muted')).join('') + '</tr>';
+  if (sel.some(q => q.notes)) t += '<tr><td>Notes on the quote</td>' + sel.map(q => cell(q.notes ? q.notes + ' note' + (q.notes !== 1 ? 's' : '') : '—', 'num muted')).join('') + '</tr>';
   t += '</tbody></table></div>';
   paint(h + t);
 }
@@ -6368,6 +6375,10 @@ document.addEventListener('keydown', function(e) {
     document.querySelectorAll('.admin-only').forEach(el => {
       el.style.display = adminMode ? '' : 'none';
     });
+    if (!adminMode) {   // sales view: leave Compare and drop any toast that names a saved price
+      if (document.body.dataset.tab === 'compare') switchTab('sig');
+      const t = document.getElementById('toast'); if (t) t.classList.remove('show');
+    }
     calcSig();
     calcGW();
     syncPriceBar();
@@ -6585,14 +6596,15 @@ calcDa();
   });
   const nav = document.querySelector('.tabs');
   if (nav) nav.addEventListener('keydown', e => {
-    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) return;
-    const cur = Math.max(0, TABS.indexOf(document.body.dataset.tab || 'sig'));
-    const next = e.key === 'ArrowLeft' ? (cur + TABS.length - 1) % TABS.length
-               : e.key === 'ArrowRight' ? (cur + 1) % TABS.length
-               : e.key === 'Home' ? 0 : TABS.length - 1;
+    if (e.altKey || e.ctrlKey || e.metaKey || !['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) return;   // leave the browser's Back/Forward shortcuts alone
+    const tabs = adminMode ? TABS : TABS.filter(t => t !== 'compare');   // sales view: the Compare tab is hidden
+    const cur = Math.max(0, tabs.indexOf(document.body.dataset.tab || 'sig'));
+    const next = e.key === 'ArrowLeft' ? (cur + tabs.length - 1) % tabs.length
+               : e.key === 'ArrowRight' ? (cur + 1) % tabs.length
+               : e.key === 'Home' ? 0 : tabs.length - 1;
     e.preventDefault();
-    switchTab(TABS[next]);
-    const b = document.getElementById('tab-' + TABS[next]);
+    switchTab(tabs[next]);
+    const b = document.getElementById('tab-' + tabs[next]);
     if (b) b.focus();
   });
   const topbar = document.querySelector('.topbar');
