@@ -999,6 +999,13 @@
           <legend>Pricing <small class="admin-only"><a class="field-link" href="#overhead-section" onclick="openSettings();return false;">Overheads &amp; commission settings</a></small></legend>
           <div class="form-grid">
             <div class="form-group field field--wide field--select">
+              <label class="field-label" for="s-stcPeriod">STC install period</label>
+              <div class="field-control">
+                <select id="s-stcPeriod" class="stc-period" onchange="setStcPeriod(this.value)" aria-describedby="s-stcPeriod-hint"></select>
+              </div>
+              <span class="field-hint" id="s-stcPeriod-hint">Solar deeming and battery STC rate, on every tab · STCs end 31 Dec 2030</span>
+            </div>
+            <div class="form-group field field--wide field--select">
               <label class="field-label" for="s-carCharger">Car charger</label>
               <div class="field-control">
                 <select id="s-carCharger" onchange="calcSig()">
@@ -1244,6 +1251,13 @@
         <fieldset class="field-set">
           <legend>Pricing <small class="admin-only"><a class="field-link" href="#overhead-section" onclick="openSettings();return false;">Overheads &amp; commission settings</a></small></legend>
           <div class="form-grid">
+            <div class="form-group field field--wide field--select">
+              <label class="field-label" for="g-stcPeriod">STC install period</label>
+              <div class="field-control">
+                <select id="g-stcPeriod" class="stc-period" onchange="setStcPeriod(this.value)" aria-describedby="g-stcPeriod-hint"></select>
+              </div>
+              <span class="field-hint" id="g-stcPeriod-hint">Solar deeming and battery STC rate, on every tab · STCs end 31 Dec 2030</span>
+            </div>
             <div class="form-group field field--wide field--select">
               <label class="field-label" for="g-carCharger">Car charger</label>
               <div class="field-control">
@@ -1667,6 +1681,13 @@
             <span class="field-affix">%</span>
           </div>
         </div>
+        <div class="form-group field field--select">
+          <label class="field-label" for="ci-stcPeriod">STC install period</label>
+          <div class="field-control">
+            <select id="ci-stcPeriod" class="stc-period" onchange="setStcPeriod(this.value)" aria-describedby="ci-stcPeriod-hint"></select>
+          </div>
+          <span class="field-hint" id="ci-stcPeriod-hint">Solar deeming and battery STC rate, on every tab · STCs end 31 Dec 2030</span>
+        </div>
         <div class="form-group field">
           <label class="field-label" for="ci-stcPrice">Solar STC price</label>
           <div class="field-control">
@@ -1942,6 +1963,13 @@
             <input type="number" id="dy-acpFee" min="0" max="60" step="1" value="30" oninput="calcDeye()" inputmode="decimal" enterkeyhint="done">
             <span class="field-affix">%</span>
           </div>
+        </div>
+        <div class="form-group field field--select">
+          <label class="field-label" for="dy-stcPeriod">STC install period</label>
+          <div class="field-control">
+            <select id="dy-stcPeriod" class="stc-period" onchange="setStcPeriod(this.value)" aria-describedby="dy-stcPeriod-hint"></select>
+          </div>
+          <span class="field-hint" id="dy-stcPeriod-hint">Solar deeming and battery STC rate, on every tab · STCs end 31 Dec 2030</span>
         </div>
         <div class="form-group field">
           <label class="field-label" for="dy-stcPrice">Solar STC price</label>
@@ -2297,6 +2325,13 @@
             <span class="field-affix">%</span>
           </div>
         </div>
+        <div class="form-group field field--select">
+          <label class="field-label" for="gc-stcPeriod">STC install period</label>
+          <div class="field-control">
+            <select id="gc-stcPeriod" class="stc-period" onchange="setStcPeriod(this.value)" aria-describedby="gc-stcPeriod-hint"></select>
+          </div>
+          <span class="field-hint" id="gc-stcPeriod-hint">Solar deeming and battery STC rate, on every tab · STCs end 31 Dec 2030</span>
+        </div>
         <div class="form-group field">
           <label class="field-label" for="gc-stcPrice">STC price</label>
           <div class="field-control">
@@ -2616,6 +2651,13 @@
             <input type="number" id="ks-acpFee" min="0" max="60" step="1" value="30" oninput="calcKstar()" inputmode="decimal" enterkeyhint="done">
             <span class="field-affix">%</span>
           </div>
+        </div>
+        <div class="form-group field field--select">
+          <label class="field-label" for="ks-stcPeriod">STC install period</label>
+          <div class="field-control">
+            <select id="ks-stcPeriod" class="stc-period" onchange="setStcPeriod(this.value)" aria-describedby="ks-stcPeriod-hint"></select>
+          </div>
+          <span class="field-hint" id="ks-stcPeriod-hint">Solar deeming and battery STC rate, on every tab · STCs end 31 Dec 2030</span>
         </div>
         <div class="form-group field">
           <label class="field-label" for="ks-stcPrice">STC price</label>
@@ -2944,6 +2986,13 @@
               <span class="field-affix">%</span>
             </div>
           </div>
+          <div class="form-group field field--select">
+            <label class="field-label" for="ev-stcPeriod">STC install period</label>
+            <div class="field-control">
+              <select id="ev-stcPeriod" class="stc-period" onchange="setStcPeriod(this.value)" aria-describedby="ev-stcPeriod-hint"></select>
+            </div>
+            <span class="field-hint" id="ev-stcPeriod-hint">Solar deeming and battery STC rate, on every tab · STCs end 31 Dec 2030</span>
+          </div>
           <div class="form-group field">
             <label class="field-label" for="ev-stcPrice">STC price</label>
             <div class="field-control">
@@ -3237,14 +3286,11 @@
           <span class="field-hint" id="cu-stcPrice-hint">inc GST</span>
         </div>
         <div class="form-group field field--select">
-          <label class="field-label" for="cu-solarYear">Solar install year</label>
+          <label class="field-label" for="cu-stcPeriod">STC install period</label>
           <div class="field-control">
-            <select id="cu-solarYear" onchange="calcCube()" aria-describedby="cu-solarYear-hint">
-              <option value="2027" selected>2027 — 4 years of STCs</option>
-              <option value="2026">2026 — 5 years of STCs</option>
-            </select>
+            <select id="cu-stcPeriod" class="stc-period" onchange="setStcPeriod(this.value)" aria-describedby="cu-stcPeriod-hint"></select>
           </div>
-          <span class="field-hint" id="cu-solarYear-hint">STCs up to 100kW</span>
+          <span class="field-hint" id="cu-stcPeriod-hint">Solar deeming and battery STC rate, on every tab · STCs end 31 Dec 2030</span>
         </div>
       </div>
       <details class="card-notes"><summary>Rebate rules and notes</summary>
@@ -3828,17 +3874,58 @@ function solarStcCount2027(watts) {
   return Math.floor(Math.round(watts) * 5528 / 1000000);
 }
 
+// STC install period (owner, 11 Nov 2026): one switch, shared by every tab on this page, says when the job is installed.
+// Solar up to 100 kW deems to the end of the scheme (CER: 2026 = 5 years, 2027 = 4, 2028 = 3, 2029 = 2, 2030 = 1; no STCs
+// for installs after 31 Dec 2030). The battery STC factor steps down every six months (CER: 6.8 May–Dec 2026, 5.7 Jan–Jun
+// 2027 … 2.1 Jul–Dec 2030): the full factor on the first 14 kWh usable, 60% on 14–28 kWh, 15% on 28–50 kWh (see
+// batteryStcCount). Mid-scale solar (over 100 kW, up to 1 MW) keeps its fixed 5-year deeming whatever the period. The page opens on Jan–Jun 2027 (owner, 10 Nov 2026: price for next year's
+// installs) or, once that has passed, on the period that contains today. The pick is not kept between visits on purpose,
+// so a period flicked to for a what-if never carries into the next day's quotes.
+const STC_PERIODS = [
+  { id: '2026H2', label: 'Now – Dec 2026', year: 2026, from: '2026-05-01', solarYears: 5, factor: 6.8 },
+  { id: '2027H1', label: 'Jan – Jun 2027', year: 2027, from: '2027-01-01', solarYears: 4, factor: 5.7 },
+  { id: '2027H2', label: 'Jul – Dec 2027', year: 2027, from: '2027-07-01', solarYears: 4, factor: 5.2 },
+  { id: '2028H1', label: 'Jan – Jun 2028', year: 2028, from: '2028-01-01', solarYears: 3, factor: 4.6 },
+  { id: '2028H2', label: 'Jul – Dec 2028', year: 2028, from: '2028-07-01', solarYears: 3, factor: 4.1 },
+  { id: '2029H1', label: 'Jan – Jun 2029', year: 2029, from: '2029-01-01', solarYears: 2, factor: 3.6 },
+  { id: '2029H2', label: 'Jul – Dec 2029', year: 2029, from: '2029-07-01', solarYears: 2, factor: 3.1 },
+  { id: '2030H1', label: 'Jan – Jun 2030', year: 2030, from: '2030-01-01', solarYears: 1, factor: 2.6 },
+  { id: '2030H2', label: 'Jul – Dec 2030', year: 2030, from: '2030-07-01', solarYears: 1, factor: 2.1 }
+];
+function defaultStcPeriod() {
+  const d = new Date();
+  const today = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  let p = STC_PERIODS[1];   // never earlier than Jan–Jun 2027
+  STC_PERIODS.forEach(x => { if (x.from <= today && x.from > p.from) p = x; });
+  return p;
+}
+let STC_PERIOD = defaultStcPeriod();
+const yearsText = n => n + ' year' + (n !== 1 ? 's' : '');
+function solarStcCountYears(watts, years) { return Math.floor(Math.round(watts) * 1382 * years / 1000000); }   // integer maths: 1.382 x years per kW
+function solarDeemingLabel(pp) { return pp.year + ' &mdash; ' + yearsText(pp.solarYears); }
+function batteryRateLabel(pp) { return pp.label + ' rate ' + pp.factor; }
+function fillStcPeriodSelects() {
+  document.querySelectorAll('select.stc-period').forEach(sel => {
+    if (!sel.options.length) sel.innerHTML = STC_PERIODS.map(pp => '<option value="' + pp.id + '">' + pp.label + ' · solar ' + yearsText(pp.solarYears) + ' · battery ' + pp.factor + '</option>').join('');
+    sel.value = STC_PERIOD.id;
+  });
+}
+function setStcPeriod(id) {
+  const pp = STC_PERIODS.find(x => x.id === id); if (!pp) return;
+  STC_PERIOD = pp;
+  document.querySelectorAll('select.stc-period').forEach(sel => { if (sel.value !== id) sel.value = id; });
+  ['calcSig', 'calcGW', 'calcCI', 'calcDeye', 'calcGwci', 'calcKstar', 'calcEv', 'calcCube'].forEach(n => { if (typeof window[n] === 'function') window[n](); });
+}
+
+// Battery STCs for the install period, in exact integers (kWh in thousandths, factor in tenths) so a whole number of
+// certificates never loses one to floating point (24 kWh at 4.6 is 92, not 91.999…). Same results as the old 6.8 maths.
+function batteryStcCount(kwh, cap, pp) {
+  const K = Math.round(Math.max(0, Math.min(kwh, cap, 50)) * 1000);
+  const b1 = Math.min(K, 14000), b2 = Math.max(0, Math.min(K, 28000) - 14000), b3 = Math.max(0, K - 28000);
+  return Math.floor(Math.round(pp.factor * 10) * (100 * b1 + 60 * b2 + 15 * b3) / 1000000);   // 100% / 60% / 15% bands
+}
 function calcBatterySTCs(batteryKwh, cap) {
-  const cappedKwh = Math.min(batteryKwh, cap);
-  let stcs = 0;
-  if (cappedKwh <= 14) {
-    stcs = cappedKwh * 6.8;
-  } else if (cappedKwh <= 28) {
-    stcs = 14 * 6.8 + (cappedKwh - 14) * 4.08;
-  } else {
-    stcs = 14 * 6.8 + 14 * 4.08 + (cappedKwh - 28) * 1.02;
-  }
-  return Math.floor(stcs);
+  return batteryStcCount(batteryKwh, cap, STC_PERIOD);   // install period switch (owner, 11 Nov 2026)
 }
 
 function buildProfitHtml(isBatteryOnly, jobsPerDay, marginPerJob, labelExtra, noPriceMsg, basisPrice) {
@@ -4155,13 +4242,13 @@ function calcCI() {
   const usable = 0.9 * nominal;                       // PDRS Rule clause 10
   const invKw = hyb.kw * hybQty;
 
-  // solar STCs — SRES up to 1MW for installs from 1 Oct 2026 (CER); 2026 = 5yr deeming
+  // solar STCs — SRES up to 1MW for installs from 1 Oct 2026 (CER); up to 100 kW deems by the install period, mid-scale a fixed 5 years
   let solarStcs = 0, solarStcValue = 0;
   if (numPanels > 0) {
     if (pvKw > 1000) {
       warnings.push('Solar ' + pvKw.toFixed(1) + 'kW is over 1MW — not eligible for STCs at all (large-scale scheme / LGCs). No STCs counted.');
     } else {
-      solarStcs = solarStcCount(pvKw * 1000);
+      solarStcs = pvKw <= 100 ? solarStcCountYears(pvKw * 1000, STC_PERIOD.solarYears) : solarStcCount(pvKw * 1000);   // up to 100 kW deems by the install period; mid-scale is a fixed 5 years (CER)
       solarStcValue = solarStcs * stcPrice;
       if (pvKw > 100)
         warnings.push('Solar ' + pvKw.toFixed(1) + 'kW is mid-scale (100kW–1MW): STCs only for systems installed ON/AFTER 1 OCTOBER 2026, ' +
@@ -4176,7 +4263,7 @@ function calcCI() {
     else if (pvKw > 1000) warnings.push('Federal battery STCs need SRES-eligible solar at the site (<=1MW under the announced cap) — none claimed.');
     else {
       const u = Math.min(usable, 50);
-      fedStcs = Math.floor(6.8 * (Math.min(u, 14) + 0.6 * Math.max(0, Math.min(u, 28) - 14) + 0.15 * Math.max(0, Math.min(u, 50) - 28)));
+      fedStcs = batteryStcCount(u, 50, STC_PERIOD);   // same bands and factor as the residential battery STCs
       fedStcValue = fedStcs * stcPrice;
       warnings.push('Federal battery STCs claimed (' + fedStcs + '): stacking with BESS4 PRCs appears permitted by the rule text but is NOT admin-confirmed — verify with the ACP.');
     }
@@ -4256,8 +4343,8 @@ function calcCI() {
 
   let s = ciHero(marginPct, recommended, false);
   if (discSaved > 0) s += summaryRow('Sigenergy ' + discPct + '% discount on hybrid + modules (already in the BOM above, ex GST)', '&minus; ' + ciFmt(discSaved / 1.1));
-  if (solarStcValue > 0) s += summaryRow('Solar STCs (' + solarStcs + ' &times; $' + stcPrice + ')', '&minus; ' + ciFmt(solarStcValue));
-  if (fedStcValue > 0) s += summaryRow('Federal battery STCs (' + fedStcs + ')', '&minus; ' + ciFmt(fedStcValue));
+  if (solarStcValue > 0) s += summaryRow('Solar STCs (' + solarStcs + ' &times; $' + stcPrice + (pvKw <= 100 ? ', ' + solarDeemingLabel(STC_PERIOD) : ', mid-scale &mdash; fixed 5 years') + ')', '&minus; ' + ciFmt(solarStcValue));
+  if (fedStcValue > 0) s += summaryRow('Federal battery STCs (' + fedStcs + ', ' + batteryRateLabel(STC_PERIOD) + ')', '&minus; ' + ciFmt(fedStcValue));
   if (prcs > 0) {
     s += summaryRow('PRCs — ' + activity.toUpperCase() + ' (' + prcs.toLocaleString('en-AU') + ' &times; $' + prcPrice.toFixed(2) + ')', ciFmt(prcGross) + ' gross');
     s += summaryRow('PRC net of ' + Math.round(acpFee * 100) + '% ACP fee — ' + prcNote, '&minus; ' + ciFmt(prcNet));
@@ -4338,7 +4425,7 @@ function calcDeye() {
     if (pvKw > 1000) {
       warnings.push('Solar ' + pvKw.toFixed(1) + 'kW is over 1MW — not eligible for STCs at all (large-scale scheme / LGCs). No STCs counted.');
     } else {
-      solarStcs = solarStcCount(pvKw * 1000);
+      solarStcs = pvKw <= 100 ? solarStcCountYears(pvKw * 1000, STC_PERIOD.solarYears) : solarStcCount(pvKw * 1000);   // up to 100 kW deems by the install period; mid-scale is a fixed 5 years (CER)
       solarStcValue = solarStcs * stcPrice;
       if (pvKw > 100)
         warnings.push('Solar ' + pvKw.toFixed(1) + 'kW is mid-scale (100kW–1MW): STCs only for systems installed ON/AFTER 1 OCTOBER 2026, ' +
@@ -4401,7 +4488,7 @@ function calcDeye() {
   const bomIncomplete = unitCost <= 0;
   let s = ciHero(marginPct, recommended, bomIncomplete);
   if (bomIncomplete) s += '<div class="margin-alert incomplete">BOM incomplete — no cabinet cost entered. The net cost and recommended sale below leave it out.</div>';
-  if (solarStcValue > 0) s += summaryRow('Solar STCs (' + solarStcs + ' &times; $' + stcPrice + ')', '&minus; ' + ciFmt(solarStcValue));
+  if (solarStcValue > 0) s += summaryRow('Solar STCs (' + solarStcs + ' &times; $' + stcPrice + (pvKw <= 100 ? ', ' + solarDeemingLabel(STC_PERIOD) : ', mid-scale &mdash; fixed 5 years') + ')', '&minus; ' + ciFmt(solarStcValue));
   if (prcs > 0) {
     s += summaryRow('PRCs — ' + activity.toUpperCase() + ' (' + prcs.toLocaleString('en-AU') + ' &times; $' + prcPrice.toFixed(2) + ')', ciFmt(prcGross) + ' gross');
     s += summaryRow('PRC net of ' + Math.round(acpFee * 100) + '% ACP fee — ' + prcNote, '&minus; ' + ciFmt(prcNet));
@@ -4558,7 +4645,7 @@ function calcKstar() {
     if (pvKw > 1000) {
       warnings.push('Solar ' + pvKw.toFixed(1) + 'kW is over 1MW — not eligible for STCs at all (large-scale scheme / LGCs). No STCs counted.');
     } else {
-      solarStcs = solarStcCount(pvKw * 1000);
+      solarStcs = pvKw <= 100 ? solarStcCountYears(pvKw * 1000, STC_PERIOD.solarYears) : solarStcCount(pvKw * 1000);   // up to 100 kW deems by the install period; mid-scale is a fixed 5 years (CER)
       solarStcValue = solarStcs * stcPrice;
       if (pvKw > 100)
         warnings.push('Solar ' + pvKw.toFixed(1) + 'kW is mid-scale (100kW–1MW): STCs only for systems installed ON/AFTER 1 OCTOBER 2026, ' +
@@ -4626,7 +4713,7 @@ function calcKstar() {
   const bomIncomplete = missing.length > 0;
   let s = ciHero(marginPct, recommended, bomIncomplete);
   if (bomIncomplete) s += '<div class="margin-alert incomplete">BOM incomplete — no price entered for ' + missing.join(', ') + '. The net cost and recommended sale below leave them out.</div>';
-  if (solarStcValue > 0) s += summaryRow('Solar STCs (' + solarStcs + ' &times; $' + stcPrice + ')', '&minus; ' + ciFmt(solarStcValue));
+  if (solarStcValue > 0) s += summaryRow('Solar STCs (' + solarStcs + ' &times; $' + stcPrice + (pvKw <= 100 ? ', ' + solarDeemingLabel(STC_PERIOD) : ', mid-scale &mdash; fixed 5 years') + ')', '&minus; ' + ciFmt(solarStcValue));
   if (prcs > 0) {
     s += summaryRow('PRCs — ' + activity.toUpperCase() + ' (' + prcs.toLocaleString('en-AU') + ' &times; $' + prcPrice.toFixed(2) + ')', ciFmt(prcGross) + ' gross');
     s += summaryRow('PRC net of ' + Math.round(acpFee * 100) + '% ACP fee — ' + prcNote, '&minus; ' + ciFmt(prcNet));
@@ -4685,7 +4772,6 @@ function calcCube() {
   const prcPrice  = parseFloat(v('cu-prcPrice').value) || 0;
   const acpFee    = (parseFloat(v('cu-acpFee').value) || 0) / 100;
   const stcPrice  = parseFloat(v('cu-stcPrice').value) || 0;
-  const solarYear = v('cu-solarYear').value;
 
   const warnings = [];
   const rows = [];
@@ -4720,8 +4806,8 @@ function calcCube() {
       warnings.push('Solar ' + pvKw.toFixed(1) + 'kW is over 1MW — not eligible for STCs at all (large-scale scheme / LGCs). No STCs counted.');
     } else {
       // up to 100kW deems by install year (CER): 2027 = 4 years, 1.382 x 4 = 5.528 STCs/kW; mid-scale stays a fixed 5 years
-      solarDeem4 = solarYear === '2027' && pvKw <= 100;
-      solarStcs = solarDeem4 ? Math.floor(Math.round(pvKw * 1000) * 5528 / 1000000) : solarStcCount(pvKw * 1000);
+      solarDeem4 = pvKw <= 100;   // up to 100 kW deems by the install period (shared switch, 11 Nov 2026)
+      solarStcs = solarDeem4 ? solarStcCountYears(pvKw * 1000, STC_PERIOD.solarYears) : solarStcCount(pvKw * 1000);
       solarStcValue = solarStcs * stcPrice;
       if (pvKw > 100)
         warnings.push('Solar ' + pvKw.toFixed(1) + 'kW is mid-scale (100kW–1MW): STCs only for systems installed ON/AFTER 1 OCTOBER 2026, ' +
@@ -4758,7 +4844,7 @@ function calcCube() {
 
   let s = ciHero(marginPct, recommended, false);
   s += summaryRow('System size', nominal.toLocaleString('en-AU') + 'kWh nominal &middot; ' + usable.toFixed(1) + 'kWh usable &middot; ' + (+invKw.toFixed(2)) + 'kW');
-  if (solarStcValue > 0) s += summaryRow('Solar STCs (' + solarStcs + ' &times; $' + stcPrice + (solarDeem4 ? ', 4-year deeming' : '') + ')', '&minus; ' + ciFmt(solarStcValue));
+  if (solarStcValue > 0) s += summaryRow('Solar STCs (' + solarStcs + ' &times; $' + stcPrice + (solarDeem4 ? ', ' + solarDeemingLabel(STC_PERIOD) : ', mid-scale &mdash; fixed 5 years') + ')', '&minus; ' + ciFmt(solarStcValue));
   if (prcs > 0) {
     s += summaryRow('PRCs — BESS5 (' + prcs.toLocaleString('en-AU') + ' &times; $' + prcPrice.toFixed(2) + ')', ciFmt(prcGross) + ' gross');
     s += summaryRow('PRC net of ' + Math.round(acpFee * 100) + '% ACP fee — ' + prcNote, '&minus; ' + ciFmt(prcNet));
@@ -4867,7 +4953,7 @@ function calcEv() {
     if (pvKw > 1000) {
       warnings.push('Solar ' + pvKw.toFixed(1) + 'kW is over 1MW — not eligible for STCs at all (large-scale scheme / LGCs). No STCs counted.');
     } else {
-      solarStcs = solarStcCount(pvKw * 1000);
+      solarStcs = pvKw <= 100 ? solarStcCountYears(pvKw * 1000, STC_PERIOD.solarYears) : solarStcCount(pvKw * 1000);   // up to 100 kW deems by the install period; mid-scale is a fixed 5 years (CER)
       solarStcValue = solarStcs * stcPrice;
       if (pvKw > 100)
         warnings.push('Solar ' + pvKw.toFixed(1) + 'kW is mid-scale (100kW–1MW): STCs only for systems installed ON/AFTER 1 OCTOBER 2026, ' +
@@ -4934,7 +5020,7 @@ function calcEv() {
   const usdTotal = qty * rackUsd + (container ? qty * EV_CONTAINER_USD_PER_RACK : 0);
   s += summaryRow('EnerVenue supply (USD, FOB China, ex GST)', 'USD ' + Math.round(usdTotal).toLocaleString('en-AU'));
   if (fx > 0) s += summaryRow('EnerVenue supply landed per kWh (ex GST, before freight)', ciFmt(batAud / 1.1 / nominal) + '/kWh');
-  if (solarStcValue > 0) s += summaryRow('Solar STCs (' + solarStcs + ' &times; $' + stcPrice + ')', '&minus; ' + ciFmt(solarStcValue));
+  if (solarStcValue > 0) s += summaryRow('Solar STCs (' + solarStcs + ' &times; $' + stcPrice + (pvKw <= 100 ? ', ' + solarDeemingLabel(STC_PERIOD) : ', mid-scale &mdash; fixed 5 years') + ')', '&minus; ' + ciFmt(solarStcValue));
   if (prcs > 0) {
     s += summaryRow('PRCs — ' + activity.toUpperCase() + ' (' + prcs.toLocaleString('en-AU') + ' &times; $' + prcPrice.toFixed(2) + ')', ciFmt(prcGross) + ' gross');
     s += summaryRow('PRC net of ' + Math.round(acpFee * 100) + '% ACP fee — ' + prcNote, '&minus; ' + ciFmt(prcNet));
@@ -5101,7 +5187,7 @@ function calcGwci() {
     if (pvKw > 1000) {
       warnings.push('Solar ' + pvKw.toFixed(1) + 'kW is over 1MW — not eligible for STCs at all (large-scale scheme / LGCs). No STCs counted.');
     } else {
-      solarStcs = solarStcCount(pvKw * 1000);
+      solarStcs = pvKw <= 100 ? solarStcCountYears(pvKw * 1000, STC_PERIOD.solarYears) : solarStcCount(pvKw * 1000);   // up to 100 kW deems by the install period; mid-scale is a fixed 5 years (CER)
       solarStcValue = solarStcs * stcPrice;
       if (pvKw > 100)
         warnings.push('Solar ' + pvKw.toFixed(1) + 'kW is mid-scale (100kW–1MW): STCs only for systems installed ON/AFTER 1 OCTOBER 2026, ' +
@@ -5116,7 +5202,7 @@ function calcGwci() {
       warnings.push('Federal battery STCs: ' + nominal.toFixed(1) + 'kWh nominal exceeds the 100kWh program cap — none claimed.');
     } else {
       const u = Math.min(usable, 50);
-      fedStcs = Math.floor(6.8 * (Math.min(u, 14) + 0.6 * Math.max(0, Math.min(u, 28) - 14) + 0.15 * Math.max(0, Math.min(u, 50) - 28)));
+      fedStcs = batteryStcCount(u, 50, STC_PERIOD);   // same bands and factor as the residential battery STCs
       fedStcValue = fedStcs * stcPrice;
       warnings.push('Federal battery STCs claimed (' + fedStcs + '): needs SRES-eligible solar at the site; stacking with ' +
         'BESS4 PRCs appears permitted by the rule text but is NOT admin-confirmed — verify with the ACP.');
@@ -5179,8 +5265,8 @@ function calcGwci() {
   const bomIncomplete = unitCost <= 0;
   let s = ciHero(marginPct, recommended, bomIncomplete);
   if (bomIncomplete) s += '<div class="margin-alert incomplete">BOM incomplete — no cabinet cost entered. The net cost and recommended sale below leave it out.</div>';
-  if (solarStcValue > 0) s += summaryRow('Solar STCs (' + solarStcs + ' &times; $' + stcPrice + ')', '&minus; ' + ciFmt(solarStcValue));
-  if (fedStcValue > 0) s += summaryRow('Federal battery STCs (' + fedStcs + ')', '&minus; ' + ciFmt(fedStcValue));
+  if (solarStcValue > 0) s += summaryRow('Solar STCs (' + solarStcs + ' &times; $' + stcPrice + (pvKw <= 100 ? ', ' + solarDeemingLabel(STC_PERIOD) : ', mid-scale &mdash; fixed 5 years') + ')', '&minus; ' + ciFmt(solarStcValue));
+  if (fedStcValue > 0) s += summaryRow('Federal battery STCs (' + fedStcs + ', ' + batteryRateLabel(STC_PERIOD) + ')', '&minus; ' + ciFmt(fedStcValue));
   if (prcs > 0) {
     s += summaryRow('PRCs — ' + activity.toUpperCase() + ' (' + prcs.toLocaleString('en-AU') + ' &times; $' + prcPrice.toFixed(2) + ')', ciFmt(prcGross) + ' gross');
     s += summaryRow('PRC net of ' + Math.round(acpFee * 100) + '% ACP fee — ' + prcNote, '&minus; ' + ciFmt(prcNet));
@@ -5948,7 +6034,7 @@ function calcSig() {
   // STC Rebates
   let solarSTCs = 0, solarSTCvalue = 0;
   if (hasPanels) {
-    solarSTCs = solarStcCount2027(numPanels * PANEL_WATTS[panelType]);   // 2027 deeming, 4 years (owner, 10 Nov 2026)
+    solarSTCs = solarStcCountYears(numPanels * PANEL_WATTS[panelType], STC_PERIOD.solarYears);   // install period switch (owner, 11 Nov 2026)
     solarSTCvalue = solarSTCs * STC_PRICE;
   }
   let batterySTCs = 0, batterySTCvalue = 0;
@@ -6018,10 +6104,10 @@ function calcSig() {
   sHtml += summaryRow('Gross Material Total (inc GST)', fmt(grossTotal));
   sHtml += '</div>';
   sHtml += '<div class="summary-divider"></div>';
-  if (hasPanels)  sHtml += summaryRow(`Solar STCs (${solarSTCs} &times; $${STC_PRICE}, 2027 &mdash; 4 years)`, '&minus; ' + fmt(solarSTCvalue));
+  if (hasPanels)  sHtml += summaryRow(`Solar STCs (${solarSTCs} &times; $${STC_PRICE}, ${solarDeemingLabel(STC_PERIOD)})`, '&minus; ' + fmt(solarSTCvalue));
   if (hasBattery) sHtml += batteryKwh > BATTERY_STC_MAX_NOMINAL
     ? summaryRow('Battery STCs — none: over 100kWh nominal is not eligible (CER)', fmt(0))
-    : summaryRow(`Battery STCs (${batterySTCs} &times; $${STC_PRICE})`, '&minus; ' + fmt(batterySTCvalue));
+    : summaryRow(`Battery STCs (${batterySTCs} &times; $${STC_PRICE}, ${batteryRateLabel(STC_PERIOD)})`, '&minus; ' + fmt(batterySTCvalue));
   sHtml += summaryRow('Total STC Rebate', '&minus; ' + fmt(totalSTCvalue));
   if (sPdrsRes && sPdrsRes.prcs > 0) sHtml += summaryRow(`PDRS ${sPdrsAct.toUpperCase()} PRCs (${sPdrsRes.prcs.toLocaleString('en-AU')} &times; $3.36 &times; 70%)`, '&minus; ' + fmt(sPdrsNet), 'big');
   sHtml += '<div class="admin-only">';
@@ -6225,7 +6311,7 @@ function calcGW() {
   // STC Rebates
   let solarSTCs = 0, solarSTCvalue = 0;
   if (hasPanels) {
-    solarSTCs = solarStcCount2027(numPanels * PANEL_WATTS[panelType]);   // 2027 deeming, 4 years (owner, 10 Nov 2026)
+    solarSTCs = solarStcCountYears(numPanels * PANEL_WATTS[panelType], STC_PERIOD.solarYears);   // install period switch (owner, 11 Nov 2026)
     solarSTCvalue = solarSTCs * STC_PRICE;
   }
   let batterySTCs = 0, batterySTCvalue = 0;
@@ -6295,10 +6381,10 @@ function calcGW() {
   sHtml += summaryRow('Gross Material Total (inc GST)', fmt(grossTotal));
   sHtml += '</div>';
   sHtml += '<div class="summary-divider"></div>';
-  if (hasPanels)  sHtml += summaryRow(`Solar STCs (${solarSTCs} &times; $${STC_PRICE}, 2027 &mdash; 4 years)`, '&minus; ' + fmt(solarSTCvalue));
+  if (hasPanels)  sHtml += summaryRow(`Solar STCs (${solarSTCs} &times; $${STC_PRICE}, ${solarDeemingLabel(STC_PERIOD)})`, '&minus; ' + fmt(solarSTCvalue));
   if (hasBattery) sHtml += batteryKwh > BATTERY_STC_MAX_NOMINAL
     ? summaryRow('Battery STCs — none: over 100kWh nominal is not eligible (CER)', fmt(0))
-    : summaryRow(`Battery STCs (${batterySTCs} &times; $${STC_PRICE})`, '&minus; ' + fmt(batterySTCvalue));
+    : summaryRow(`Battery STCs (${batterySTCs} &times; $${STC_PRICE}, ${batteryRateLabel(STC_PERIOD)})`, '&minus; ' + fmt(batterySTCvalue));
   sHtml += summaryRow('Total STC Rebate', '&minus; ' + fmt(totalSTCvalue));
   if (gPdrsRes && gPdrsRes.prcs > 0) sHtml += summaryRow(`PDRS ${gPdrsAct.toUpperCase()} PRCs (${gPdrsRes.prcs.toLocaleString('en-AU')} &times; $3.36 &times; 70%)`, '&minus; ' + fmt(gPdrsNet), 'big');
   sHtml += '<div class="admin-only">';
@@ -6563,6 +6649,7 @@ function resetCommission() {
 // ================================================================
 // INIT
 // ================================================================
+fillStcPeriodSelects();
 loadMarginTiers();
 syncMarginTierInputs();
 loadSolarRate();
