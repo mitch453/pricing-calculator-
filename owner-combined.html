@@ -1036,6 +1036,7 @@
                   <option value="none">None</option>
                   <option value="onbooks">On-the-books ($/panel + battery)</option>
                   <option value="commsonly">Comms-only (flat $/sale)</option>
+                  <option value="pct8">+8% on top of the sale price</option>
                 </select>
               </div>
             </div>
@@ -1290,6 +1291,7 @@
                   <option value="none">None</option>
                   <option value="onbooks">On-the-books ($/panel + battery)</option>
                   <option value="commsonly">Comms-only (flat $/sale)</option>
+                  <option value="pct8">+8% on top of the sale price</option>
                 </select>
               </div>
             </div>
@@ -3755,21 +3757,30 @@ const DEFAULT_SOLAR_RATE_PER_KW = 1000;
 let SOLAR_RATE_PER_KW          = DEFAULT_SOLAR_RATE_PER_KW;
 const SOLAR_RATE_STORAGE_KEY   = 'ausave-solar-rate-v1';
 
-// Rep commission (admin, editable). Two rep types:
+// Rep commission (admin, editable; the +% rate is fixed in the dropdown). Rep types:
 //  - On-the-books: $/panel + flat $/battery sale
 //  - Comms-only:   flat $/sale
 const DEFAULT_COMM = { perPanel: 25, perBattery: 650, flat: 2000 };
 let COMM = { ...DEFAULT_COMM };
 const COMM_STORAGE_KEY = 'ausave-rep-comm-v1';
 
-function calcCommission(repType, numPanels, hasBattery) {
+//  - +% on top:    'pctN' puts N% on top of the sale price and pays the rep that N% (+8% added at owner request, 12 Nov 2026)
+function commissionLoading(repType) {
+  const m = /^pct(\d+(?:\.\d+)?)$/.exec(repType || '');
+  return m ? parseFloat(m[1]) / 100 : 0;
+}
+function withLoading(price, loading) { return price === null ? null : price * (1 + (loading || 0)); }
+// price: the customer's price inc GST, loading included (a +% rep's share is the loading inside it)
+function calcCommission(repType, numPanels, hasBattery, price) {
   if (repType === 'onbooks')   return COMM.perPanel * numPanels + (hasBattery ? COMM.perBattery : 0);
   if (repType === 'commsonly') return COMM.flat;
-  return 0;
+  const L = commissionLoading(repType);
+  return L > 0 ? (price || 0) * L / (1 + L) : 0;
 }
 function commissionLabel(repType, numPanels, hasBattery) {
   if (repType === 'onbooks')   return `On-the-books (${numPanels} &times; $${COMM.perPanel}${hasBattery ? ' + $' + COMM.perBattery + ' battery' : ''})`;
   if (repType === 'commsonly') return `Comms-only (flat $${COMM.flat.toLocaleString('en-AU')})`;
+  if (commissionLoading(repType) > 0) return `+${+(commissionLoading(repType) * 100).toFixed(2)}% on top of the sale price`;
   return '';
 }
 
@@ -3928,7 +3939,7 @@ function calcBatterySTCs(batteryKwh, cap) {
   return batteryStcCount(batteryKwh, cap, STC_PERIOD);   // install period switch (owner, 11 Nov 2026)
 }
 
-function buildProfitHtml(isBatteryOnly, jobsPerDay, marginPerJob, labelExtra, noPriceMsg, basisPrice) {
+function buildProfitHtml(isBatteryOnly, jobsPerDay, marginPerJob, labelExtra, noPriceMsg, basisPrice, commLoading) {
   if (noPriceMsg) {
     return `<div class="empty-state">${noPriceMsg}</div>`;
   }
@@ -3962,16 +3973,17 @@ function buildProfitHtml(isBatteryOnly, jobsPerDay, marginPerJob, labelExtra, no
   // Net profit target (owner instruction: business to net OVERHEAD.targetNet% of ex-GST revenue)
   const tFrac = netTargetFrac();
   const jobsWk = jobsPerDay * OVERHEAD.days;
+  const L = commLoading || 0, revBasis = basisPrice / (1 + L);   // a +% rep's loading sits on top of the price: the target is on the price before it
   if (tFrac > 0 && basisPrice > 0) {
     const tPct = OVERHEAD.targetNet;
     let nt = '<div class="target-panel">';
-    nt += `<div class="panel-title">Net profit target &mdash; ${tPct}% of revenue (ex GST)</div>`;
+    nt += `<div class="panel-title">Net profit target &mdash; ${tPct}% of revenue (ex GST${L > 0 ? ', before the +' + +(L * 100).toFixed(2) + '% rep loading' : ''})</div>`;
     if (jobsWk > 0) {
       const netWk = weeklyGrossMargin - OVERHEAD.weekly;
-      const netPct = netWk / (jobsWk * basisPrice / 1.1) * 100;
+      const netPct = netWk / (jobsWk * revBasis / 1.1) * 100;
       const onTarget = Math.round(netPct * 10) >= Math.round(tPct * 10);   // 1-dp compare: the recommended price sits exactly on the target
       nt += `<div class="profit-line"><span class="label">Projected net margin at ${Math.round(jobsWk * 10) / 10} jobs/wk</span><span class="value"><span class="status ${onTarget ? 'ok' : 'low'}">${netPct.toFixed(1)}% ${onTarget ? '&mdash; on target' : '&mdash; below target'}</span></span></div>`;
-      const floor = netFloorPrice(basisPrice - marginPerJob, jobsWk);
+      const floor = withLoading(netFloorPrice(revBasis - marginPerJob, jobsWk), L);
       if (floor !== null) {
         const lift = (floor / basisPrice - 1) * 100;
         nt += `<div class="profit-line"><span class="label">Price for ${tPct}% net at ${Math.round(jobsWk * 10) / 10} jobs/wk</span><span class="value">${fmt(floor)} inc GST${lift > 0.05 ? ` (+${lift.toFixed(1)}% vs current basis)` : ' (at or above)'}</span></div>`;
@@ -3979,7 +3991,7 @@ function buildProfitHtml(isBatteryOnly, jobsPerDay, marginPerJob, labelExtra, no
     } else {
       nt += `<div class="profit-line"><span class="label">Enter jobs per week to project against the net target</span><span class="value"></span></div>`;
     }
-    const surplusEx = (marginPerJob - tFrac * basisPrice) / 1.1;
+    const surplusEx = (marginPerJob - tFrac * revBasis) / 1.1;
     if (surplusEx > 0) {
       const jobsNeed = OVERHEAD.weekly / surplusEx;
       const breakEv = mEx > 0 ? OVERHEAD.weekly / mEx : null;
@@ -6079,7 +6091,9 @@ function calcSig() {
 
   // Rep commission — ADDED to the final recommended price (customer covers it; margin preserved)
   const sRepType = document.getElementById('s-repType').value;
-  const sCommission = calcCommission(sRepType, numPanels, hasBattery);
+  const sCommLoad = commissionLoading(sRepType);   // +N% rep: N% goes on top of the sale price (owner, 12 Nov 2026)
+  const sCommAt = price => calcCommission(sRepType, numPanels, hasBattery, price);
+  let sCommission = sCommAt(0);   // the fixed $ commission; a +% rep's share is set from the recommended price below
 
   // Auto-default jobs/day on job-type transition (battery-only = 4, solar+battery = 3)
   if (sigPrevIsBatteryOnly !== isBatteryOnly) {
@@ -6091,8 +6105,9 @@ function calcSig() {
 
   // Recommended price = net-target price at this installs/week and overhead (replaces margin tiers)
   const costsPerJobInc = netMaterialCost + extrasIncGst + sCommission;
-  const targetPrice = netTargetPrice(costsPerJobInc, jobsPerWeek);
-  const recommendedPrice = targetPrice !== null ? targetPrice : costsPerJobInc;
+  const targetPrice = withLoading(netTargetPrice(costsPerJobInc, jobsPerWeek), sCommLoad);
+  const recommendedPrice = targetPrice !== null ? targetPrice : withLoading(costsPerJobInc, sCommLoad);
+  sCommission = sCommAt(recommendedPrice);   // commission in the recommended price
   const recSub = targetPrice !== null
     ? '<span class="admin-only">net ' + OVERHEAD.targetNet + '% at ' + jobsPerWeek + ' installs/wk, ' + fmt(OVERHEAD.weekly) + ' overheads</span>'
     : 'NOT A PRICE: bare cost. Set Installs Per Week above 0.';
@@ -6139,15 +6154,16 @@ function calcSig() {
 
   // Sale price margin check
   if (salePrice !== null && salePrice > 0) {
-    const marginDollars = salePrice - netMaterialCost - extrasIncGst - sCommission;
+    const marginDollars = salePrice - netMaterialCost - extrasIncGst - sCommAt(salePrice);
     const marginPct = (marginDollars / salePrice) * 100;
     // floor = the recommended (net-target) price; when installs/week is 0 there is no price, so bare cost is the floor
-    const sFloor = targetPrice !== null ? targetPrice : costsPerJobInc;
+    const sFloor = recommendedPrice;   // the net-target price (+ any rep loading), or bare cost when installs/week is 0
     const sFloorLabel = targetPrice !== null ? `Net-${OVERHEAD.targetNet}% price at ${jobsPerWeek} installs/wk` : 'Bare cost (Installs Per Week is 0)';
     const belowNet = sFloor !== null && Math.round(salePrice * 100) < Math.round(sFloor * 100);   // compare at cent precision — the recommended price IS the floor
     sHtml += '<div class="admin-only">';
     sHtml += '<div class="summary-divider"></div>';
     sHtml += summaryRow('Sale Price (inc GST)', fmt(salePrice));
+    if (sCommLoad > 0) sHtml += summaryRow('Rep Commission in this sale price', fmt(sCommAt(salePrice)));
     if (sCommission > 0) sHtml += summaryRow('Gross Margin (after commission, inc GST)', fmt(marginDollars), belowNet ? 'danger' : '');
     else sHtml += summaryRow('Gross Margin (inc GST)', fmt(marginDollars), belowNet ? 'danger' : '');
     sHtml += summaryRow('Gross Margin (ex GST)', fmt(marginDollars / 1.1), belowNet ? 'danger' : 'big');
@@ -6169,12 +6185,13 @@ function calcSig() {
   // Profit (uses entered Sale Price if given, else falls back to recommended price)
   const usingSale  = salePrice !== null && salePrice > 0;
   const profitBasis = usingSale ? salePrice : recommendedPrice;
-  const marginPerJob = profitBasis - netMaterialCost - extrasIncGst - sCommission;
-  const commLabel = sCommission > 0 ? ` &mdash; Commission: <strong>${fmt(sCommission)}</strong> (in price, paid to rep)` : '';
+  const sCommBasis = sCommAt(profitBasis);
+  const marginPerJob = profitBasis - netMaterialCost - extrasIncGst - sCommBasis;
+  const commLabel = sCommBasis > 0 ? ` &mdash; Commission: <strong>${fmt(sCommBasis)}</strong> (in price, paid to rep)` : '';
   const labelExtra = (usingSale
     ? `<dt>Sale Price</dt><dd><strong>${fmt(salePrice)}</strong>`
     : `<dt>Recommended</dt><dd><strong>${fmt(recommendedPrice)}</strong>`) + commLabel + '</dd>';
-  document.getElementById('s-profit').innerHTML = buildProfitHtml(isBatteryOnly, jobsPerDay, marginPerJob, labelExtra, null, profitBasis);
+  document.getElementById('s-profit').innerHTML = buildProfitHtml(isBatteryOnly, jobsPerDay, marginPerJob, labelExtra, null, profitBasis, sCommLoad);
   document.getElementById('s-profit-card').style.display = adminMode ? '' : 'none';
 }
 
@@ -6356,7 +6373,9 @@ function calcGW() {
 
   // Rep commission — ADDED to the final recommended price (customer covers it; margin preserved)
   const gRepType = document.getElementById('g-repType').value;
-  const gCommission = calcCommission(gRepType, numPanels, hasBattery);
+  const gCommLoad = commissionLoading(gRepType);   // +N% rep: N% goes on top of the sale price (owner, 12 Nov 2026)
+  const gCommAt = price => calcCommission(gRepType, numPanels, hasBattery, price);
+  let gCommission = gCommAt(0);   // the fixed $ commission; a +% rep's share is set from the recommended price below
 
   // Auto-default jobs/day on job-type transition (battery-only = 4, solar+battery = 3)
   if (gwPrevIsBatteryOnly !== isBatteryOnly) {
@@ -6368,8 +6387,9 @@ function calcGW() {
 
   // Recommended price = net-target price at this installs/week and overhead (replaces margin tiers)
   const costsPerJobInc = netMaterialCost + extrasIncGst + gCommission;
-  const targetPrice = netTargetPrice(costsPerJobInc, jobsPerWeek);
-  const recommendedPrice = targetPrice !== null ? targetPrice : costsPerJobInc;
+  const targetPrice = withLoading(netTargetPrice(costsPerJobInc, jobsPerWeek), gCommLoad);
+  const recommendedPrice = targetPrice !== null ? targetPrice : withLoading(costsPerJobInc, gCommLoad);
+  gCommission = gCommAt(recommendedPrice);   // commission in the recommended price
   const recSub = targetPrice !== null
     ? '<span class="admin-only">net ' + OVERHEAD.targetNet + '% at ' + jobsPerWeek + ' installs/wk, ' + fmt(OVERHEAD.weekly) + ' overheads</span>'
     : 'NOT A PRICE: bare cost. Set Installs Per Week above 0.';
@@ -6416,16 +6436,17 @@ function calcGW() {
 
   // Custom price margin checker
   if (customPrice > 0) {
-    const cpMarginDollars = customPrice - netMaterialCost - extrasIncGst - gCommission;
+    const cpMarginDollars = customPrice - netMaterialCost - extrasIncGst - gCommAt(customPrice);
     const cpBase          = customPrice - extrasIncGst;
     const cpMarginPct     = cpBase > 0 ? (cpMarginDollars / cpBase) * 100 : 0;
-    const gwFloor         = targetPrice !== null ? targetPrice : costsPerJobInc;   // recommended price, or bare cost when installs/week is 0
+    const gwFloor         = recommendedPrice;   // recommended price (+ any rep loading), or bare cost when installs/week is 0
     const gwFloorLabel    = targetPrice !== null ? `Net-${OVERHEAD.targetNet}% price at ${jobsPerWeek} installs/wk` : 'Bare cost (Installs Per Week is 0)';
     const gwBelowNet      = gwFloor !== null && Math.round(customPrice * 100) < Math.round(gwFloor * 100);   // cent precision — recommended price IS the floor
     const cpBad           = gwBelowNet;
     sHtml += '<div class="summary-divider"></div>';
     sHtml += summaryRow('Your Price', fmt(customPrice), 'big');
     sHtml += '<div class="admin-only">';
+    if (gCommLoad > 0) sHtml += summaryRow('Rep Commission in this price', fmt(gCommAt(customPrice)));
     sHtml += summaryRow(`Margin${gCommission > 0 ? ' (after comm.)' : ''}`, `${fmt(cpMarginDollars)} inc GST &middot; ${fmt(cpMarginDollars / 1.1)} ex GST (${cpMarginPct.toFixed(1)}%)`, cpBad ? 'danger' : 'ok');
     sHtml += summaryRow(gwFloorLabel + ' (inc GST)', fmt(gwFloor));
     sHtml += '</div>';
@@ -6442,12 +6463,13 @@ function calcGW() {
   // Profit (uses entered Your Price if given, else falls back to recommended price)
   const usingCustom = customPrice > 0;
   const profitBasis = usingCustom ? customPrice : recommendedPrice;
-  const marginPerJob = profitBasis - netMaterialCost - extrasIncGst - gCommission;
-  const gCommLabel = gCommission > 0 ? ` &mdash; Commission: <strong>${fmt(gCommission)}</strong> (in price, paid to rep)` : '';
+  const gCommBasis = gCommAt(profitBasis);
+  const marginPerJob = profitBasis - netMaterialCost - extrasIncGst - gCommBasis;
+  const gCommLabel = gCommBasis > 0 ? ` &mdash; Commission: <strong>${fmt(gCommBasis)}</strong> (in price, paid to rep)` : '';
   const labelExtra = (usingCustom
     ? `<dt>Your Price</dt><dd><strong>${fmt(customPrice)}</strong>`
     : `<dt>Recommended</dt><dd><strong>${fmt(recommendedPrice)}</strong>`) + gCommLabel + '</dd>';
-  document.getElementById('g-profit').innerHTML = buildProfitHtml(isBatteryOnly, jobsPerDay, marginPerJob, labelExtra, null, profitBasis);
+  document.getElementById('g-profit').innerHTML = buildProfitHtml(isBatteryOnly, jobsPerDay, marginPerJob, labelExtra, null, profitBasis, gCommLoad);
   document.getElementById('g-profit-card').style.display = adminMode ? '' : 'none';
 }
 
