@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#FFFFFF">
+<meta name="robots" content="noindex, nofollow">
+<title>Pricing Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ================================================================
+     1. TOKENS — brand greens/red are fills and rules only; coloured
+        text uses --green-text / --red-text / --amber-text
+     ================================================================ */
+  :root {
+    --surface: #FFFFFF; --surface-2: #F6F7F5; --surface-3: #EEF1EC;
+    --line: rgba(17,24,39,.10); --line-strong: rgba(17,24,39,.22); --line-input: #B9C0C9;
+    --text: #111827; --text-2: #4B5563; --text-3: #6B7280; --text-inverse: #FFFFFF;
+    --green: #80BC68; --green-deep: #4CAF78; --green-tint: rgba(128,188,104,.14); --green-text: #2E7D32;
+    --yellow: #FFDD00; --yellow-tint: rgba(255,221,0,.18); --amber-text: #8A6D00;
+    --red: #E8003D; --red-tint: rgba(232,0,61,.08); --red-text: #C50034;
+    --font-display: 'Barlow', sans-serif; --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --fs-xs: .72rem; --fs-sm: .8rem; --fs-base: .875rem; --fs-md: 1rem; --fs-lg: 1.15rem; --fs-xl: 1.5rem; --fs-hero: 2rem;
+    --r-sm: 6px; --r-md: 10px; --r-lg: 14px;
+    --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-5: 24px; --sp-6: 40px;
+    --shadow-card: 0 1px 2px rgba(0,0,0,.04); --focus-ring: 0 0 0 3px rgba(128,188,104,.35);
+    --page-max: 1400px; --gutter: 16px; --pane-w: clamp(360px, 36%, 520px); --topbar-h: 96px; /* --topbar-h is overwritten by JS */
+    /* legacy aliases: still referenced by inline styles in markup the JS emits — keep these four, nothing else from the old set */
+    --muted: var(--text-2); --brand-yellow-tint: var(--yellow-tint); --brand-red: var(--red); --dark-green: var(--green-text);
+  }
+
+  /* ================================================================
+     2. RESET AND BASE
+     ================================================================ */
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; scroll-padding-top: calc(var(--topbar-h) + 12px); }
+  body {
+    margin: 0;
+    font: 400 var(--fs-md)/1.45 var(--font-body);
+    background: var(--surface);
+    color: var(--text);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  h1, h2, h3, h4, p, dl, dd { margin: 0; }
+  button, input, select, textarea { font: inherit; color: inherit; margin: 0; }
+  button { cursor: pointer; }
+  a { color: var(--green-text); }
+  fieldset { min-width: 0; }
+  table { border-collapse: collapse; }
+  input, select, .recommended-row { scroll-margin-top: calc(var(--topbar-h) + 12px); }
+
+  /* ================================================================
+     3. UTILITIES — eyebrow voice, hidden, sr-only, focus, motion
+     ================================================================ */
+  .eyebrow,
+  .tab-group-label,
+  .field-set legend,
+  .extras-section-label,
+  .breakdown-table th,
+  .breakdown-table tr.section-header td,
+  .profit-box h4 {
+    font: 600 var(--fs-xs)/1.2 var(--font-body);
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+  [hidden] { display: none !important; }
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+  button:focus-visible, select:focus-visible, input:focus-visible,
+  summary:focus-visible, a:focus-visible, [tabindex]:focus-visible {
+    outline: 2px solid var(--text);
+    outline-offset: 2px;
+  }
+  .hint { font-size: var(--fs-sm); color: var(--text-3); line-height: 1.45; margin-top: var(--sp-2); }
+  .hint:empty { display: none; }
+  .text-bad { color: var(--red-text); }
+  .flag-bad { color: var(--red-text); font-weight: 700; }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+  }
+
+  /* ================================================================
+     4. TOP BAR — sticky title + grouped tablist
+        ≥1360 one row · 1024–1359 tabs wrap under the title ·
+        <1024 one horizontally scrolling row
+     ================================================================ */
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--surface);
+    border-bottom: 1px solid var(--line);
+  }
+  .topbar-inner {
+    max-width: var(--page-max);
+    margin: 0 auto;
+    padding: 0 var(--gutter);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: var(--sp-4);
+    row-gap: 0;
+  }
+  .brand { display: flex; align-items: center; min-height: 56px; flex: 0 0 auto; }
+  .brand h1 {
+    font: 800 1.2rem/1.1 var(--font-display);
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    white-space: nowrap;
+  }
+  .edition {
+    display: inline-block;
+    font: 600 var(--fs-xs)/1 var(--font-body);
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--green-text);
+    border: 1px solid currentColor;
+    border-radius: 4px;
+    padding: 3px 6px;
+  }
+  /* Rep calcs (17 Nov 2026): a rep's link shows the Sigenergy tab only; a link whose code isn't on the list shows a note and nothing else */
+  body.rep-mode .tab-group:not(:first-child), body.rep-mode #tab-gw { display: none; }
+  body.rep-unknown > * { display: none !important; }
+  body.rep-unknown > #rep-unknown-note { display: block !important; margin: 0; padding: 24px 16px; font-size: 1rem; line-height: 1.5; color: var(--text); }
+  .rep-links { margin-top: var(--sp-3); }
+  .rep-links ul { margin: var(--sp-2) 0 0; padding-left: 1.2em; font-size: var(--fs-sm); line-height: 1.8; color: var(--text-2); }
+  .tabs { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); min-width: 0; padding: 6px 0; }
+  .tab-group {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 3px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    flex: 0 0 auto;
+  }
+  .tab-group-label { padding: 0 8px; white-space: nowrap; }
+  .tab-btn {
+    font: 600 .88rem/1 var(--font-display);
+    text-transform: none;
+    letter-spacing: .01em;
+    padding: 0 12px;
+    min-height: 36px;
+    border: 0;
+    border-radius: var(--r-sm);
+    background: transparent;
+    color: var(--text-2);
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color .15s ease, color .15s ease, box-shadow .15s ease;
+  }
+  .tab-btn:hover { color: var(--text); background: var(--surface-2); }
+  .tab-btn.active { background: var(--green-tint); color: var(--text); box-shadow: inset 0 -3px 0 var(--green); }
+  @media (pointer: coarse) { .tab-btn { min-height: 44px; } }
+  @media (min-width: 1420px) { .tabs { margin-left: auto; flex-wrap: nowrap; } .tab-group-label { display: none; } }   /* measured 10 Nov 2026: title + ten grouped buttons need ~1500px with the group labels, ~1235px without; the 1400px page cap leaves 1368px */
+  @media (max-width: 1419px) { .tabs { flex: 1 1 100%; } }
+  /* 1024-1199px: the nine buttons must stay on one row beside the pane, so the group labels go and the buttons tighten */
+  @media (min-width: 1024px) and (max-width: 1279px) { .tab-group-label { display: none; } .tab-btn { padding: 0 10px; } .tabs { gap: var(--sp-1); } }
+  @media (max-width: 1023px) {
+    .brand { min-height: 48px; }
+    .brand h1 { font-size: 1.05rem; }
+    .tabs {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .tabs::-webkit-scrollbar { display: none; }
+  }
+  @media (max-height: 520px) { .topbar { position: static; } [id^="section-"] > .container > .results-pane { position: static; max-height: none; } }
+
+  /* ================================================================
+     5. PAGE GRID — form column + sticky results pane from 1024px
+     ================================================================ */
+  .container {
+    max-width: var(--page-max);
+    margin: var(--sp-4) auto var(--sp-6);
+    padding: 0 var(--gutter);
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-4);
+  }
+  .container.settings { max-width: 960px; }
+  @media (min-width: 1024px) {
+    [id^="section-"] > .container {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) var(--pane-w);
+      column-gap: var(--sp-5);
+      row-gap: var(--sp-4);
+      align-items: start;
+    }
+    [id^="section-"] > .container > * { grid-column: 1; }
+    [id^="section-"] > .container > .results-pane {
+      grid-column: 2;
+      grid-row: 1 / span 3;
+      position: sticky;
+      top: calc(var(--topbar-h) + var(--sp-4));
+      max-height: calc(100vh - var(--topbar-h) - var(--sp-4) * 2);
+      overflow: auto;
+      display: flex;
+      flex-direction: column;
+      gap: var(--sp-4);
+    }
+    [id^="section-"] > .container > .results-pane > * { flex-shrink: 0; }   /* a tall pane scrolls; its cards never squash */
+    .price-bar { display: none !important; }
+  }
+  @media (max-width: 1023px) {
+    body { padding-bottom: calc(72px + env(safe-area-inset-bottom)); }
+    .results-pane { display: flex; flex-direction: column; gap: var(--sp-4); }
+  }
+
+  /* ================================================================
+     6. CARDS
+     ================================================================ */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
+  }
+  .card-header {
+    font: 600 1.05rem/1.3 var(--font-display);
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--text);
+    padding: var(--sp-4) var(--sp-4) var(--sp-2);
+    display: flex;
+    align-items: baseline;
+    gap: var(--sp-3);
+    flex-wrap: wrap;
+    margin: 0;
+  }
+  .card-header .basis {
+    font: 500 var(--fs-xs)/1 var(--font-body);
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    border: 1px solid var(--line);
+    border-radius: var(--r-sm);
+    padding: 3px 6px;
+  }
+  .card-body { padding: var(--sp-2) var(--sp-4) var(--sp-4); }
+  .card-body.flush { padding: 0; }
+  .brand-card-solar { position: relative; }
+  .brand-card-solar::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: var(--yellow);
+  }
+  .card-notes { margin-top: var(--sp-3); }
+  .card-notes summary {
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    font: 600 var(--fs-sm)/1.4 var(--font-body);
+    color: var(--green-text);
+  }
+  .card-notes summary::-webkit-details-marker { display: none; }
+  .card-notes summary::before { content: '\25B8'; font-size: .9em; }
+  .card-notes[open] summary::before { content: '\25BE'; }
+  .card-notes p { margin: var(--sp-2) 0 0; font-size: var(--fs-sm); color: var(--text-2); line-height: 1.5; }
+
+  /* ================================================================
+     7. FORMS — six-column grid, .field pattern, fieldsets
+     ================================================================ */
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: var(--sp-3) var(--sp-4);
+    align-items: start;
+  }
+  .field { grid-column: span 2; display: flex; flex-direction: column; gap: var(--sp-1); min-width: 0; margin: 0; }
+  @media (max-width: 1199px) { .field { grid-column: span 3; } }
+  @media (min-width: 768px) and (max-width: 1023px) { .field { grid-column: span 2; } }
+  .field--wide { grid-column: span 3; }
+  @media (max-width: 1199px) { .field--wide { grid-column: 1 / -1; } }
+  @media (min-width: 768px) and (max-width: 1023px) { .field--wide { grid-column: span 3; } }
+  @media (max-width: 479px) { .field--wide, .field--select { grid-column: 1 / -1; } }
+  .field--full { grid-column: 1 / -1; }
+
+  .field-label { font: 500 var(--fs-sm)/1.3 var(--font-body); color: var(--text); display: block; }
+  .field-control {
+    display: flex;
+    align-items: stretch;
+    min-height: 40px;
+    border: 1px solid var(--line-input);
+    border-radius: var(--r-sm);
+    background: var(--surface);
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+  .field-control:hover { border-color: var(--line-strong); }
+  .field-control:focus-within { border-color: var(--green-deep); box-shadow: var(--focus-ring); }
+  .field-control input,
+  .field-control select {
+    flex: 1 1 auto;
+    min-width: 0;
+    width: 100%;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    padding: 0 var(--sp-3);
+    height: 38px;
+    font: 400 var(--fs-md)/1 var(--font-body);
+    color: var(--text);
+    border-radius: var(--r-sm);
+    appearance: none;
+    -webkit-appearance: none;
+  }
+  .field-control input:focus-visible,
+  .field-control select:focus-visible { outline: 0; }
+  .field-control input[type="number"] {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    -moz-appearance: textfield;
+  }
+  .field-control input[type="number"]::-webkit-inner-spin-button,
+  .field-control input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  .field-control select {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%234B5563' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.8' d='M4 6l4 4 4-4'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 16px;
+    padding-right: 2rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .field-control input:disabled,
+  .field-control select:disabled { color: var(--text-3); }
+  .field-affix {
+    display: flex;
+    align-items: center;
+    padding: 0 var(--sp-3);
+    font-size: var(--fs-sm);
+    color: var(--text-3);
+    white-space: nowrap;
+    border-left: 1px solid var(--line);
+  }
+  .field-affix--pre { order: -1; border-left: 0; border-right: 1px solid var(--line); }
+  .field-hint { font-size: var(--fs-sm); line-height: 1.3; color: var(--text-3); }
+  .field--highlight .field-control { border-color: var(--green-deep); }
+  .field-link { font: 500 var(--fs-sm) var(--font-body); color: var(--green-text); margin-left: var(--sp-2); }
+  .field-note { font-size: var(--fs-sm); color: var(--text-2); margin-top: var(--sp-1); }
+  .field-note:empty { display: none; }
+  .form-note { grid-column: 1 / -1; font-size: var(--fs-sm); color: var(--text-3); }
+  .form-note:empty { display: none; }
+  .input-row { display: flex; gap: var(--sp-2); }
+  .input-row > * { flex: 1 1 0; min-width: 0; }
+
+  /* Fallback for a .form-group that has not been given the .field pattern (retired cards) */
+  .form-group { margin: 0; }
+  .form-group:not(.field) > label { display: block; font: 500 var(--fs-sm)/1.3 var(--font-body); color: var(--text); margin-bottom: var(--sp-1); }
+  .form-group:not(.field) > input, .form-group:not(.field) > select {
+    width: 100%;
+    min-height: 40px;
+    padding: 0 var(--sp-3);
+    border: 1px solid var(--line-input);
+    border-radius: var(--r-sm);
+    background: var(--surface);
+    font: 400 var(--fs-md)/1 var(--font-body);
+    color: var(--text);
+  }
+
+  /* Fieldsets */
+  .field-set { border: 0; padding: 0; margin: 0 0 var(--sp-4); min-width: 0; }
+  .field-set legend {
+    width: 100%;
+    padding: 0 0 var(--sp-2);
+    border-bottom: 1px solid var(--line);
+    margin-bottom: var(--sp-3);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--sp-3);
+    flex-wrap: wrap;
+  }
+  .field-set legend small { text-transform: none; letter-spacing: 0; font-weight: 400; color: var(--text-3); font-size: var(--fs-sm); }
+  .field-set--money .form-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .field-set--money .field { grid-column: span 1; }
+  @media (max-width: 767px) { .field-set--money .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .field-set .field-set { margin-top: var(--sp-3); margin-bottom: 0; }
+
+  /* Sigen C&I per-stack module boxes */
+  .stack-row { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-3); }
+  .stack-field { display: flex; flex-direction: column; gap: 2px; font: 600 var(--fs-xs)/1.2 var(--font-body); color: var(--text-2); }
+  .stack-field input {
+    width: 4.6rem;
+    height: 36px;
+    padding: 0 var(--sp-2);
+    text-align: center;
+    border: 1px solid var(--line-input);
+    border-radius: var(--r-sm);
+    background: var(--surface);
+    color: var(--text);
+    font: 400 var(--fs-md) var(--font-body);
+    font-variant-numeric: tabular-nums;
+    -moz-appearance: textfield;
+  }
+  .stack-field input::-webkit-inner-spin-button,
+  .stack-field input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  .stack-field input:focus { outline: 0; border-color: var(--green-deep); box-shadow: var(--focus-ring); }
+
+  /* ================================================================
+     8. EXTRAS GRID — markup unchanged; 3 → 2 → 1 (divider list)
+     ================================================================ */
+  .extras-section-label { margin: var(--sp-2) 0; }
+  .extras-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-auto-flow: dense; gap: var(--sp-2); }
+  .extras-grid label.extra--qty { grid-column: span 2; }   /* chips with a quantity select need the room */
+  @media (max-width: 1199px) { .extras-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (min-width: 768px) and (max-width: 1023px) { .extras-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @media (max-width: 767px) { .extras-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .extras-grid label {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    min-height: 44px;
+    padding: var(--sp-2) var(--sp-3);
+    border: 1px solid var(--line);
+    border-radius: var(--r-sm);
+    background: var(--surface);
+    font-size: var(--fs-base);
+    color: var(--text);
+    cursor: pointer;
+    transition: background-color .15s ease, border-color .15s ease;
+  }
+  .extras-grid label:hover { border-color: var(--line-strong); background: var(--surface-2); }
+  .extras-grid label:has(input:checked) { background: var(--green-tint); border-color: var(--green); }
+  .extras-grid input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 auto;
+    margin: 0;
+    accent-color: var(--green-deep);
+    cursor: pointer;
+  }
+  .extras-grid input[type="checkbox"] + span { flex: 1 1 auto; min-width: 0; overflow-wrap: break-word; line-height: 1.25; }
+  .extras-grid input[type="checkbox"]:checked + span { font-weight: 600; }
+  .extras-grid .extra-price {
+    color: var(--text-2);
+    font-size: var(--fs-sm);
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+  .extras-grid .per-panel-tag { font-size: var(--fs-sm); color: var(--text-3); white-space: nowrap; }
+  .extras-grid .extra-select {
+    width: 76px;
+    height: 36px;
+    flex: 0 0 auto;
+    padding: 0 1.5rem 0 var(--sp-2);
+    border: 1px solid var(--line-input);
+    border-radius: var(--r-sm);
+    background: var(--surface) url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%234B5563' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.8' d='M4 6l4 4 4-4'/%3e%3c/svg%3e") no-repeat right 6px center / 14px;
+    font: 400 var(--fs-md) var(--font-body);
+    color: var(--text);
+    appearance: none;
+    -webkit-appearance: none;
+  }
+  .extras-grid .extra-select:focus { outline: 0; border-color: var(--green-deep); box-shadow: var(--focus-ring); }
+  @media (max-width: 479px) {
+    .extras-grid { grid-template-columns: 1fr; gap: 0; }
+    .extras-grid label.extra--qty { grid-column: auto; }
+    .extras-grid label { border: 0; border-bottom: 1px solid var(--line); border-radius: 0; padding: var(--sp-2) 0; background: transparent; }
+    .extras-grid label:hover, .extras-grid label:has(input:checked) { background: transparent; border-color: var(--line); }
+    .extras-grid label:last-child { border-bottom: 0; }
+  }
+
+  /* ================================================================
+     9. SETTINGS CARDS (Overheads, Rep Commission) + retired tier editor
+     ================================================================ */
+  .settings-card summary {
+    cursor: pointer;
+    list-style: none;
+    padding-bottom: var(--sp-4);
+  }
+  .settings-card summary::-webkit-details-marker { display: none; }
+  .settings-card summary::after {
+    content: 'Show';
+    margin-left: auto;
+    font: 600 var(--fs-sm)/1 var(--font-body);
+    letter-spacing: 0;
+    color: var(--green-text);
+  }
+  .settings-card[open] summary::after { content: 'Hide'; }
+  .settings-card[open] summary { padding-bottom: var(--sp-2); }
+  .margin-tier-hint { font-size: .8rem; color: var(--text-2); line-height: 1.5; margin: 0 0 var(--sp-3); }
+  .margin-tier-grid { border: 1px solid var(--line); border-radius: var(--r-md); overflow: hidden; margin: 0 0 var(--sp-3); }
+  .setting-row, .margin-tier-row {
+    display: grid;
+    grid-template-columns: 1.1fr 2fr;
+    gap: var(--sp-3);
+    align-items: center;
+    padding: var(--sp-2) var(--sp-3);
+    border-top: 1px solid var(--line);
+    background: var(--surface);
+  }
+  .margin-tier-row { grid-template-columns: 1.1fr 1fr 1fr; }
+  .setting-row:first-child, .margin-tier-row:first-child { border-top: 0; }
+  .setting-label, .mt-label { font: 500 var(--fs-base)/1.3 var(--font-body); color: var(--text); }
+  .setting-input, .mt-input-wrap { display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap; }
+  .setting-input input, .mt-input-wrap input {
+    width: 110px;
+    height: 38px;
+    padding: 0 var(--sp-2);
+    border: 1px solid var(--line-input);
+    border-radius: var(--r-sm);
+    background: var(--surface);
+    color: var(--text);
+    text-align: right;
+    font: 400 var(--fs-md) var(--font-body);
+    font-variant-numeric: tabular-nums;
+    -moz-appearance: textfield;
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+  .setting-input input::-webkit-inner-spin-button, .setting-input input::-webkit-outer-spin-button,
+  .mt-input-wrap input::-webkit-inner-spin-button, .mt-input-wrap input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  .setting-input input:focus, .mt-input-wrap input:focus { outline: 0; border-color: var(--green-deep); box-shadow: var(--focus-ring); }
+  .setting-unit, .mt-pct { font-size: var(--fs-sm); color: var(--text-3); white-space: nowrap; }
+  @media (max-width: 479px) {
+    .setting-row, .margin-tier-row { grid-template-columns: 1fr; gap: var(--sp-1); }
+  }
+
+  /* ================================================================
+     10. BUTTONS
+     ================================================================ */
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 0 var(--sp-4);
+    border: 0;
+    border-radius: var(--r-sm);
+    background: var(--text);
+    color: var(--text-inverse);
+    font: 600 var(--fs-base) var(--font-body);
+    cursor: pointer;
+    transition: background-color .15s ease;
+  }
+  .btn-primary:hover { background: var(--green-deep); }
+  .btn-link {
+    background: none;
+    border: 0;
+    padding: 0;
+    font: inherit;
+    color: var(--green-text);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  .btn-margin-reset {
+    background: transparent;
+    border: 0;
+    color: var(--green-text);
+    font: 500 var(--fs-base) var(--font-body);
+    min-height: 44px;
+    padding: var(--sp-2) 0;
+    cursor: pointer;
+  }
+  .btn-margin-reset:hover { text-decoration: underline; }
+
+  /* ================================================================
+     11. RESULTS — hero, summary rows, alerts, notes, tables
+     ================================================================ */
+  .recommended-row {
+    display: grid;
+    gap: 2px;
+    padding: var(--sp-4);
+    margin: 0 0 var(--sp-3);
+    background: var(--green);
+    color: var(--text);
+    border-radius: var(--r-md);
+  }
+  .recommended-row .label { font: 600 var(--fs-sm)/1.3 var(--font-body); color: rgba(13,13,13,.78); }
+  .recommended-row .value {
+    font: 700 var(--fs-hero)/1.1 var(--font-display);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -.02em;
+    color: var(--text);
+  }
+  .recommended-row .sub { font: 400 var(--fs-sm)/1.4 var(--font-body); color: rgba(13,13,13,.78); }
+  .recommended-row.invalid { background: var(--surface-2); border-left: 4px solid var(--red); }
+  .recommended-row.invalid .sub { color: var(--red-text); font-weight: 600; }
+  .recommended-row.incomplete { background: var(--surface-2); border: 1px dashed var(--line-strong); }
+  .recommended-row.neutral { background: var(--surface-2); border-left: 4px solid var(--text); }
+  @media (max-width: 479px) { .recommended-row .value { font-size: 1.6rem; } }
+
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--sp-3);
+    padding: var(--sp-2) 0;
+    border-bottom: 1px solid var(--line);
+    font-size: var(--fs-base);
+  }
+  .summary-row:last-child { border-bottom: 0; }
+  .summary-row .label { flex: 1 1 auto; min-width: 0; color: var(--text-2); }
+  .summary-row .value { flex: 0 0 auto; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .summary-row.big .label { color: var(--text); font-weight: 600; }
+  .summary-row.big .value { font-size: var(--fs-lg); font-weight: 700; }
+  .summary-row.danger * { color: var(--red-text); }
+  .summary-row.ok .value { color: var(--green-text); }
+  .summary-divider { height: 1px; background: var(--line); margin: var(--sp-2) 0; }
+
+  .margin-alert {
+    margin-top: var(--sp-3);
+    padding: var(--sp-3) var(--sp-4);
+    border-radius: var(--r-md);
+    font: 500 var(--fs-base)/1.4 var(--font-body);
+    display: none;
+  }
+  .margin-alert.low { display: block; background: var(--red-tint); color: var(--red-text); border-left: 3px solid var(--red); }
+  .margin-alert.ok { display: block; background: var(--green-tint); color: var(--green-text); border-left: 3px solid var(--green); }
+  .margin-alert.incomplete { display: block; background: var(--yellow-tint); color: var(--text); border-left: 3px solid var(--yellow); }
+
+  .note {
+    padding: var(--sp-3) var(--sp-4);
+    border-radius: var(--r-md);
+    background: var(--surface-2);
+    border-left: 3px solid var(--line-strong);
+    font-size: var(--fs-base);
+    margin-top: var(--sp-3);
+  }
+  .note.ok { border-left-color: var(--green); }
+
+  .notes {
+    list-style: none;
+    margin: var(--sp-3) 0 0;
+    padding: var(--sp-2) var(--sp-3);
+    background: var(--yellow-tint);
+    border-left: 3px solid var(--yellow);
+    border-radius: 0 var(--r-md) var(--r-md) 0;
+    font-size: var(--fs-sm);
+    line-height: 1.45;
+    color: var(--text);
+  }
+  .notes li { position: relative; padding: var(--sp-1) 0 var(--sp-1) 1.1rem; }
+  .notes li::before { content: '\2022'; position: absolute; left: 0; color: var(--amber-text); font-weight: 700; }
+  .notes li.more::before { content: none; }
+  .notes summary { cursor: pointer; font-weight: 600; color: var(--amber-text); }
+  .notes ul { list-style: none; padding: 0; margin: var(--sp-1) 0 0; }
+
+  /* Tables */
+  .table-scroll { overflow-x: auto; }
+  .breakdown-table { width: 100%; border-collapse: collapse; font-size: var(--fs-base); }
+  .breakdown-table th { text-align: left; padding: 8px 16px; border-bottom: 1px solid var(--line); }
+  .breakdown-table td { padding: 8px 16px; border-bottom: 1px solid var(--line); }
+  .breakdown-table th:nth-child(2), .breakdown-table td:nth-child(2) { text-align: center; }
+  .breakdown-table th:nth-child(n+3), .breakdown-table td:nth-child(n+3) {
+    text-align: right;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+  #da-table th:nth-child(2), #da-table td:nth-child(2) { text-align: left; }
+  .breakdown-table .num { text-align: right; }
+  .breakdown-table .ctr { text-align: center; }
+  .breakdown-table .muted, .muted { color: var(--text-2); }
+  .breakdown-table tr.section-header td { background: var(--surface-2); padding: 6px 16px; text-align: left; }
+  .breakdown-table tr.total-row td {
+    font-weight: 700;
+    font-size: var(--fs-md);
+    border-top: 1px solid var(--line-strong);
+    background: var(--surface-2);
+    padding: 12px 16px;
+  }
+  .breakdown-table tr.total-row td:last-child { text-align: right; }
+  .breakdown-table tbody tr:last-child td { border-bottom: 0; }
+  .breakdown-table tbody tr:hover td { background: var(--surface-2); }
+  @media (max-width: 600px) { .breakdown-table { min-width: 480px; } #da-table { min-width: 0; } }
+
+  /* ================================================================
+     12. PROFIT PROJECTION
+     ================================================================ */
+  .facts {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--sp-1) var(--sp-3);
+    font-size: var(--fs-sm);
+    margin: 0 0 var(--sp-3);
+  }
+  .facts dt { color: var(--text-3); }
+  .facts dd { color: var(--text); margin: 0; }
+  .profit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-3); }
+  @media (max-width: 479px) { .profit-grid { grid-template-columns: 1fr; } }
+  .profit-box {
+    padding: 12px 16px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    background: var(--surface-2);
+  }
+  .profit-box h4 { color: var(--text); margin-bottom: var(--sp-2); }
+  .profit-line { display: flex; justify-content: space-between; gap: var(--sp-3); font-size: var(--fs-base); padding: 3px 0; }
+  .profit-line .label { color: var(--text-2); }
+  .profit-line .value { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .profit-line.net { border-top: 1px solid var(--line); margin-top: var(--sp-2); padding-top: var(--sp-2); align-items: baseline; }
+  .profit-line.net .label { color: var(--text); font-weight: 600; }
+  .profit-line.net .value { font: 700 var(--fs-xl)/1.1 var(--font-display); color: var(--green-text); letter-spacing: -.01em; }
+  .profit-line.negative .label, .profit-line.negative .value { color: var(--red-text); }
+  .target-panel {
+    margin-top: 12px;
+    padding: 12px 16px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    background: var(--surface-2);
+  }
+  .panel-title { font: 600 var(--fs-sm)/1.3 var(--font-body); margin-bottom: var(--sp-1); }
+  .status { display: inline-block; padding: 1px 8px; border-radius: var(--r-sm); font-weight: 700; }
+  .status.ok { color: var(--green-text); background: var(--green-tint); }
+  .status.low { color: var(--red-text); background: var(--red-tint); }
+  .profit-note { font-size: var(--fs-sm); color: var(--red-text); font-weight: 600; margin-top: 4px; }
+  .fine-print { font-size: var(--fs-sm); color: var(--text-3); margin-top: 8px; line-height: 1.4; }
+  .empty-state { padding: 8px; color: var(--text-3); font-size: var(--fs-sm); text-align: center; }
+
+  /* ================================================================
+     13. PRICE BAR — phone/tablet only; hidden from 1024px (see §5)
+     ================================================================ */
+  .price-bar {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    z-index: 95;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-3);
+    width: 100%;
+    border: 0;
+    border-top: 1px solid rgba(0,0,0,.08);
+    padding: var(--sp-2) var(--gutter) calc(var(--sp-2) + env(safe-area-inset-bottom));
+    background: var(--green);
+    color: var(--text);
+    font: inherit;
+    text-align: left;
+    box-shadow: 0 -4px 14px rgba(0,0,0,.12);
+    cursor: pointer;
+  }
+  .price-bar .text { display: flex; flex-direction: column; min-width: 0; }
+  .price-bar .label {
+    font: 600 var(--fs-sm)/1.3 var(--font-body);
+    color: rgba(13,13,13,.78);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .price-bar .status { display: inline-block; padding: 0; border-radius: 0; background: none; font: 600 var(--fs-xs)/1.3 var(--font-body); }
+  .price-bar .status.low { color: var(--red-text); }
+  .price-bar .status.ok { color: #14532D; }
+  .price-bar .status:empty { display: none; }
+  .price-bar .value { font: 700 1.4rem/1.1 var(--font-display); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .price-bar.is-invalid { background: var(--surface-2); border-top: 3px solid var(--red); }
+  .price-bar[hidden], .price-bar.hero-visible { display: none; }
+
+  /* ================================================================
+     14. PRINT
+     ================================================================ */
+  /* ── Saved quotes / compare (owner, 10 Nov 2026) ── */
+  .btn-save { margin-left: auto; display: inline-flex; align-items: center; min-height: 32px; padding: 0 var(--sp-3); border: 1px solid var(--line-strong); border-radius: var(--r-sm); background: var(--surface); color: var(--text); font: 600 var(--fs-sm) var(--font-body); letter-spacing: 0; text-transform: none; cursor: pointer; }
+  .btn-save:hover { background: var(--green-tint); border-color: var(--green); }
+  .tab-count { display: inline-block; min-width: 18px; padding: 0 6px; margin-left: 6px; border-radius: 999px; background: var(--green); color: var(--text); font: 700 var(--fs-xs)/18px var(--font-body); text-align: center; vertical-align: middle; }
+  .toast { position: fixed; left: 50%; bottom: calc(84px + env(safe-area-inset-bottom)); transform: translate(-50%, 8px); z-index: 120; width: max-content; max-width: min(92vw, 520px); padding: 10px 14px; border-radius: var(--r-md); background: var(--text); color: var(--text-inverse); font: 500 var(--fs-base)/1.35 var(--font-body); box-shadow: 0 6px 20px rgba(0,0,0,.18); opacity: 0; pointer-events: none; transition: opacity .18s, transform .18s; }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+  .toast.clickable { cursor: pointer; text-decoration: underline; text-decoration-color: rgba(255,255,255,.45); }
+  .quote-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: var(--sp-2); margin: var(--sp-2) 0 var(--sp-3); }
+  .quote-chip { display: grid; grid-template-columns: auto 1fr; column-gap: var(--sp-2); align-items: start; padding: var(--sp-2) var(--sp-3); border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); cursor: pointer; }
+  .quote-chip.on { border-color: var(--green); background: var(--green-tint); }
+  .quote-chip input { grid-row: 1 / span 3; margin: 3px 0 0; width: 18px; height: 18px; accent-color: var(--green-deep); }
+  .quote-name { font: 600 var(--fs-base)/1.3 var(--font-body); color: var(--text); overflow-wrap: anywhere; }
+  .quote-meta { font-size: var(--fs-sm); color: var(--text-2); }
+  .quote-actions { display: flex; align-items: center; gap: var(--sp-2); font-size: var(--fs-sm); }
+  .btn-link.danger { color: var(--red-text); }
+  .compare-toolbar { display: flex; justify-content: space-between; align-items: center; gap: var(--sp-3); flex-wrap: wrap; margin-bottom: var(--sp-2); }
+  .compare-toolbar .hint { margin: 0; }
+  .compare-table th, .compare-table td { vertical-align: top; }
+  .compare-table th:first-child, .compare-table td:first-child { position: sticky; left: 0; z-index: 1; background: var(--surface); min-width: 150px; max-width: 260px; }
+  .compare-table tr.section-header td:first-child, .compare-table tr.total-row td:first-child { background: var(--surface-2); }
+  .compare-table th:nth-child(n+2), .compare-table td:nth-child(n+2) { text-align: left; white-space: normal; min-width: 170px; }
+  .compare-table td.num { text-align: right; white-space: normal; font-variant-numeric: tabular-nums; }
+  .compare-table td.num .fig { white-space: nowrap; }
+  .compare-table td.muted, .compare-table td .qty { color: var(--text-3); }
+  .compare-table td .qty { font-size: var(--fs-sm); margin-right: 8px; white-space: normal; }
+  .compare-table td .sub { font-size: var(--fs-sm); line-height: 1.3; color: var(--text-3); white-space: normal; font-weight: 400; font-family: var(--font-body); }
+  .compare-table tr.compare-hero td { font: 700 1.3rem/1.2 var(--font-display); padding-top: var(--sp-3); padding-bottom: var(--sp-3); }
+  .compare-table tr.compare-hero td:first-child { font: 600 var(--fs-base)/1.3 var(--font-body); }
+  .compare-table td.best { background: var(--green-tint); color: var(--green-text); }
+  .compare-table td.invalid, .compare-table td.incomplete { color: var(--text-2); }
+  .compare-table td.danger { color: var(--red-text); } .compare-table td.ok { color: var(--green-text); }
+  .compare-table td .tag { display: inline-block; margin-left: 8px; padding: 1px 8px; border-radius: 999px; background: var(--green); color: var(--text); font: 700 var(--fs-xs)/18px var(--font-body); vertical-align: middle; }
+  .compare-table .q-name { font: 600 var(--fs-base)/1.3 var(--font-display); text-transform: none; letter-spacing: 0; color: var(--text); overflow-wrap: anywhere; }
+  .compare-table .q-meta { font: 400 var(--fs-sm)/1.3 var(--font-body); text-transform: none; letter-spacing: 0; color: var(--text-2); margin-top: 2px; }
+  .compare-table .q-actions { margin-top: 4px; font: 500 var(--fs-sm) var(--font-body); text-transform: none; letter-spacing: 0; }
+  .compare-table .q-repeat { font: 600 var(--fs-sm)/1.3 var(--font-body); text-transform: none; letter-spacing: 0; color: var(--text-2); }
+  .compare-table td .tag.warn { background: var(--yellow-tint); color: var(--amber-text); }
+  .compare-table tbody tr:hover td.best { background: var(--green-tint); }
+  /* touch targets: 24px minimum, 44px on coarse pointers as the tabs already do */
+  .quote-actions .btn-link, .q-actions .btn-link, .compare-toolbar .btn-link { display: inline-flex; align-items: center; min-height: 32px; padding: 0 var(--sp-2); }
+  .quote-actions .btn-link:first-child, .q-actions .btn-link { margin-left: calc(-1 * var(--sp-2)); }
+  .quote-actions .btn-link.danger { margin-left: auto; margin-right: calc(-1 * var(--sp-2)); }
+  .compare-toolbar .btn-link { margin-right: calc(-1 * var(--sp-2)); }
+  @media (pointer: coarse) { .quote-actions .btn-link, .q-actions .btn-link, .compare-toolbar .btn-link, .btn-save { min-height: 44px; } }
+  @media (min-width: 1024px) { .toast { bottom: 24px; } #section-compare > .container { display: block; } }
+  @media (max-width: 600px) {
+    .compare-table { min-width: 0; }
+    .compare-table th:first-child, .compare-table td:first-child { min-width: 104px; font-size: var(--fs-sm); padding-left: 10px; padding-right: 8px; }
+    .compare-table th:nth-child(n+2), .compare-table td:nth-child(n+2) { min-width: 150px; padding-left: 10px; padding-right: 10px; }
+    .compare-table tr.compare-hero td { font-size: 1.1rem; }
+  }
+
+  @media print {
+    .btn-save, .quote-actions, .q-actions, .compare-toolbar, .toast { display: none !important; }
+    .topbar, .price-bar, .btn-primary, #overhead-section, #commission-section, .card-notes { display: none !important; }
+    .results-pane { position: static; max-height: none; overflow: visible; }
+    [id^="section-"] > .container { display: block; }
+    .card { break-inside: avoid; box-shadow: none; border: 1px solid #999; }
+    .recommended-row { print-color-adjust: exact; -webkit-print-color-adjust: exact; border: 2px solid #000; }
+  }
+
+  #rep-note { margin: 0; padding: 24px 16px; font-size: 1rem; line-height: 1.5; color: var(--text); }
+</style>
+</head>
+<body>
+<p id="rep-note" role="status">Loading your calculator&hellip;</p>
+<div id="rep-app" hidden>
+<div class="topbar"><div class="topbar-inner">
+  <header class="brand"><h1>Pricing Calculator <span class="edition" id="rep-name"></span></h1></header>
+  <nav class="tabs" role="tablist" aria-label="Calculators">
+    <div class="tab-group"><span class="tab-group-label" aria-hidden="true">Residential</span>
+      <button type="button" class="tab-btn active" id="tab-sig" role="tab" aria-selected="true" aria-controls="section-sig" tabindex="0">Sigenergy</button>
+    </div>
+  </nav>
+</div></div>
+<div id="section-sig" role="tabpanel" aria-labelledby="tab-sig">
+  <div class="container">
+
+    <!-- JOB CONFIGURATION -->
+    <div class="card">
+      <h2 class="card-header">Job configuration</h2>
+      <div class="card-body">
+
+        <fieldset class="field-set">
+          <legend>Equipment</legend>
+          <div class="form-grid">
+            <div class="form-group field">
+              <label class="field-label" for="s-numPanels">Number of panels</label>
+              <div class="field-control">
+                <input type="number" id="s-numPanels" min="0" value="20" oninput="calcSig()" inputmode="numeric" enterkeyhint="done">
+              </div>
+            </div>
+            <div class="form-group field field--wide field--select">
+              <label class="field-label" for="s-panelType">Panel type</label>
+              <div class="field-control">
+                <select id="s-panelType" onchange="calcSig()">
+                  
+                  
+                  
+                  
+                  <option value="aiko545" selected="">AIKO 545W All Black</option>
+                  
+                  
+                </select>
+              </div>
+            </div>
+            <div class="form-group field field--select">
+              <label class="field-label" for="s-roofType">Roof type</label>
+              <div class="field-control">
+                <select id="s-roofType" onchange="calcSig()">
+                  <option value="tin">Tin Roof</option>
+                  <option value="tile">Tile Roof</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group field field--wide field--select">
+              <label class="field-label" for="s-inverterType">Inverter</label>
+              <div class="field-control">
+                <select id="s-inverterType" onchange="calcSig()">
+                  <optgroup label="Single Phase">
+                    <option value="ec5sp">EC 5.0 SP</option>
+                    <option value="ec6sp">EC 6.0 SP</option>
+                    <option value="ec8sp">EC 8.0 SP</option>
+                    <option value="ec10sp" selected="">EC 10.0 SP</option>
+                    <option value="ec12sp">EC 12.0 SP</option>
+                  </optgroup>
+                  <optgroup label="Three Phase">
+                    <option value="ec5tp">EC 5.0 TP</option>
+                    <option value="ec10tp">EC 10.0 TP</option>
+                    <option value="ec15tp">EC 15.0 TP</option>
+                    <option value="ec20tp">EC 20.0 TP</option>
+                    <option value="ec25tp">EC 25.0 TP</option>
+                    <option value="ec30tp">EC 30.0 TP</option>
+                  </optgroup>
+                </select>
+              </div>
+            </div>
+            <div class="form-group field">
+              <label class="field-label" for="s-numInverters">No. of inverters</label>
+              <div class="field-control">
+                <input type="number" id="s-numInverters" min="1" step="1" value="1" oninput="calcSig()" inputmode="numeric" enterkeyhint="done">
+              </div>
+            </div>
+            <div class="form-group field">
+              <label class="field-label" for="s-num8kwh">BAT 10.0 modules</label>
+              <div class="field-control">
+                <input type="number" id="s-num8kwh" min="0" max="24" step="1" value="6" oninput="calcSig()" inputmode="numeric" enterkeyhint="done" aria-describedby="s-num8kwh-hint">
+              </div>
+              <span class="field-hint" id="s-num8kwh-hint">9 kWh · 0–24</span>
+            </div>
+            <div class="form-group field">
+              <label class="field-label" for="s-num8k">BAT 8.0 modules</label>
+              <div class="field-control">
+                <input type="number" id="s-num8k" min="0" max="24" step="1" value="0" oninput="calcSig()" inputmode="numeric" enterkeyhint="done" aria-describedby="s-num8k-hint">
+              </div>
+              <span class="field-hint" id="s-num8k-hint">8 kWh · 0–24</span>
+            </div>
+            <div class="form-group field">
+              <label class="field-label" for="s-num5kwh">BAT 5.0 modules</label>
+              <div class="field-control">
+                <input type="number" id="s-num5kwh" min="0" max="24" step="1" value="0" oninput="calcSig()" inputmode="numeric" enterkeyhint="done" aria-describedby="s-num5kwh-hint">
+              </div>
+              <span class="field-hint" id="s-num5kwh-hint">5 kWh · 0–24</span>
+            </div>
+            <div class="form-group field field--select">
+              <label class="field-label" for="s-gatewayType">Gateway</label>
+              <div class="field-control">
+                <select id="s-gatewayType" onchange="calcSig()">
+                  <option value="sp">SP Gateway AU (Pro)</option>
+                  <option value="tp">TP Gateway AU (Pro)</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group field field--select">
+              <label class="field-label" for="s-numInstallKits">Install kits</label>
+              <div class="field-control">
+                <select id="s-numInstallKits" onchange="calcSig()">
+                  <option value="1">1 (Standard)</option>
+                  <option value="2">2 (Dual Inverter)</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group field field--select">
+              <label class="field-label" for="s-powerSensor">Power sensor</label>
+              <div class="field-control">
+                <select id="s-powerSensor" onchange="calcSig()">
+                  <option value="none">None</option>
+                  <option value="spct100">SP-CT100 Single Phase</option>
+                  <option value="tpct100">TP-CT100 Three Phase</option>
+                  <option value="tpct300dh">TP-CT300-DH</option>
+                  <option value="tpct600dh">TP-CT600-DH</option>
+                  <option value="tpdhci">TP DH-C&amp;I</option>
+                  <option value="nanobanana">Nano Beam Sensors</option>
+                </select>
+              </div>
+            </div>
+            <input type="hidden" id="s-installPeriod" value="after">
+          </div>
+        </fieldset>
+
+        <fieldset class="field-set">
+          <legend>Extras <small>ex GST — added to the final price</small></legend>
+          <div class="extras-grid">
+            <label><input type="checkbox" class="s-extra-cb" data-price="250" onchange="calcSig()"><span>Double Storey Install</span><span class="extra-price">$250</span></label>
+            <label><input type="checkbox" class="s-extra-cb" data-price="70" data-per-panel="true" onchange="calcSig()"><span>Tilt Frames</span><span class="per-panel-tag">/panel</span><span class="extra-price">$70</span></label>
+            <label><input type="checkbox" class="s-extra-cb" data-price="30" data-per-panel="true" onchange="calcSig()"><span>Kliplock Feet</span><span class="per-panel-tag">/panel</span><span class="extra-price">$30</span></label>
+            <label class="extra--qty"><input type="checkbox" class="s-extra-cb" data-price="200" data-qty-select="s-splitQty" onchange="calcSig()"><span>Split Array</span><select class="extra-select" id="s-splitQty" aria-label="Split array quantity" onchange="calcSig()"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option></select><span class="extra-price">$200 ea</span></label>
+            <label><input type="checkbox" class="s-extra-cb" data-price="70" data-per-panel="true" onchange="calcSig()"><span>30-Degree Pitch</span><span class="per-panel-tag">/panel</span><span class="extra-price">$70</span></label>
+            <label><input type="checkbox" class="s-extra-cb" data-price="650" onchange="calcSig()"><span>New Additional Sub Board</span><span class="extra-price">$650</span></label>
+            <label><input type="checkbox" class="s-extra-cb" data-price="500" onchange="calcSig()"><span>Decommission (4–8 Panels)</span><span class="extra-price">$500</span></label>
+            <label><input type="checkbox" class="s-extra-cb" data-price="700" onchange="calcSig()"><span>Decommission (10–20 Panels)</span><span class="extra-price">$700</span></label>
+            <label><input type="checkbox" class="s-extra-cb" data-price="380" onchange="calcSig()"><span>Bollard</span><span class="extra-price">$380</span></label>
+            <label><input type="checkbox" class="s-extra-cb" data-price="250" onchange="calcSig()"><span>Fireproof Backing</span><span class="extra-price">$250</span></label>
+            <label><input type="checkbox" class="s-extra-cb" data-price="70" data-per-panel="true" onchange="calcSig()"><span>Optimizers</span><span class="per-panel-tag">/panel</span><span class="extra-price">$70</span></label>
+            <label><input type="checkbox" class="s-extra-cb" data-price="200" onchange="calcSig()"><span>Concrete Plinth</span><span class="extra-price">$200</span></label>
+            <label class="extra--qty"><input type="checkbox" class="s-extra-cb" data-price="50" data-qty-select="s-cableMetres" onchange="calcSig()"><span>Cable (per metre)</span><select class="extra-select" id="s-cableMetres" aria-label="Cable metres" onchange="calcSig()"><option value="1">1m</option><option value="2">2m</option><option value="3">3m</option><option value="4">4m</option><option value="5">5m</option><option value="10">10m</option><option value="15">15m</option><option value="20">20m</option><option value="25">25m</option><option value="30">30m</option></select><span class="extra-price">$50/m</span></label>
+            <label class="extra--qty"><input type="checkbox" class="s-extra-cb" data-price="150" data-qty-select="s-breakerQty" onchange="calcSig()"><span>Breakers</span><select class="extra-select" id="s-breakerQty" aria-label="Breakers quantity" onchange="calcSig()"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option></select><span class="extra-price">$150 ea</span></label>
+            <label><input type="checkbox" class="s-extra-cb" data-price="650" onchange="calcSig()"><span>Hot Water Timer</span><span class="extra-price">$650</span></label>
+            <label><input type="checkbox" class="s-extra-cb" data-price="2000" onchange="calcSig()"><span>Decommission Existing Battery</span><span class="extra-price">$2,000</span></label>
+          </div>
+        </fieldset>
+
+        <fieldset class="field-set">
+          <legend>Pricing </legend>
+          <div class="form-grid">
+            <div class="form-group field field--wide field--select">
+              <label class="field-label" for="s-stcPeriod">STC install period</label>
+              <div class="field-control">
+                <select id="s-stcPeriod" class="stc-period" onchange="setStcPeriod(this.value)" aria-describedby="s-stcPeriod-hint"></select>
+              </div>
+              <span class="field-hint" id="s-stcPeriod-hint">Solar deeming and battery STC rate, on every tab · STCs end 31 Dec 2030</span>
+            </div>
+            <div class="form-group field field--wide field--select">
+              <label class="field-label" for="s-carCharger">Car charger</label>
+              <div class="field-control">
+                <select id="s-carCharger" onchange="calcSig()">
+                  <option value="none">None</option>
+                  <option value="gw7khca">GW7K-HCA — 7kW Single Phase ($1,900 ex GST)</option>
+                  <option value="gw11khca">GW11K-HCA — 11kW Three Phase ($2,000 ex GST)</option>
+                  <option value="gw22khca">GW22K-HCA — 22kW Three Phase ($2,400 ex GST)</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group field field--wide field--highlight">
+              <label class="field-label" for="s-salePrice">Sale price</label>
+              <div class="field-control">
+                <span class="field-affix field-affix--pre">$</span>
+                <input type="number" id="s-salePrice" min="0" step="0.01" placeholder="Leave blank to skip" oninput="calcSig()" inputmode="decimal" enterkeyhint="done" autocomplete="off" aria-describedby="s-salePrice-hint">
+              </div>
+              <span class="field-hint" id="s-salePrice-hint">inc GST · leave blank to skip</span>
+            </div>
+          </div>
+        </fieldset>
+        
+
+
+      </div>
+    </div>
+
+    <!-- RESULTS PANE -->
+    <aside class="results-pane" tabindex="0" role="region" aria-label="Summary">
+      <div class="card summary-card" id="s-summary-card">
+        <h2 class="card-header">Summary </h2>
+        <div class="card-body" id="s-summary"></div>
+      </div>
+    </aside>
+
+    <!-- ITEMISED COST BREAKDOWN -->
+    
+
+    <!-- PROFIT PROJECTION -->
+    
+
+  </div>
+</div>
+</div>
+<button type="button" id="price-bar" class="price-bar" hidden><span class="text"><span class="label"></span><span class="status"></span></span><span class="value"></span></button><div id="price-live" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
+<script>window.REP_CFG = {"s":"0s5MHrbWOAustvl4JioOgg==","n":300000};</script>
+<script>
+// The rep calculator's script (17 Nov 2026). Built into rep.html by tools/build_public.js.
+// This page holds no figures of its own. A rep's link (rep.html?rep=<code>) unlocks one small file, r/<id>.json, that only
+// that code can open. The file carries the rep's name and commission rates and what each choice adds to the price. It
+// carries no buy prices, overheads, margins or other reps' rates. The form below is the Sigenergy tab as the owner
+// calculator shows it to a rep, and the summary is written the same way, so the two show the same price.
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var B = null;                 // this rep's unlocked file
+  var period = null;            // STC install period in use
+  var note = $('rep-note');
+  var say = function (text) { if (note) { note.textContent = text; note.hidden = false; } var app = $('rep-app'); if (app) app.hidden = true; };
+
+  function fmt(n) { return '$' + n.toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+  function row(label, value, cls) { return '<div class="summary-row ' + (cls || '') + '"><span class="label">' + label + '</span><span class="value">' + value + '</span></div>'; }
+  var yearsText = function (n) { return n + ' year' + (n !== 1 ? 's' : ''); };
+
+  // ── unlock ──────────────────────────────────────────────────────────────────────────────────────────────
+  var enc = new TextEncoder();
+  var unb64 = function (s) { var bin = atob(s), out = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i); return out; };
+  var hex = function (buf) { return Array.prototype.map.call(new Uint8Array(buf), function (b) { return ('0' + b.toString(16)).slice(-2); }).join(''); };
+  async function unlock(code) {
+    var cfg = window.REP_CFG;
+    var id = hex(await crypto.subtle.digest('SHA-256', enc.encode('ausave-rep-id:' + code))).slice(0, 24);
+    var res = await fetch('r/' + id + '.json', { cache: 'no-cache' });
+    if (!res.ok) return null;                                  // no file for this code: the link isn't on the list
+    var box = await res.json();
+    var base = await crypto.subtle.importKey('raw', enc.encode(code), 'PBKDF2', false, ['deriveKey']);
+    var key = await crypto.subtle.deriveKey({ name: 'PBKDF2', salt: unb64(cfg.s), iterations: cfg.n, hash: 'SHA-256' }, base, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
+    var plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: unb64(box.iv) }, key, unb64(box.ct));
+    return JSON.parse(new TextDecoder().decode(plain));
+  }
+
+  // ── STC rules (public CER rules, the same integer maths as the owner calculator) ───────────────────────
+  function defaultPeriod() {
+    var d = new Date();
+    var today = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    var P = B.d.periods, p = P[1];                             // never earlier than the second period on the list
+    P.forEach(function (x) { if (x.from <= today && x.from > p.from) p = x; });
+    return p;
+  }
+  function solarStcs(watts, years) { return Math.floor(Math.round(watts) * 1382 * years / 1000000); }
+  function batteryStcs(kwh, cap, pp) {
+    var K = Math.round(Math.max(0, Math.min(kwh, cap, 50)) * 1000);
+    var b1 = Math.min(K, 14000), b2 = Math.max(0, Math.min(K, 28000) - 14000), b3 = Math.max(0, K - 28000);
+    return Math.floor(Math.round(pp.factor * 10) * (100 * b1 + 60 * b2 + 15 * b3) / 1000000);
+  }
+  window.setStcPeriod = function (id) {
+    var pp = B && B.d.periods.find(function (x) { return x.id === id; });
+    if (!pp) return;
+    period = pp;
+    var sel = $('s-stcPeriod'); if (sel.value !== id) sel.value = id;
+    window.calcSig();
+  };
+
+  // ── commission ─────────────────────────────────────────────────────────────────────────────────────────
+  function commission(numPanels, hasBattery, kwh, price) {
+    var c = B.c;
+    if (c.type === 'onbooks') return c.perPanel * numPanels + (!hasBattery ? 0 : c.perKwh > 0 ? c.perKwh * (kwh || 0) : c.perBattery);
+    if (c.type === 'commsonly') return c.flat;
+    return c.pct > 0 ? (price || 0) * c.pct / (1 + c.pct) : 0;
+  }
+  function commissionRow(numPanels, hasBattery, kwh, price, atTyped) {
+    var c = B.c;
+    var bat = !hasBattery ? '' : c.perKwh > 0 ? ' + ' + +(kwh || 0).toFixed(2) + 'kWh &times; $' + c.perKwh : ' + $' + c.perBattery + ' battery';
+    var how = c.type === 'onbooks' ? numPanels + ' panel' + (numPanels === 1 ? '' : 's') + ' &times; $' + c.perPanel + bat
+            : c.type === 'commsonly' ? '$' + c.flat.toLocaleString('en-AU') + ' a sale'
+            : +(c.pct * 100).toFixed(2) + '% on top, inside the price';
+    return row('Your commission' + (atTyped ? ' at ' + fmt(price) : '') + ' (' + how + ')', fmt(commission(numPanels, hasBattery, kwh, price)), 'big');
+  }
+
+  // ── the calculation ────────────────────────────────────────────────────────────────────────────────────
+  window.calcSig = function () {
+    if (!B) return;
+    var m = B.m, d = B.d;
+    var numPanels    = parseInt($('s-numPanels').value) || 0;
+    var roofType     = $('s-roofType').value;
+    var inverterType = $('s-inverterType').value;
+    var numInverters = Math.max(1, parseInt($('s-numInverters').value) || 1);
+    var n9  = Math.max(0, Math.min(24, parseInt($('s-num8kwh').value) || 0));
+    var n5  = Math.max(0, Math.min(24, parseInt($('s-num5kwh').value) || 0));
+    var n8  = Math.max(0, Math.min(24, parseInt($('s-num8k').value) || 0));
+    var gatewayType  = $('s-gatewayType').value;
+    var numKits      = parseInt($('s-numInstallKits').value);
+    var sensor       = $('s-powerSensor').value;
+    var saleVal      = $('s-salePrice').value;
+    var salePrice    = saleVal ? parseFloat(saleVal) : null;
+
+    var kwh = n9 * d.kwh.a + n5 * d.kwh.c + n8 * d.kwh.b;
+    var hasPanels = numPanels > 0, hasBattery = (n9 + n5 + n8) > 0;
+    var phase = /tp$/.test(inverterType) ? 'tp' : 'sp';
+    var batteryOnly = !hasPanels && hasBattery;
+
+    // rebates
+    var sStc = hasPanels ? solarStcs(numPanels * d.watts, period.solarYears) : 0;
+    var bStc = (hasBattery && kwh <= d.maxNominal) ? batteryStcs(kwh, d.cap, period) : 0;
+    var sVal = sStc * d.stcPrice, bVal = bStc * d.stcPrice, stcVal = sVal + bVal;
+
+    // extras (the amounts on the form, ex GST)
+    var extrasEx = 0;
+    var car = d.car[$('s-carCharger').value] || 0;
+    if (car > 0) extrasEx += car;
+    document.querySelectorAll('.s-extra-cb:checked').forEach(function (cb) {
+      var unit = parseFloat(cb.dataset.price), qty = 1;
+      if (cb.dataset.perPanel === 'true') qty = numPanels;
+      else if (cb.dataset.qtySelect) qty = parseInt($(cb.dataset.qtySelect).value) || 1;
+      extrasEx += unit * qty;
+    });
+    var extrasInc = extrasEx * 1.1;
+
+    // the price: what each choice adds, less the rebates, plus this rep's commission
+    var p = (batteryOnly ? m.run.b : m.run.a) + m.fix[inverterType] + numInverters * m.inv[inverterType];
+    if (hasPanels) p += numPanels * m.pan[roofType] + m.panFix;
+    p += n9 * m.mod.a + n8 * m.mod.b + n5 * m.mod.c;
+    if (hasBattery) p += m.batFix[phase];
+    p += m.gw[gatewayType] + numKits * m.kit + m.sen[sensor];
+    p -= (sStc + bStc) * m.stc;
+    p += extrasEx * m.xf;
+    p += m.cp * numPanels + (!hasBattery ? 0 : m.ck > 0 ? m.ck * kwh : m.cb) + m.cf;
+    var price = Math.round(p * (1 + B.c.pct) * 1e6) / 1e6;   // to the millionth of a dollar, so a half-cent rounds the way the owner calculator's figure does
+
+    var h = '<div class="recommended-row"><span class="label">Recommended Sale Price (inc GST)' + (extrasInc > 0 ? ' (+ extras)' : '') + '</span><span class="value">' + fmt(price) + '</span><span class="sub"></span></div>';
+    h += commissionRow(numPanels, hasBattery, kwh, price, false);
+    h += '<div class="summary-divider"></div>';
+    if (hasPanels) h += row('Solar STCs (' + sStc + ' &times; $' + d.stcPrice + ', ' + period.year + ' &mdash; ' + yearsText(period.solarYears) + ')', '&minus; ' + fmt(sVal));
+    if (hasBattery) h += kwh > d.maxNominal
+      ? row('Battery STCs — none: over 100kWh nominal is not eligible (CER)', fmt(0))
+      : row('Battery STCs (' + bStc + ' &times; $' + d.stcPrice + ', ' + period.label + ' rate ' + period.factor + ')', '&minus; ' + fmt(bVal));
+    h += row('Total STC Rebate', '&minus; ' + fmt(stcVal));
+    if (extrasInc > 0) {
+      h += '<div class="summary-divider"></div>';
+      h += row('Extras (ex GST)', fmt(extrasEx));
+      h += row('Extras GST', fmt(extrasInc - extrasEx));
+      h += row('Extras Total (inc GST)', fmt(extrasInc));
+    }
+    if (salePrice !== null && salePrice > 0) {
+      if (B.c.pct > 0) h += commissionRow(numPanels, hasBattery, kwh, salePrice, true);
+      h += Math.round(salePrice * 100) < Math.round(price * 100)
+        ? '<div class="margin-alert low">Price is below the recommended minimum &mdash; please review</div>'
+        : '<div class="margin-alert ok">Price is acceptable</div>';
+    }
+    $('s-summary').innerHTML = h;
+    syncPriceBar();
+  };
+
+  // ── the price bar (phones) ─────────────────────────────────────────────────────────────────────────────
+  var SCROLL = (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) ? 'auto' : 'smooth';
+  var barIO = null, barHero = null, liveTimer = null;
+  function firstTextOf(el) {
+    if (!el) return '';
+    for (var i = 0; i < el.childNodes.length; i++) { var n = el.childNodes[i]; if (n.nodeType === 3 && n.textContent.trim()) return n.textContent.trim(); }
+    return el.textContent.trim();
+  }
+  function syncPriceBar() {
+    var bar = $('price-bar'), section = $('section-sig');
+    if (!bar || !section) return;
+    var hero = section.querySelector('.recommended-row');
+    if (!hero) { bar.hidden = true; return; }
+    var label = firstTextOf(hero.querySelector('.label'));
+    var value = hero.querySelector('.value').textContent.trim();
+    var alert = section.querySelector('.margin-alert.low, .margin-alert.ok');
+    var status = alert ? firstTextOf(alert) : '';
+    bar.querySelector('.label').textContent = label;
+    bar.querySelector('.value').textContent = value;
+    var st = bar.querySelector('.status');
+    st.textContent = status;
+    st.className = 'status' + (alert ? (alert.classList.contains('ok') ? ' ok' : ' low') : '');
+    bar.hidden = false;
+    bar.onclick = function () { if (typeof hero.scrollIntoView === 'function') hero.scrollIntoView({ block: 'center', behavior: SCROLL }); };
+    if ('IntersectionObserver' in window && hero !== barHero) {
+      if (barIO) barIO.disconnect();
+      var topbar = document.querySelector('.topbar');
+      var th = topbar ? Math.round(topbar.getBoundingClientRect().height) : 0;
+      barIO = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) { bar.classList.toggle('hero-visible', en.isIntersecting); });
+      }, { rootMargin: (th > 0 ? '-' + th + 'px' : '0px') + ' 0px 0px 0px', threshold: 0.6 });
+      barIO.observe(hero);
+      barHero = hero;
+    }
+    clearTimeout(liveTimer);
+    liveTimer = setTimeout(function () { var live = $('price-live'); if (live) live.textContent = label + ' ' + value + (status ? '. ' + status : ''); }, 700);
+  }
+
+  // ── start ──────────────────────────────────────────────────────────────────────────────────────────────
+  async function start() {
+    var code = null;
+    try { code = new URLSearchParams(location.search).get('rep'); } catch (e) {}
+    if (!code) { say("This calculator link isn't complete. Ask the office for your link."); return; }
+    if (!(window.crypto && crypto.subtle)) { say("This browser can't open the calculator. Open your link in Safari or Chrome."); return; }
+    try { B = await unlock(code); }
+    catch (e) { B = null; if (e && e.name !== 'OperationError') { say("The calculator didn't load. Check your connection, then reload this page."); return; } }
+    if (!B) { say("This calculator link isn't recognised. Ask the office for your link."); return; }
+
+    $('rep-name').textContent = B.name;
+    document.title = 'Sigenergy — Pricing Calculator (' + B.name + ')';
+    var sel = $('s-stcPeriod');
+    sel.innerHTML = B.d.periods.map(function (pp) { return '<option value="' + pp.id + '">' + pp.label + ' · solar ' + yearsText(pp.solarYears) + ' · battery ' + pp.factor + '</option>'; }).join('');
+    period = defaultPeriod();
+    sel.value = period.id;
+    if (note) note.hidden = true;
+    $('rep-app').hidden = false;
+    window.calcSig();
+
+    var topbar = document.querySelector('.topbar');
+    var setTopbarH = function () { if (topbar) document.documentElement.style.setProperty('--topbar-h', topbar.offsetHeight + 'px'); };
+    setTopbarH(); window.addEventListener('resize', setTopbarH);
+    if (topbar && 'ResizeObserver' in window) new ResizeObserver(setTopbarH).observe(topbar);
+    // a wheel over a focused number input must not change the price silently
+    document.addEventListener('wheel', function (e) { var t = e.target; if (t instanceof HTMLInputElement && t.type === 'number' && t === document.activeElement) e.preventDefault(); }, { passive: false });
+  }
+  window.repReady = start().catch(function () { say("The calculator didn't load. Check your connection, then reload this page."); });
+})();
+
+</script>
+</body>
+</html>
