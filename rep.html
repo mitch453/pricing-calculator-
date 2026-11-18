@@ -828,6 +828,18 @@
   }
 
   #rep-note { margin: 0; padding: 24px 16px; font-size: 1rem; line-height: 1.5; color: var(--text); }
+  .rep-save .card-body { display: grid; gap: var(--sp-3); padding-top: var(--sp-3); }
+  .rep-save .field { margin: 0; }
+  .rep-save-btn { width: 100%; min-height: 48px; }
+  .rep-save-status { margin: 0; min-height: 1.3em; font-size: var(--fs-sm); line-height: 1.35; color: var(--text-2); }
+  .rep-save-status.ok { color: var(--green-text); } .rep-save-status.low { color: var(--red-text); }
+  .rep-saved-title { margin: var(--sp-2) 0 var(--sp-1); font: 600 var(--fs-xs)/1.2 var(--font-body); letter-spacing: .06em; text-transform: uppercase; color: var(--text-3); }
+  .rep-saved { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-2); }
+  .rep-saved li { display: flex; justify-content: space-between; align-items: center; gap: var(--sp-3); padding: var(--sp-2) var(--sp-3); border: 1px solid var(--line); border-radius: var(--r-md); }
+  .rep-saved-main { display: grid; min-width: 0; } .rep-saved-name { font-weight: 600; overflow-wrap: anywhere; }
+  .rep-saved-meta { font-size: var(--fs-sm); color: var(--text-2); } .rep-saved-wait { color: var(--red-text); }
+  .rep-saved-actions { display: flex; gap: var(--sp-3); flex-shrink: 0; }
+  .rep-saved-actions .btn-link { min-height: 32px; border: 0; background: none; padding: 0; font: 600 var(--fs-sm) var(--font-body); color: var(--green-text); text-decoration: underline; cursor: pointer; }
 </style>
 </head>
 <body>
@@ -1031,6 +1043,22 @@
         <h2 class="card-header">Summary </h2>
         <div class="card-body" id="s-summary"></div>
       </div>
+    
+      <div class="card rep-save" id="rep-save">
+        <h2 class="card-header">Save this quote</h2>
+        <div class="card-body">
+          <div class="form-group field field--wide">
+            <label class="field-label" for="q-customer">Customer name</label>
+            <div class="field-control">
+              <input type="text" id="q-customer" maxlength="80" autocomplete="off" autocapitalize="words" enterkeyhint="done" aria-describedby="q-hint">
+            </div>
+            <span class="field-hint" id="q-hint">Saves this job under the customer’s name. A copy goes to the office.</span>
+          </div>
+          <button type="button" class="btn-primary rep-save-btn" id="q-save">Save quote</button>
+          <p class="rep-save-status" id="q-status" role="status" aria-live="polite"></p>
+          <div id="q-list"></div>
+        </div>
+      </div>
     </aside>
 
     <!-- ITEMISED COST BREAKDOWN -->
@@ -1055,6 +1083,7 @@
   var $ = function (id) { return document.getElementById(id); };
   var B = null;                 // this rep's unlocked file
   var period = null;            // STC install period in use
+  var LAST = null;              // the figures of the last calculation, for Save
   var note = $('rep-note');
   var say = function (text) { if (note) { note.textContent = text; note.hidden = false; } var app = $('rep-app'); if (app) app.hidden = true; };
 
@@ -1187,6 +1216,10 @@
         : '<div class="margin-alert ok">Price is acceptable</div>';
     }
     $('s-summary').innerHTML = h;
+    var low = (salePrice !== null && salePrice > 0) ? Math.round(salePrice * 100) < Math.round(price * 100) : null;
+    LAST = { numPanels: numPanels, numInverters: numInverters, n9: n9, n8: n8, n5: n5, kwh: kwh, kw: numPanels * d.watts / 1000,
+             price: price, commission: commission(numPanels, hasBattery, kwh, price), solarStcs: sStc, batteryStcs: bStc, stcValue: stcVal,
+             extrasEx: extrasEx, extrasInc: extrasInc, salePrice: (salePrice !== null && salePrice > 0) ? salePrice : null, verdict: low === null ? null : low ? 'low' : 'ok' };
     syncPriceBar();
   };
 
@@ -1228,6 +1261,131 @@
     liveTimer = setTimeout(function () { var live = $('price-live'); if (live) live.textContent = label + ' ' + value + (status ? '. ' + status : ''); }, 700);
   }
 
+  // ── save a quote under a customer's name (18 Nov 2026) ───────────────────────────────────────────────────
+  // Save keeps the job on this device (so the rep can reopen it) and sends a copy to the office record, where the
+  // office can see what was priced and which extras were ticked. If the copy can't be sent (no signal), it waits on
+  // this device and goes the next time the calculator is open.
+  var KEEP = 60;
+  var storeKey = function () { return 'ausave-rep-quotes-v1:' + B.q.rep; };
+  function loadSaved() { try { var a = JSON.parse(localStorage.getItem(storeKey()) || '[]'); return Array.isArray(a) ? a.filter(function (x) { return x && x.id && x.quote; }) : []; } catch (e) { return []; } }
+  function storeSaved(list) { try { localStorage.setItem(storeKey(), JSON.stringify(list.slice(0, KEEP))); return true; } catch (e) { return false; } }
+  var esc = function (v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+  var text = function (el) { return el ? el.textContent.replace(/\s+/g, ' ').trim() : ''; };
+  var controls = function () { return Array.prototype.filter.call(document.querySelectorAll('#section-sig input, #section-sig select'), function (e) { return !e.closest('.rep-save') && e.type !== 'hidden'; }); };
+  var extraLabel = function (cb) { return text(cb.parentElement && cb.parentElement.querySelector('span')); };
+  var optText = function (id) { var e = $(id); return e && e.selectedOptions && e.selectedOptions[0] ? text(e.selectedOptions[0]) : ''; };
+  function newId() { var a = new Uint8Array(12); crypto.getRandomValues(a); return Array.prototype.map.call(a, function (b) { return ('0' + b.toString(16)).slice(-2); }).join(''); }
+
+  function collect(customer) {
+    var inputs = {}, extras = [];
+    controls().forEach(function (e) {
+      if (e.classList.contains('s-extra-cb')) {
+        if (!e.checked) return;
+        var unit = parseFloat(e.dataset.price), qty = 1, per = 'each';
+        if (e.dataset.perPanel === 'true') { qty = LAST.numPanels; per = 'panel'; }
+        else if (e.dataset.qtySelect) { qty = parseInt($(e.dataset.qtySelect).value) || 1; per = 'qty'; }
+        extras.push({ label: extraLabel(e), unit: unit, per: per, qty: qty, total: unit * qty });
+      } else if (e.id) inputs[e.id] = e.value;
+    });
+    var car = B.d.car[$('s-carCharger').value] || 0;
+    return {
+      v: 1, customer: customer, repName: B.name, clientTime: new Date().toISOString(),
+      inputs: inputs, extras: extras, carCharger: car > 0 ? { label: optText('s-carCharger'), total: car } : null,
+      system: { panels: LAST.numPanels, panel: optText('s-panelType'), kw: LAST.kw, roof: optText('s-roofType'), inverter: optText('s-inverterType'), inverters: LAST.numInverters,
+                bat10: LAST.n9, bat8: LAST.n8, bat5: LAST.n5, kwh: LAST.kwh, gateway: optText('s-gatewayType'), kits: optText('s-numInstallKits'), sensor: optText('s-powerSensor'), period: period.label },
+      price: LAST.price, commission: LAST.commission, solarStcs: LAST.solarStcs, batteryStcs: LAST.batteryStcs, stcValue: LAST.stcValue,
+      extrasEx: LAST.extrasEx, extrasInc: LAST.extrasInc, salePrice: LAST.salePrice, verdict: LAST.verdict,
+      lines: Array.prototype.map.call($('s-summary').querySelectorAll('.recommended-row, .summary-row, .margin-alert'), function (r) {
+        var l = r.querySelector('.label'), v = r.querySelector('.value');
+        return l && v ? [text(l), text(v)] : [text(r), ''];
+      })
+    };
+  }
+  async function send(item) {
+    var res = await fetch(B.q.api + '/api/save', { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ rep: B.q.rep, w: B.q.w, id: item.id, quote: item.quote }) });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return res.json();
+  }
+  var flushing = false;
+  async function flush() {                     // send every copy still waiting on this device
+    if (flushing || !B.q) return; flushing = true;
+    try {
+      var list = loadSaved();
+      for (var i = list.length - 1; i >= 0; i--) {
+        if (list[i].sent) continue;
+        try { var r = await send(list[i]); var now = loadSaved(); now.forEach(function (x) { if (x.id === r.id) { x.sent = true; x.savedAt = r.savedAt; } }); storeSaved(now); }
+        catch (e) { break; }                   // still no connection: leave the rest waiting
+      }
+    } finally { flushing = false; renderSaved(); }
+  }
+  function when(iso) { var dt = new Date(iso); return isNaN(dt) ? '' : dt.toLocaleString('en-AU', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }); }
+  function renderSaved() {
+    var box = $('q-list'); if (!box) return;
+    var list = loadSaved();
+    if (!list.length) { box.innerHTML = ''; return; }
+    box.innerHTML = '<h3 class="rep-saved-title">Saved on this device</h3><ul class="rep-saved">' + list.map(function (x) {
+      return '<li><div class="rep-saved-main"><span class="rep-saved-name">' + esc(x.quote.customer) + '</span><span class="rep-saved-meta">' + fmt(x.quote.price) + ' &middot; ' + esc(when(x.savedAt || x.quote.clientTime)) +
+        (x.sent ? '' : ' &middot; <span class="rep-saved-wait">waiting to send</span>') + '</span></div>' +
+        '<div class="rep-saved-actions"><button type="button" class="btn-link" data-open="' + esc(x.id) + '">Open</button><button type="button" class="btn-link" data-drop="' + esc(x.id) + '">Remove</button></div></li>';
+    }).join('') + '</ul>';
+  }
+  function openSaved(id) {
+    var x = loadSaved().find(function (q) { return q.id === id; }); if (!x) return;
+    var q = x.quote, ticked = {};
+    (q.extras || []).forEach(function (e) { ticked[e.label] = true; });
+    controls().forEach(function (e) {
+      if (e.classList.contains('s-extra-cb')) e.checked = !!ticked[extraLabel(e)];
+      else if (e.id && q.inputs && Object.prototype.hasOwnProperty.call(q.inputs, e.id)) {
+        if (e.tagName === 'SELECT' && !Array.prototype.some.call(e.options, function (o) { return o.value === q.inputs[e.id]; })) return;   // a choice that is no longer offered stays as it is
+        e.value = q.inputs[e.id];
+      }
+    });
+    var pp = B.d.periods.find(function (p) { return p.id === $('s-stcPeriod').value; }); if (pp) period = pp;
+    $('q-customer').value = q.customer;
+    window.calcSig();
+    status('Opened ' + q.customer + '. Prices are today\u2019s, so they can differ from the day it was saved.', '');
+    var top = $('section-sig'); if (top && typeof top.scrollIntoView === 'function') top.scrollIntoView({ behavior: SCROLL, block: 'start' });
+  }
+  function status(msg, cls) { var el = $('q-status'); if (el) { el.textContent = msg; el.className = 'rep-save-status' + (cls ? ' ' + cls : ''); } }
+  async function saveQuote() {
+    var name = $('q-customer').value.replace(/\s+/g, ' ').trim();
+    if (name.length < 2) { status('Enter the customer\u2019s name first.', 'low'); $('q-customer').focus(); return; }
+    if (!LAST) return;
+    var btn = $('q-save'); btn.disabled = true;
+    var item = { id: newId(), sent: false, quote: collect(name) };
+    var list = loadSaved(); list.unshift(item);
+    var kept = storeSaved(list);
+    renderSaved();
+    try {
+      var r = await send(item);
+      var now = loadSaved(); now.forEach(function (x) { if (x.id === item.id) { x.sent = true; x.savedAt = r.savedAt; } }); storeSaved(now);
+      status('Saved for ' + name + ' at ' + fmt(item.quote.price) + '.', 'ok');
+    } catch (e) {
+      status(kept ? 'Kept on this device for ' + name + '. No connection to the office right now, so the copy will send next time this calculator is open.'
+                  : 'Not saved: no connection to the office and this device would not keep it. Try again when you have signal.', 'low');
+    }
+    btn.disabled = false;
+    renderSaved();
+  }
+  function wireSave() {
+    var card = $('rep-save'); if (!card) return;
+    if (!B.q || !B.q.api) { card.hidden = true; return; }
+    $('q-save').addEventListener('click', saveQuote);
+    $('q-customer').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); saveQuote(); } });
+    $('q-list').addEventListener('click', function (e) {
+      var t = e.target; if (!(t instanceof Element)) return;
+      if (t.dataset.open) openSaved(t.dataset.open);
+      else if (t.dataset.drop) {
+        var x = loadSaved().find(function (q) { return q.id === t.dataset.drop; });
+        if (x && !x.sent) { status('That one has not reached the office yet. Leave it until it has sent.', 'low'); return; }
+        storeSaved(loadSaved().filter(function (q) { return q.id !== t.dataset.drop; })); renderSaved();   // off this device only; the office keeps its copy
+      }
+    });
+    renderSaved();
+    flush();
+    window.addEventListener('online', flush);
+  }
+
   // ── start ──────────────────────────────────────────────────────────────────────────────────────────────
   async function start() {
     var code = null;
@@ -1247,6 +1405,7 @@
     if (note) note.hidden = true;
     $('rep-app').hidden = false;
     window.calcSig();
+    wireSave();
 
     var topbar = document.querySelector('.topbar');
     var setTopbarH = function () { if (topbar) document.documentElement.style.setProperty('--topbar-h', topbar.offsetHeight + 'px'); };
