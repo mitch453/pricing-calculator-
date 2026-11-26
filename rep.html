@@ -974,6 +974,17 @@
                 </select>
               </div>
             </div>
+            <div class="form-group field field--wide field--select">
+              <label class="field-label" for="s-evCharger">Sigenergy EV DC charger</label>
+              <div class="field-control">
+                <select id="s-evCharger" onchange="calcSig()" aria-describedby="s-evCharger-hint">
+                  <option value="none">None</option>
+                  <option value="evdc12">EV DC 12 kW (SigenStor EVDC 12 10S2, 10 m cable, CCS2)</option>
+                  <option value="evdc25">EV DC 25 kW (SigenStor EVDC 25 10S2, 10 m cable, CCS2)</option>
+                </select>
+              </div>
+              <span class="field-hint" id="s-evCharger-hint">SigenStor DC charging module · 12 kW can be upgraded to 25 kW · 25 kW is being phased out</span>
+            </div>
             <input type="hidden" id="s-installPeriod" value="after">
           </div>
         </fieldset>
@@ -1161,6 +1172,7 @@
     var gatewayType  = $('s-gatewayType').value;
     var numKits      = parseInt($('s-numInstallKits').value);
     var sensor       = $('s-powerSensor').value;
+    var evCharger    = ($('s-evCharger') || { value: 'none' }).value;
     var saleVal      = $('s-salePrice').value;
     var salePrice    = saleVal ? parseFloat(saleVal) : null;
 
@@ -1192,6 +1204,7 @@
     p += n9 * m.mod.a + n8 * m.mod.b + n5 * m.mod.c;
     if (hasBattery) p += m.batFix[phase];
     p += m.gw[gatewayType] + numKits * m.kit + m.sen[sensor];
+    p += (m.ev && m.ev[evCharger]) || 0;   // a Sigenergy EV DC charging module
     p -= (sStc + bStc) * m.stc;
     p += extrasEx * m.xf;
     p += m.cp * numPanels + (!hasBattery ? 0 : m.ck > 0 ? m.ck * kwh : m.cb) + m.cf;
@@ -1295,7 +1308,8 @@
       v: 1, customer: customer, repName: B.name, clientTime: new Date().toISOString(),
       inputs: inputs, extras: extras, carCharger: car > 0 ? { label: optText('s-carCharger'), total: car } : null,
       system: { panels: LAST.numPanels, panel: optText('s-panelType'), kw: LAST.kw, roof: optText('s-roofType'), inverter: optText('s-inverterType'), inverters: LAST.numInverters,
-                bat10: LAST.n9, bat8: LAST.n8, bat5: LAST.n5, kwh: LAST.kwh, gateway: optText('s-gatewayType'), kits: optText('s-numInstallKits'), sensor: optText('s-powerSensor'), period: period.label },
+                bat10: LAST.n9, bat8: LAST.n8, bat5: LAST.n5, kwh: LAST.kwh, gateway: optText('s-gatewayType'), kits: optText('s-numInstallKits'), sensor: optText('s-powerSensor'),
+                evCharger: $('s-evCharger') && $('s-evCharger').value !== 'none' ? optText('s-evCharger') : '', period: period.label },
       price: LAST.price, commission: LAST.commission, solarStcs: LAST.solarStcs, batteryStcs: LAST.batteryStcs, stcValue: LAST.stcValue,
       extrasEx: LAST.extrasEx, extrasInc: LAST.extrasInc, salePrice: LAST.salePrice, verdict: LAST.verdict,
       lines: Array.prototype.map.call($('s-summary').querySelectorAll('.recommended-row, .summary-row, .margin-alert'), function (r) {
