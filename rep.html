@@ -1134,6 +1134,7 @@
     var c = B.c;
     if (c.type === 'onbooks') return c.perPanel * numPanels + (!hasBattery ? 0 : c.perKwh > 0 ? c.perKwh * (kwh || 0) : c.perBattery);
     if (c.type === 'commsonly') return c.flat;
+    if (c.type === 'bysale') return hasBattery ? (numPanels > 0 ? c.solarBattery : c.batteryOnly) : (numPanels > 0 ? c.solarOnly : 0);
     return c.pct > 0 ? (price || 0) * c.pct / (1 + c.pct) : 0;
   }
   function commissionRow(numPanels, hasBattery, kwh, price, atTyped) {
@@ -1141,6 +1142,7 @@
     var bat = !hasBattery ? '' : c.perKwh > 0 ? ' + ' + +(kwh || 0).toFixed(2) + 'kWh &times; $' + c.perKwh : ' + $' + c.perBattery + ' battery';
     var how = c.type === 'onbooks' ? numPanels + ' panel' + (numPanels === 1 ? '' : 's') + ' &times; $' + c.perPanel + bat
             : c.type === 'commsonly' ? '$' + c.flat.toLocaleString('en-AU') + ' a sale'
+            : c.type === 'bysale' ? (hasBattery ? (numPanels > 0 ? 'battery and solar sale' : 'battery-only sale') : (numPanels > 0 ? 'solar-only sale' : 'no panels or battery'))
             : +(c.pct * 100).toFixed(2) + '% on top, inside the price';
     return row('Your commission' + (atTyped ? ' at ' + fmt(price) : '') + ' (' + how + ')', fmt(commission(numPanels, hasBattery, kwh, price)), 'big');
   }
@@ -1193,6 +1195,7 @@
     p -= (sStc + bStc) * m.stc;
     p += extrasEx * m.xf;
     p += m.cp * numPanels + (!hasBattery ? 0 : m.ck > 0 ? m.ck * kwh : m.cb) + m.cf;
+    p += hasBattery ? (hasPanels ? (m.csb || 0) : (m.cbo || 0)) : (hasPanels ? (m.cso || 0) : 0);   // a 'by sale' rep's amount for this kind of sale
     var price = Math.round(p * (1 + B.c.pct) * 1e6) / 1e6;   // to the millionth of a dollar, so a half-cent rounds the way the owner calculator's figure does
 
     var h = '<div class="recommended-row"><span class="label">Recommended Sale Price (inc GST)' + (extrasInc > 0 ? ' (+ extras)' : '') + '</span><span class="value">' + fmt(price) + '</span><span class="sub"></span></div>';
